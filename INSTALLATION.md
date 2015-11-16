@@ -24,8 +24,16 @@ Once you have that installed, you should be able to continue with the PyGLPK ins
 If you are on a CentOS system, the easiest way to install this is to first install GMP, download the GLPK library from
 GNU, and build it:
 
-``` yum install gmp.x86_64 gmp-devel.x86_64 mkdir glpk cd glpk/ wget ftp://mirrors.kernel.org/gnu/glpk/glpk-4.56.tar.gz
-tar zxf glpk-4.56.tar.gz cd glpk-4.56 /configure  --with-gmp make make test make install ```
+    yum install gmp.x86_64 gmp-devel.x86_64
+    mkdir glpk 
+    cd glpk/ 
+    wget ftp://mirrors.kernel.org/gnu/glpk/glpk-4.56.tar.gz
+    tar zxf glpk-4.56.tar.gz
+    cd glpk-4.56 
+    ./configure  --with-gmp
+    make 
+    make test 
+    make install
 
 At this point, you need to add `/usr/local/lib` to your `LD_LIBRARY_PATH` and then continue with the PyGLPK installation
 below
@@ -39,10 +47,16 @@ Unfortunately, the easiest way is to build glpk from source
 
 Download the following file: http://ftp.gnu.org/gnu/glpk/glpk-4.47.tar.gz and then open a Terminal and install GLPK:
 
-``` mkdir glpk_install cd glpk_install
-
-# Move tar file here to this directory mv ~/Downloads/glpk-4.47.tar.gz ./ tar xzf glpk-4.47.tar.gz cd glpk-4.47
-# /configure make install ```
+    mkdir glpk_install
+    cd glpk_install
+    # Move tar file here to this directory 
+    mv ~/Downloads/glpk-4.47.tar.gz ./ 
+    tar xzf glpk-4.47.tar.gz 
+    cd glpk-4.47
+    ./configure
+    make 
+    make test 
+    make install
 
 ### Installing GLPK on Windows
 
