@@ -16,7 +16,9 @@ This package has wrappers for linear programming solvers. The essential methods 
     def row_bounds(bounds):
     Accept a list of tuples that define the row bounds
 
+
 3. Columns bounds:
+
 
     def col_bounds(bounds):
     Accept a list of tuples that define the column bounds
