@@ -34,6 +34,15 @@ class Compound:
     """
 
     def __init__(self, name, location):
+        """
+        Initiate the object
+        :param name: The name of the compound
+        :type name: str
+        :param location: The location of the compound
+        :type location: str
+        :return:
+        :rtype:
+        """
         self.name = name
         self.location = location
         self.reactions = set()
@@ -46,15 +55,28 @@ class Compound:
         self.uptake_secretion = False
 
     def __eq__(self, other):
-        """Two compounds are equal if they have the same name and the
-        same location"""
+        """
+        Two compounds are equal if they have the same name and the same location
+
+        :param other: The other compound
+        :type other: Compound
+        :return: If they are equal
+        :rtype: bool
+        """
         if isinstance(other, Compound):
             return (self.name, self.location) == (other.name, other.location)
         else:
             return NotImplemented
     
     def __cmp__(self, other):
-        """Compare whether two things are the same"""
+        """
+        Compare whether two things are the same.
+
+        :param other: The other compound
+        :type other: Compound
+        :return: An int, zero if they are the same
+        :rtype: int
+        """
         if isinstance(other, Compound):
             if __eq__(other):
                 return 0
@@ -64,18 +86,31 @@ class Compound:
             return NotImplemented
 
     def __ne__(self, other):
-        """Are these not equal?"""
+        """
+        Are these not equal?
+
+        :param other: The other compound
+        :type other: Compound
+        :return: If they are not equal
+        :rtype: bool
+        """
         result = self.__eq__(other)
         if result is NotImplemented:
             return result
         return not result
 
     def __hash__(self):
-        """The hash function is based on the name of the compound"""
+        """
+        The hash function is based on the name of the compound.
+        :rtype: int
+        """
         return hash((self.name, self.location))
 
     def __str__(self):
-        """The to string function"""
+        """
+        The to string function.
+        :rtype: str
+        """
         return self.name + " (location: " + self.location + ")"
 
 
@@ -100,18 +135,25 @@ class Compound:
         Is this compound involved in this reaction?
         :param rxn: A metabolism.Reaction object
         :type rxn: metabolism.Reaction
+        :return: Whether the reaction is present
+        :rtype: bool
         """
         return rxn in self.reactions
 
 
     def number_of_reactions(self):
-        """How many reactions is this compound involved in?"""
+        """
+        How many reactions is this compound involved in?
+        :rtype: int
+        """
         return len(self.reactions)
 
 
     def all_reactions(self):
-        """Return a set of all the reactions that this compound
-        is involved in"""
+        """
+        Return a set of all the reactions that this compound is involved in
+        :rtype: int
+        """
         return self.reactions
 
 
@@ -125,6 +167,8 @@ class Compound:
 
         :param rct_limit: The limit for a compound to be considered common
         :type rct_limit: int
+        :return: Whether this is a common reaction
+        :rtype: bool
         """
         if self.number_of_reactions() > rct_limit:
             self.common = True
