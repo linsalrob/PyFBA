@@ -1,5 +1,5 @@
 import unittest
-import glpk_solver
+import glpk
 
 
 
@@ -18,7 +18,7 @@ class TestLinearProgramming(unittest.TestCase):
 
     def setUp(self):
         """This method is called before every test_ method"""
-        self.lp = glpk_solver.LPX()
+        self.lp = glpk.LPX()
         # initiate the LP and set the objective to maximize
         self.lp.erase()
         self.lp.obj.maximize = True
