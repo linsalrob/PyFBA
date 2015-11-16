@@ -124,8 +124,11 @@ this enzyme is connected to.
 
 ### [Biomass](biomass.py)
 
+The biomass reactions are found in the [Model SEED](Biochmistry/ModelSEEDDatabase/Templates) database, but we have 
+abstracted them here so that we can manipulate them (not all compounds are required in all biomass equations), and 
+to demonstrate how you should go about creating a biomass object for the FBA.
 
-
+---
 
 
 
