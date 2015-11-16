@@ -1,4 +1,3 @@
-
 from metabolism import Compound
 
 
@@ -8,6 +7,10 @@ def read_media_file(mediaf):
         
     Returns a set of compounds that are in the media.
 
+    :param mediaf: The file to read
+    :type mediaf: str
+    :return: A set of media components
+    :rtype: set of metabolism.Compound
     """
 
     media = set()
@@ -16,8 +19,8 @@ def read_media_file(mediaf):
             # skip the header line
             if li == 0:
                 continue
-            p=l.strip().split("\t")
-            c=Compound.Compound(p[1], 'e')
+            p = l.strip().split("\t")
+            c = Compound(p[1], 'e')
             media.add(c)
     
     return media
