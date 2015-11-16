@@ -177,11 +177,12 @@ class Reaction:
 
     def __str__(self):
         """
-        The string version of the reaction
+        The string version of the reaction.
+        Currently we return self.name as the str
         :rtype: str
         """
 
-        return "REACTION: " + self.name + ": " + self.equation
+        return self.name
 
 
     def set_direction(self, direction):

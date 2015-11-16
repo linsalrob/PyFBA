@@ -21,6 +21,7 @@ solver = glpk.LPX()
 
 __author__ = 'Rob Edwards'
 
+
 def load(matrix, rowheaders=None, colheaders=None, verbose=0):
     """
     Load the data matrix into the linear programming solver
@@ -74,7 +75,7 @@ def load(matrix, rowheaders=None, colheaders=None, verbose=0):
                 solver.rows[i].name = rowheaders[i]
     elif rowheaders:
         raise ValueError("The size of row headers (" + str(len(rowheaders)) +
-            ") does not match the expected number of rows (" + str(nrows) + "\n")
+                         ") does not match the expected number of rows (" + str(nrows) + "\n")
 
     if colheaders and len(colheaders) == ncols:
         for i in range(len(colheaders)):
@@ -86,7 +87,8 @@ def load(matrix, rowheaders=None, colheaders=None, verbose=0):
                 solver.cols[i].name = colheaders[i]
     elif colheaders:
         raise ValueError("Warning: the size of col headers (" + str(len(colheaders)) +
-            ") does not match the expected number of cols (" + str(ncols) + "\n")
+                         ") does not match the expected number of cols (" + str(ncols) + "\n")
+
 
 def row_bounds(bounds):
     """
@@ -108,6 +110,7 @@ def row_bounds(bounds):
 
     for i in range(len(bounds)):
         solver.rows[i].bounds = bounds[i]
+
 
 def col_bounds(bounds):
     """
@@ -143,20 +146,16 @@ def objective_coefficients(coeff):
     solver.obj[:] = coeff
 
 
-def solve(filepath=None):
+def solve():
     """
     Solve the lp and return the status and the objective function
     value
 
-    :param filepath: (optional) The location to write the solution to
-    :type coeff: str
     :return: The status and value of the solution
     :rtype: str, float
 
     """
     solver.simplex()
-    if filepath is not None:
-        solver.write(sol=filepath)
     return solver.status, solver.obj.value
 
 
@@ -172,8 +171,9 @@ def col_primal_hash():
 
     d = {}
     for c in solver.cols:
-        d[c.name]=c.primal
+        d[c.name] = c.primal
     return d
+
 
 def col_primals():
     """
@@ -188,6 +188,7 @@ def col_primals():
         d.append(c.primal)
     return d
 
+
 def row_primal_hash():
     """ Retrieve a hash of the primals (activity) of the rows. This
     presume that you have named the columns
@@ -198,8 +199,9 @@ def row_primal_hash():
 
     d = {}
     for r in solver.rows:
-        d[r.name]=r.primal
+        d[r.name] = r.primal
     return d
+
 
 def row_primals():
     """

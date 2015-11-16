@@ -169,10 +169,9 @@ class Enzyme:
         :param reaction: The reaction object that this is involved with
         :type reaction: Reaction
         """
-        if not isinstance(reaction, Reaction):
-            raise TypeError("reaction must be a string")
+        if not isinstance(reaction, str):
+            raise TypeError("reaction must be a string not a " + str(type(reaction)))
         self.reactions.add(reaction)
-        reaction.add_enzymes({self})
 
 
     def number_of_reactions(self):
