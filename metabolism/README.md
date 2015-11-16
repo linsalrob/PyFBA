@@ -14,7 +14,7 @@ the conversion of substrates to products. All of the substrates and the products
 A reaction is an object that describes how to get from one compound to another. We need to know what the compound(s) on
 the left of the equation are, what the compounds on the right of the reaction are, and the probability that the reaction
 proceeds in either direction. The probability can come from a number of different measures or options, the most
-important of which is the $\delta$G
+important of which is the &Delta;G
 
 If the reaction is truly reversible the probability can be 1 in both cases. If it is unidreictional the probability can
 be 0 in one direction.
