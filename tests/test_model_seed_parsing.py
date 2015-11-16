@@ -93,7 +93,7 @@ class TestModelSeedParsing(unittest.TestCase):
         self.assertEqual(len(enzs), 4067)
 
     def test_enzymes_and_reactions(self):
-        cpds, rcts, enzs = parse.model_seed.enzymes_and_reactions()
+        cpds, rcts, enzs = parse.model_seed.compounds_reactions_enzymes()
         self.assertEqual(len(enzs), 4067)
         self.assertGreaterEqual(len(rcts), 34696)
         self.assertGreaterEqual(len(cpds), 45676)

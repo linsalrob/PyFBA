@@ -41,7 +41,7 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
             compounds[str(c)] = c
         allcpds.add(str(c))
         sm[str(c)] = {}
-    
+
     #iterate through the reactions
     for r in reactions_to_run:
         for c in reactions[r].left_compounds:
@@ -57,11 +57,15 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
             sm[str(c)][r] = reactions[r].get_right_compound_abundance(c)
 
     for c in biomass_equation.left_compounds:
+        if str(c) not in compounds:
+            compounds[str(c)] = c
         allcpds.add(str(c))
         if str(c) not in sm:
             sm[str(c)] = {}
         sm[str(c)]["bme"] = 0 - biomass_equation.get_left_compound_abundance(c)
     for c in biomass_equation.right_compounds:
+        if str(c) not in compounds:
+            compounds[str(c)] = c
         allcpds.add(str(c))
         if str(c) not in sm:
             sm[str(c)] = {}

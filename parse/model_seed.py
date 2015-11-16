@@ -402,7 +402,7 @@ def enzymes(verbose=False):
 
     Return just the enzyme objects.
 
-    You probably want to use enzymes_and_reactions, this is partly here
+    You probably want to use compounds_reactions_enzymes, this is partly here
     as a test case to make sure that enzymes and complexes play well
     together
 
@@ -443,7 +443,7 @@ def enzymes(verbose=False):
     return enzs
 
     
-def enzymes_and_reactions(organism_type='', verbose=False):
+def compounds_reactions_enzymes(organism_type='', verbose=False):
     """
     Convert each of the roles and complexes into a set of enzymes, and
     connect them to reactions.

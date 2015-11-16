@@ -5,7 +5,6 @@ import fba
 import metabolism
 import parse.model_seed
 
-
 class testFBA(unittest.TestCase):
     def setUp(self):
         """
@@ -35,11 +34,10 @@ class testFBA(unittest.TestCase):
         """Test the stoichiometric matrix"""
 
         # we need to get everything for this!
-        compounds, reactions, enzymes = parse.model_seed.enzymes_and_reactions()
-        self.assertIn('CoA (location: c)', compounds)
+        compounds, reactions, enzymes = parse.model_seed.compounds_reactions_enzymes()
         reactions2run = reactions.keys()[0:20]
         bme = metabolism.biomass_equation('gram_negative')
         cp, rc, reactions = fba.create_stoichiometric_matrix(reactions2run, reactions, compounds, [], bme)
-        self.assertEqual(len(cp), 1)
-        self.assertEqual(len(rc), 2)
-        self.assertEqual(len(reactions), 3)
+        self.assertEqual(len(cp), 102)
+        self.assertEqual(len(rc), 23)
+        self.assertEqual(len(reactions), 34698)
