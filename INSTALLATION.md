@@ -71,7 +71,28 @@ PyGLPK](https://github.com/bradfordboyle/pyglpk) as the original has not worked 
 
 ## Install PyFBA
 
-The only thing that you need to do is to make sure the PyFBA code is in your PYTHONPATH. The rest should *just work*.
+To install PyFBA use the `git clone` link you see on the right hand side. This will download the PyFBA code and install
+it in a directory called (imaginatively) **PyFBA**. 
+
+We rely on the [Model SEED](http://www.theseed.org/models) to provide the biochemistry tables that we use (although we 
+have designed PyFBA with the potential to use biochemistry tables from other sources if they become publicly 
+available!). To get the latest ModelSEED data, you need to run these two `git` commands in your new `PyFBA` directory:
+
+```
+    git submodule init
+    git submodule update
+```
+
+These will checkout and download all the Model SEED data for you.
+
+As an alternative to this two step process, you can also just use the one line recursive git clone:
+
+```
+    git clone --recursive https://github.com/linsalrob/PyFBA.git
+```
+
+which will download all of the PyFBA *and* Model SEED code in one shot.
+
 
 
 # Tests
