@@ -13,6 +13,7 @@ This package has wrappers for linear programming solvers. The essential methods 
 
 2. Row bounds:
 
+
     def row_bounds(bounds):
     Accept a list of tuples that define the row bounds
 
@@ -26,9 +27,11 @@ This package has wrappers for linear programming solvers. The essential methods 
 
 4. Objective coefficient
 
+
     def objective_coefficients(coeff):
     A method that accepts a list that represents the objective coefficient of the problem. For FBA, this is usually the
     biomass equation.
+
     
 5. Solve
 
