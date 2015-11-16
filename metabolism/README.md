@@ -38,52 +38,72 @@ The direction is the direction that the equation can run. Acceptable values are:
 ```
 
 
-    The left and right compounds are sets, which should contain compound
-    objects. 
+The left and right compounds are sets of [Compound](compound.py) objects.
 
-    The left and right abundances are hashes, with the key being the
-    compound and the value being the amount of that compound produced or
-    consumed by the reaction.
-    
-    The two probabilities are from left to right (pLR) and right to left
-    (pRL). These are relative to how the compounds are defined.
+The left and right abundances are hashes, with the key being the compound and the value being the amount of that
+compound produced or consumed by the reaction.
 
-    The set of enzyme(s) that complete the reaction should be included.
-    Usually (sometimes? often?) this will be a single enzyme but 
-    sometimes it may be several enzymes. (I may refactor this to be an
-    enzyme object).
+The two probabilities are from left to right (pLR) and right to left (pRL). These are relative to how the compounds are
+defined.
 
-    Pegs are a set of proteins that are involved in fullfulling this 
-    reaction.
+The complexes that make up the enzymes that perform the reaction should be included so that we know which reaction goes
+with which complex.
 
-    Input (inp) and output (outp) are the reactions that will start 
-    everything off. Generally, import reactions (converting 
-    extracellular compounds to intracellular compounds) are inputs. 
-    Converting intracellular compounds to extracellular are output
+Pegs are a set of proteins that are involved in fullfulling this reaction.
 
-    ran is a boolean flag you can set to note if this reaction
-    was ran, so you can then iteration through all reactions
-    to see which ones we ran. Feel free to set/unset this
-    flag at will.
+Input (inp) and output (outp) are the reactions that will start everything off. Generally, import reactions (converting
+extracellular compounds to intracellular compounds) are inputs. Generally, converting intracellular compounds to
+extracellular are output. This can be computed using `check_input_output()` which will test whether compounds are
+imported or exported.
 
-    is_biomass_reaction and biomass_direction indicate whether this
-    is a biomass reaction (T/F) and if so the direction that it runs
-    (L->R or R->L)
+is_biomass_reaction and biomass_direction indicate whether this is a biomass reaction (T/F) and if so the direction that
+it runs (L->R or R->L)
 
-    Is_gapfilled indicates whether this reaction was added by gapfilling
+Is_gapfilled indicates whether this reaction was added by gapfilling, and gapfill_method allows us to note which
+gapfilling method was used to identify the reaction.
 
-
-
-
-
-
-
-
-
+The is_uptake_secretion flag is used to determine whether this is an uptake/secretion reaction that is provided to
+ensure that we have enough media components.
 
 We have arbitrarily called the reaction as proceeding from left to right but it could equally go the other way around.
 The reaction.__eq__() method will check for either left->left/right->right and  left->right/right->left, and therefore
 we include a reverse reaction method that will reverse a reaction.
+
+
+## Compounds
+
+A compound is a metabolite in our model, and is represented by a name and a location. Note that we typically use the
+name and not the compound ID so that we can easily look at the compound! We provide a model_seed_id variable that
+can be set with alternate IDs as required, and an abbreviation that can be used to store different names.
+
+The location is generally one of
+
+```
+    e: extracellular
+    c: cytoplasmic
+    h: chloroplast
+    p: periplasm
+```
+
+for most of our reactions they tend to focus on extracellular or cytoplasmic.
+
+
+Compounds are involved in reactions, and we have a set of reactions that these compounds are connected to.
+
+The formula is the normal chemical formula for the compound, and the charge associated wtih the compound can also be 
+provided. The `calculate_molcular_weight()` method has not yet been implemented but is on the todo list. 
+
+We have two booleans, `common` denotes common compounds that are present in many reactions. Often we want to parse
+through lists of compounds and the reactions that they are involved in, but we don't want to parse through, for example
+H<sub>2</sub>O which is present in almost every reaction! The `common` flag denotes compounds that are in 
+plenty<sup id="a2">[2](#f2)</sup>. of reactions and should be skipped.
+
+The other boolean is `uptake_secretion` that denotes whether the compound is involved in uptake from the media or
+secretion back to the media.
+
+
+
+
 
 
 
@@ -92,3 +112,4 @@ we include a reverse reaction method that will reverse a reaction.
 
 <b id="f1">1</b> I realize that these are not Pythonic names, but plr and prl just seem wrong when talking about the
 probability of moving left to right and right to left. [↩](#a1)
+<b id="f2">2</b> Plenty is a user-definable number which is currently set at 50. [↩](#a2)

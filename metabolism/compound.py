@@ -19,17 +19,15 @@ class Compound:
                         c: cytoplasmic
                         h: chloroplast
                         p: periplasm
-        reactions:  a set of reaction objects that this compound is
-                    connected to
+        reactions:  a set of reaction objects that this compound is connected to
         model_seed_id:  the cpd id from the model seed.
         abbreviation:   a short name for the compound
         formula:        the compounds formula
         mw:             the molecular weight of the compound
-        common:         Boolean: this is a common compound. I roughly
-                        define this as being in > COMMON_REACTION_LIMIT
-                        reactions. See my NOTES.md for a graph on this.
+        common:         Boolean: this is a common compound. I roughly define this as being in > COMMON_REACTION_LIMIT
+                        reactions
         charge:         the charge associated with the compound
-        uptake_secretion: imported from the SBML file (boolean)
+        uptake_secretion: The compound is involved in uptake from the media or secretion back to the media
 
     """
 
@@ -175,3 +173,12 @@ class Compound:
         else:
             self.common = False
         return self.common
+
+    def calculate_molecular_weight(self):
+        """
+        Calculate and return the molecular weight of this compound
+        :return: The molecular weight
+        :rtype: float
+        """
+
+        raise NotImplemented("Sorry. Calculate molecular weight has not yet been implemented.")

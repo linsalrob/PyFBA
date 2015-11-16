@@ -1,7 +1,4 @@
-
-
 import sys
-
 from compound import Compound
 from reaction import Reaction
 
@@ -16,48 +13,17 @@ def standard_eqn():
     """
 
     reactants = {
-        "ATP": 40.110,
-        "L-Valine": 0.353,
-        "L-Alanine": 0.429,
-        "L-Methionine": 0.128,
-        "L-Phenylalanine": 0.155,
-        "S-Adenosyl-L-methionine": 0.008,
-        "CoA": 0.008,
-        "CTP": 0.084,
-        "TTP": 0.015,
-        "dCTP": 0.015,
-        "L-Isoleucine": 0.242,
-        "CO2": 0.008,
-        "L-Aspartate": 0.201,
-        "L-Glutamate": 0.219,
-        "L-Glutamine": 0.219,
-        "L-Leucine": 0.376,
-        "L-Serine": 0.180,
-        "L-Tryptophan": 0.047,
-        "L-Proline": 0.185,
-        "GTP": 0.135,
-        "dGTP": 0.015,
-        "L-Threonine": 0.211,
-        "NAD": 0.008,
-        "dATP": 0.015,
-        "L-Tyrosine": 0.115,
-        "L-Asparagine": 0.201,
-        "NADP": 0.008,
-        "L-Cysteine": 0.076,
-        "L-Histidine": 0.079,
-        "L-Lysine": 0.286,
-        "UTP": 0.091,
-        "L-Arginine": 0.247,
+        "ATP": 40.110, "L-Valine": 0.353, "L-Alanine": 0.429, "L-Methionine": 0.128, "L-Phenylalanine": 0.155,
+        "S-Adenosyl-L-methionine": 0.008, "CoA": 0.008, "CTP": 0.084, "TTP": 0.015, "dCTP": 0.015,
+        "L-Isoleucine": 0.242, "CO2": 0.008, "L-Aspartate": 0.201, "L-Glutamate": 0.219, "L-Glutamine": 0.219,
+        "L-Leucine": 0.376, "L-Serine": 0.180, "L-Tryptophan": 0.047, "L-Proline": 0.185, "GTP": 0.135, "dGTP": 0.015,
+        "L-Threonine": 0.211, "NAD": 0.008, "dATP": 0.015, "L-Tyrosine": 0.115, "L-Asparagine": 0.201, "NADP": 0.008,
+        "L-Cysteine": 0.076, "L-Histidine": 0.079, "L-Lysine": 0.286, "UTP": 0.091, "L-Arginine": 0.247,
         "Glycine": 0.511
     }
 
     products = {
-        "ADP": 40.000,
-        "Phosphate": 39.992,
-        "apo-ACP": 0.008,
-        "Biomass": 1.000,
-        "H": 40.000,
-        "PPi ": 0.406
+        "ADP": 40.000, "Phosphate": 39.992, "apo-ACP": 0.008, "Biomass": 1.000, "H": 40.000, "PPi ": 0.406
     }
 
     return reactants, products
@@ -116,34 +82,46 @@ def kbase_simple():
     :rtype: dict, dict
     """
     reactants = {'GTP': 0.135406821203723, 'L-Aspartate': 0.200830806928348, 'L-Methionine': 0.127801422590767,
-        'CTP': 0.0841036156544863, 'NAD': 0.00309646685192537, 'fe3': 0.00309646685192537, 'K+': 0.00309646685192537,
-        'Sulfate': 0.00309646685192537, 'dATP': 0.0145080770930701, 'Ubiquinone-8': 0.00309646685192537,
-        'ACP': 0.00309646685192537, 'Mn2+': 0.00309646685192537, 'ATP': 40.1101757365074, 'GSH': 0.00309646685192537,
-        'Zn2+': 0.00309646685192537, 'L-Threonine': 0.211072732780569, 'Heme': 0.00309646685192537,
-        'L-Glutamate': 0.219088153012743, 'Phosphatidylglycerol dioctadecanoyl': 0.0106480421341882,
-        'Peptidoglycan polymer (n subunits)': 0.0250105977108944, 'L-Lysine': 0.285438020490179,
-        'phosphatidylethanolamine dioctadecanoyl': 0.0106480421341882, 'Siroheme': 0.00309646685192537,
-        'L-Asparagine': 0.200830806928348, 'L-Valine': 0.352233189091625, 'TTP': 0.0145080770930701,
-        'Putrescine': 0.00309646685192537, 'Co2+': 0.00309646685192537, 'Spermidine': 0.00309646685192537,
-        'Ca2+': 0.00309646685192537, 'L-Phenylalanine': 0.154519490031345, 'L-Leucine': 0.375388847540127,
-        'L-Cysteine': 0.0761464922056484, '2-Demethylmenaquinone 8': 0.00309646685192537, 'L-Serine': 0.179456352975885,
-        'dCTP': 0.017531703978307, '10-Formyltetrahydrofolate': 0.00309646685192537, 'L-Glutamine': 0.219088153012743,
-        'FAD': 0.00309646685192537, 'Bactoprenyl diphosphate': 0.0250105977108944, 'Cl-': 0.00309646685192537,
-        'Mg': 0.00309646685192537, 'Anteisoheptadecanoylcardiolipin (B. subtilis)': 0.0106480421341882,
-        'L-Tyrosine': 0.120676604606612, 'Dianteisoheptadecanoylphosphatidylglycerol': 0.0106480421341882,
-        'S-Adenosyl-L-methionine': 0.00309646685192537, 'L-Histidine': 0.0792636000737159, 'L-Arginine': 0.246696822701341,
-        'Menaquinone 8': 0.00309646685192537, '5-Methyltetrahydrofolate': 0.00309646685192537, 'UTP': 0.0908319049068452,
-        'Isoheptadecanoylcardiolipin (B. subtilis)': 0.0106480421341882, 'TPP': 0.00309646685192537, 'NADP': 0.00309646685192537,
-        'L-Isoleucine': 0.241798510337235, 'Diisoheptadecanoylphosphatidylethanolamine': 0.0106480421341882,
-        'L-Alanine': 0.427934380173264, 'Stearoylcardiolipin (B. subtilis)': 0.0106480421341882,
-        'core oligosaccharide lipid A': 0.0250105977108944, 'Glycine': 0.509869786991038, 'Tetrahydrofolate': 0.00309646685192537,
-        'Calomide': 0.00309646685192537, 'Fe2+': 0.00309646685192537, 'dGTP': 0.017531703978307, 'Riboflavin': 0.00309646685192537,
-        'CoA': 0.00309646685192537, 'Dianteisoheptadecanoylphosphatidylethanolamine': 0.0106480421341882,
-        'H2O': 35.5403092430435, 'Pyridoxal phosphate': 0.00309646685192537, 'L-Tryptophan': 0.0472019191450218,
-        'L-Proline': 0.184354665339991, 'Diisoheptadecanoylphosphatidylglycerol': 0.0106480421341882,
-        'Cu2+': 0.00309646685192537}
-    products = {'apo-ACP': 0.00309646685192537, 'Peptidoglycan polymer (n-1 subunits)': 0.0250105977108944, 'Dimethylbenzimidazole': 0.00309646685192537,
-             'PPi': 0.484597640415186, 'Biomass': 1.0, 'H+': 40.0, 'Phosphate': 39.9969035331481, 'ADP': 40.0, 'Cobinamide': 0.00309646685192537}
+                 'CTP': 0.0841036156544863, 'NAD': 0.00309646685192537, 'fe3': 0.00309646685192537,
+                 'K+': 0.00309646685192537,
+                 'Sulfate': 0.00309646685192537, 'dATP': 0.0145080770930701, 'Ubiquinone-8': 0.00309646685192537,
+                 'ACP': 0.00309646685192537, 'Mn2+': 0.00309646685192537, 'ATP': 40.1101757365074,
+                 'GSH': 0.00309646685192537,
+                 'Zn2+': 0.00309646685192537, 'L-Threonine': 0.211072732780569, 'Heme': 0.00309646685192537,
+                 'L-Glutamate': 0.219088153012743, 'Phosphatidylglycerol dioctadecanoyl': 0.0106480421341882,
+                 'Peptidoglycan polymer (n subunits)': 0.0250105977108944, 'L-Lysine': 0.285438020490179,
+                 'phosphatidylethanolamine dioctadecanoyl': 0.0106480421341882, 'Siroheme': 0.00309646685192537,
+                 'L-Asparagine': 0.200830806928348, 'L-Valine': 0.352233189091625, 'TTP': 0.0145080770930701,
+                 'Putrescine': 0.00309646685192537, 'Co2+': 0.00309646685192537, 'Spermidine': 0.00309646685192537,
+                 'Ca2+': 0.00309646685192537, 'L-Phenylalanine': 0.154519490031345, 'L-Leucine': 0.375388847540127,
+                 'L-Cysteine': 0.0761464922056484, '2-Demethylmenaquinone 8': 0.00309646685192537,
+                 'L-Serine': 0.179456352975885,
+                 'dCTP': 0.017531703978307, '10-Formyltetrahydrofolate': 0.00309646685192537,
+                 'L-Glutamine': 0.219088153012743,
+                 'FAD': 0.00309646685192537, 'Bactoprenyl diphosphate': 0.0250105977108944, 'Cl-': 0.00309646685192537,
+                 'Mg': 0.00309646685192537, 'Anteisoheptadecanoylcardiolipin (B. subtilis)': 0.0106480421341882,
+                 'L-Tyrosine': 0.120676604606612, 'Dianteisoheptadecanoylphosphatidylglycerol': 0.0106480421341882,
+                 'S-Adenosyl-L-methionine': 0.00309646685192537, 'L-Histidine': 0.0792636000737159,
+                 'L-Arginine': 0.246696822701341,
+                 'Menaquinone 8': 0.00309646685192537, '5-Methyltetrahydrofolate': 0.00309646685192537,
+                 'UTP': 0.0908319049068452,
+                 'Isoheptadecanoylcardiolipin (B. subtilis)': 0.0106480421341882, 'TPP': 0.00309646685192537,
+                 'NADP': 0.00309646685192537,
+                 'L-Isoleucine': 0.241798510337235, 'Diisoheptadecanoylphosphatidylethanolamine': 0.0106480421341882,
+                 'L-Alanine': 0.427934380173264, 'Stearoylcardiolipin (B. subtilis)': 0.0106480421341882,
+                 'core oligosaccharide lipid A': 0.0250105977108944, 'Glycine': 0.509869786991038,
+                 'Tetrahydrofolate': 0.00309646685192537,
+                 'Calomide': 0.00309646685192537, 'Fe2+': 0.00309646685192537, 'dGTP': 0.017531703978307,
+                 'Riboflavin': 0.00309646685192537,
+                 'CoA': 0.00309646685192537, 'Dianteisoheptadecanoylphosphatidylethanolamine': 0.0106480421341882,
+                 'H2O': 35.5403092430435, 'Pyridoxal phosphate': 0.00309646685192537,
+                 'L-Tryptophan': 0.0472019191450218,
+                 'L-Proline': 0.184354665339991, 'Diisoheptadecanoylphosphatidylglycerol': 0.0106480421341882,
+                 'Cu2+': 0.00309646685192537}
+    products = {'apo-ACP': 0.00309646685192537, 'Peptidoglycan polymer (n-1 subunits)': 0.0250105977108944,
+                'Dimethylbenzimidazole': 0.00309646685192537,
+                'PPi': 0.484597640415186, 'Biomass': 1.0, 'H+': 40.0, 'Phosphate': 39.9969035331481, 'ADP': 40.0,
+                'Cobinamide': 0.00309646685192537}
 
     return reactants, products
 
@@ -160,7 +138,7 @@ def gram_negative():
         'K+': 0.00778132482043, 'Mg': 0.00778132482043, 'H2O': 35.5386858538, 'Sulfate': 0.00778132482043,
         'ATP': 40.1101757365, 'RNA transcription': 1, 'L-Phenylalanine': 0.154807600875,
         'L-Serine': 0.179790960094, 'Protein biosynthesis': 1, 'L-Cysteine': 0.0762884719009,
-        'NAD': 0.00778132482043, 'L-Arginine': 0.247156803702,  'S-Adenosyl-L-methionine': 0.00778132482043,
+        'NAD': 0.00778132482043, 'L-Arginine': 0.247156803702, 'S-Adenosyl-L-methionine': 0.00778132482043,
         'CoA': 0.00778132482043, 'Fe2+': 0.00778132482043, 'L-Asparagine': 0.201205267996,
         'Peptidoglycan polymer (n subunits)': 0.0609084652443, 'ACP': 0.00778132482043, 'CTP': 0.0841036156545,
         'dATP': 0.0146849834202, 'Ca2+': 0.00778132482043, 'Pyridoxal phosphate': 0.00778132482043,
@@ -197,9 +175,7 @@ def biomass_equation(bme_type='standard'):
     :return: The biomass equation as a Reaction object
     :rtype: Reaction
     """
-       
-    reactants = {}
-    products = {}
+
     if bme_type == 'standard':
         reactants, products = standard_eqn()
     elif bme_type == 'kbase':
@@ -210,7 +186,6 @@ def biomass_equation(bme_type='standard'):
         reactants, products = gram_negative()
     else:
         sys.exit("ERROR: Do not understand what " + bme_type + " is for a biomass equation\n")
-
 
     r = Reaction('biomass')
     for c in reactants:
@@ -227,10 +202,8 @@ def biomass_equation(bme_type='standard'):
     prds = list(products.keys())
     rcts.sort()
     prds.sort()
-    r.equation  = " + ".join(["(" + str(reactants[x]) + ") " + x for x in rcts])
+    r.equation = " + ".join(["(" + str(reactants[x]) + ") " + x for x in rcts])
     r.equation += " > "
     r.equation += " + ".join(["(" + str(products[x]) + ") " + x for x in prds])
 
     return r
-    
-

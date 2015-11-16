@@ -109,7 +109,8 @@ class Reaction:
         self.is_biomass_reaction = False
         self.biomass_direction = False
         self.is_gapfilled = False
-        self.is_consumption_reaction = False
+        self.gapfill_method = ""
+        self.is_uptake_secretion = False
 
     def __eq__(self, other):
         """
