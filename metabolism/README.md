@@ -2,11 +2,15 @@
 
 The metabolism objects are central to our model and consist of three main classes:
 
-* [Reaction](reaction.py)
-* [Compound](compound.py) 
-* [Enzyme](enzyme.py)
+* [Reaction](#reaction)
+* [Compound](#compound) 
+* [Enzyme](#enzyme)
 
-## Reaction
+In addition, we have some accessory classes that live here and define some metabolic processes that we use:
+
+* [biomass](#biomass)
+
+## [Reaction](reaction.py)
 
 The reaction class contains all the information about a specific reaction. A reaction is the central concept of metabolism and is
 the conversion of substrates to products. All of the substrates and the products are [Compound](Compound.py) objects.
@@ -70,7 +74,7 @@ The reaction.__eq__() method will check for either left->left/right->right and  
 we include a reverse reaction method that will reverse a reaction.
 
 
-## Compounds
+## [Compound](compound.py)
 
 A compound is a metabolite in our model, and is represented by a name and a location. Note that we typically use the
 name and not the compound ID so that we can easily look at the compound! We provide a model_seed_id variable that
@@ -102,8 +106,23 @@ The other boolean is `uptake_secretion` that denotes whether the compound is inv
 secretion back to the media.
 
 
+## [Enzyme](enzyme.py)
+
+The Enzymes class connects [Reaction](reaction.py) objects with functional roles. In the Model SEED  a set of 
+functional roles contribute to a complex in a many to many relationship (many functional roles can be in one complex and
+one functional role can be in many complexes). Similarly, complexes are connected to reactions in a many to many 
+relationship: many complexes can perform one reaction and one complex can be in many reactions. The complex is thus the
+hub that joins reactions and functional roles.
+
+When we build a model from a genome we start with functional roles. This means that we have to convert those to 
+complexes and from there extract the reactions that should be in our model. We do this by way of the enzyme objects.
+
+The enzyme is not a complicated object, just a connector between reactions and roles, and you can think about is as 
+comprising: The subunit(s) that make up the enzyme, the genes that encode those subunit(s), and  the reactions that
+this enzyme is connected to.
 
 
+### [Biomass](biomass.py)
 
 
 
@@ -112,4 +131,5 @@ secretion back to the media.
 
 <b id="f1">1</b> I realize that these are not Pythonic names, but plr and prl just seem wrong when talking about the
 probability of moving left to right and right to left. [↩](#a1)
+
 <b id="f2">2</b> Plenty is a user-definable number which is currently set at 50. [↩](#a2)
