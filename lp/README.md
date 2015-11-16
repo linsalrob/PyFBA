@@ -2,7 +2,7 @@
 
 This package has wrappers for linear programming solvers. The essential methods that must be defined by the solver are:
 
-1. Load
+*. Load
 
 ```
     def load(matrix):
@@ -12,21 +12,21 @@ This package has wrappers for linear programming solvers. The essential methods 
     list of lists)
 ```
 
-2. Row bounds:
+*. Row bounds:
 
 ```
     def row_bounds(bounds):
     Accept a list of tuples that define the row bounds
 ```
 
-3. Columns bounds:
+*. Columns bounds:
 
 ```
     def col_bounds(bounds):
     Accept a list of tuples that define the column bounds
 ```
 
-4. Objective coefficient
+*. Objective coefficient
 
 ```
     def objective_coefficients(coeff):
@@ -34,7 +34,7 @@ This package has wrappers for linear programming solvers. The essential methods 
     biomass equation.
 ```
     
-5. Solve
+*. Solve
 
 ```
     def solve():
