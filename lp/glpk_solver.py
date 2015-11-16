@@ -138,7 +138,7 @@ def objective_coefficients(coeff):
     coefficients
 
     :param coeff: The objective cooefficient for the linear solver
-    :type coeff: array of float
+    :type coeff: list of float
     :return: void
     :rtype: void
     """
