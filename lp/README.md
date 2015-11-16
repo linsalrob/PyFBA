@@ -4,12 +4,13 @@ This package has wrappers for linear programming solvers. The essential methods 
 
 1. Load
 
+```
     def load(matrix):
     or
     def load(matrix, rowheaders=None, colheaders=None):
     Load a matrix, optionally including the row and column headers. The matrix should be a two-dimensional matrix (a 
     list of lists)
-
+```
 
 2. Row bounds:
 
@@ -20,24 +21,26 @@ This package has wrappers for linear programming solvers. The essential methods 
 
 3. Columns bounds:
 
-
+```
     def col_bounds(bounds):
     Accept a list of tuples that define the column bounds
-
+```
 
 4. Objective coefficient
 
-
+```
     def objective_coefficients(coeff):
     A method that accepts a list that represents the objective coefficient of the problem. For FBA, this is usually the
     biomass equation.
-
+```
     
 5. Solve
 
+```
     def solve():
     Solve the problem and return the status of the solver and the value of the solution (i.e. the flux through the
     objective coefficient).
+```
 
 You can replace the solver used in PyFBA with a solver of your choice. We have used the GNU Linear Programming Toolkit
 because it is freely available and compatible with all systems. However, it is not the fastest solver available, and so
