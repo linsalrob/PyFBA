@@ -1,16 +1,19 @@
 import argparse
+import json
+import os
 import sys
-
 import fba
-from metabolism import biomass
 from parse import model_seed, read_media_file
+from metabolism import biomass
+import metabolism
 
 __author__ = 'Rob Edwards'
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Import a list of reactions and run the FBA')
+    parser = argparse.ArgumentParser(description='Dump an FBA run to JSON, keeping only the relevant parts')
     parser.add_argument('-r', help='reactions file (required)', required=True)
     parser.add_argument('-m', help='media file (required)', required=True)
+    parser.add_argument('-j', help='json output file (required)', required=True)
     parser.add_argument('-v', help='verbose output', action='store_true')
     args = parser.parse_args()
 
@@ -31,6 +34,12 @@ if __name__ == '__main__':
 
     media = read_media_file(args.m)
     bme = biomass.biomass_equation('gramnegative')
+
+    # trim the reactions to only those ones that are used in the model
+    reactions = {r: reactions[r] for r in reactions2run}
+    with open(args.j, 'w') as out:
+        json.dump({'reactions': reactions, 'reactions_to_run': reactions2run, 'compounds': compounds,
+                   'media': media, 'bme': bme}, out)
 
     status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, bme, True)
     print("Initial run has " + str(value) + " --> Growth: " + str(growth))

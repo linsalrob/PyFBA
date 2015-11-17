@@ -99,6 +99,23 @@ As an alternative to this two step process, you can also just use the one line r
 which will download all of the PyFBA *and* Model SEED code in one shot.
 
 
+## Python modules
+
+See the file [requirements.txt](requirements.txt) for the Python modules that need to be installed as dependencies for
+PyFBA.
+
+## libSBML
+
+One or two of the scripts (notably [scripts/run_fba_sbml.py](scripts/run_fba_sbml.py) requires that you have libSBML 
+installed to read the SBML files. We also have our own [SBML parser](parser/SBML.py) if you don't want to install 
+libSBML.
+
+If you wish to install it you should be able to do so with `pip install`:
+
+```
+    pip install python-libsbml-experimental
+````
+
 
 # Tests
 
