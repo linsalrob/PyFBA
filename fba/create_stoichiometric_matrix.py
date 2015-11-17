@@ -1,9 +1,7 @@
-import copy
 import sys
 
-from lp import load, objective_coefficients
 from fba.external_reactions import uptake_and_secretion_reactions
-from metabolism import Reaction
+from lp import load, objective_coefficients
 
 
 def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, biomass_equation, verbose=False):
@@ -19,7 +17,7 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
     :param reactions_to_run: just the reaction ids that we want to include in our model
     :type reactions_to_run: set
     :param media: a set of compounds that would make up the media
-    :type media: list
+    :type media: set
     :param fba: the FBA object
     :type fba: flux_balance_analysis
     :param biomass_equation: the biomass equation as a metabolism.Reaction object
@@ -125,6 +123,5 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
     ob[-1]=1
 
     objective_coefficients(ob)
-
 
     return cp, rc, reactions

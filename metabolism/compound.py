@@ -45,6 +45,7 @@ class Compound:
         self.location = location
         self.reactions = set()
         self.model_seed_id = name
+        self.alternate_seed_ids = set()
         self.abbreviation = None
         self.formula = None
         self.mw = 0
@@ -123,9 +124,7 @@ class Compound:
         if isinstance(rxns, set):
             self.reactions.update(rxns)
         else:
-            raise TypeError(
-                "You need to add a set of reactions to a compound"
-            )
+            raise TypeError("You need to add a set of reactions to a compound")
 
 
     def has_reaction(self, rxn):

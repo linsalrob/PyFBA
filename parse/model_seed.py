@@ -91,7 +91,11 @@ def compounds(compounds_file=None):
                 c.abbreviation = p[1]
                 c.formula = p[3]
                 c.mw = p[4]
-                cpds[str(c)] = c
+                # there are some compounds (like D-Glucose and Fe2+) that appear >1x in the table
+                if str(c) in cpds:
+                    cpds[str(c)].alternate_seed_ids.add(p[0])
+                else:
+                    cpds[str(c)] = c
     except IOError as e:
         sys.exit("There was an error parsing " +
                  compounds_file + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
@@ -143,7 +147,13 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.master.tsv', verbos
 
     locations = location()
     cpds = compounds()
-    cpds_by_id = {cpds[c].model_seed_id: cpds[c] for c in cpds}
+    #cpds_by_id = {cpds[c].model_seed_id: cpds[c] for c in cpds}
+    cpds_by_id = {}
+    for c in cpds:
+        cpds_by_id[cpds[c].model_seed_id] = cpds[c]
+        for asi in cpds[c].alternate_seed_ids:
+            cpds_by_id[asi] = cpds[c]
+
     all_reactions = {}
 
     try:
@@ -462,7 +472,7 @@ def compounds_reactions_enzymes(organism_type='', verbose=False):
 
     roleset = roles()
     cmplxset = complexes()
-    cpds, rcts = reactions(organism_type)
+    cpds, rcts = reactions(organism_type, verbose=verbose)
     enzs = {}
 
     # for roles the key is the role name and the value is the complex it

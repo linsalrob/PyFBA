@@ -16,6 +16,15 @@ class TestModelSeedParsing(unittest.TestCase):
         """
         self.assertTrue(os.path.exists(MODELSEED_DIR))
 
+    def test_template_working(self):
+        '''Test the template parsing is correcting the orientation of reactions'''
+        # without template parsing rxn00001 has direction =
+        # after GramNegative template parsing rxn00001 has direction >
+        compounds, reactions = parse.model_seed.reactions()
+        self.assertEqual(reactions['rxn00001'].direction, '=')
+        compounds, reactions = parse.model_seed.reactions('gram_negative')
+        self.assertEqual(reactions['rxn00001'].direction, '>')
+
     def test_template_reactions(self):
         """
         Test parsing the template reactions in the model seed
@@ -58,7 +67,7 @@ class TestModelSeedParsing(unittest.TestCase):
         #
         # Note that these numbers are occasionally updated, and so you may need to update the test values.
         # To mitigate this, we use >= in our comparison (in the hope none are deleted!)
-        self.assertGreaterEqual(len(compounds), 45676)
+        self.assertGreaterEqual(len(compounds), 45616)
         self.assertGreaterEqual(len(reactions), 34696)
         is_transport = 0
         direction = {}
@@ -96,5 +105,5 @@ class TestModelSeedParsing(unittest.TestCase):
         cpds, rcts, enzs = parse.model_seed.compounds_reactions_enzymes()
         self.assertEqual(len(enzs), 4067)
         self.assertGreaterEqual(len(rcts), 34696)
-        self.assertGreaterEqual(len(cpds), 45676)
+        self.assertGreaterEqual(len(cpds), 45616)
 

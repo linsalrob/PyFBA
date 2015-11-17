@@ -38,7 +38,7 @@ def uptake_and_secretion_reactions(model_compounds, compounds):
             us_reaction.add_right_compounds({us_rightside})
             us_reaction.set_right_compound_abundance(us_rightside, 1)
             us_reaction.set_direction('=')
-            us_reaction.is_consumption_reaction = True
+            us_reaction.is_uptake_secretion = True
             uptake_sec_reactions[str(us_reaction)] = us_reaction
             us_leftside.add_reactions({us_reaction})
             us_rightside.add_reactions({us_reaction})
