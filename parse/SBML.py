@@ -1,5 +1,7 @@
 import argparse
 
+from metabolism import Reaction, Compound
+
 __author__ = 'redwards'
 
 """
@@ -9,8 +11,7 @@ Parse an SBML file and store the object
 from bs4 import BeautifulSoup
 import os
 import sys
-from network import reaction
-from network import compound
+
 
 class SBML:
     """A SBML object representing the model data.
@@ -29,7 +30,7 @@ class SBML:
     def add_compound(self, cpd):
         '''
         Add a compound to the model
-        :param cpd: The compound to be added as a compound.Compound object
+        :param cpd: The compound to be added as a Compound object
         :type cpd: object.
         :return: None
         :rtype: None
@@ -56,7 +57,7 @@ class SBML:
         :param cpd: The compound to fetch
         :type cpd: object.
         :return: The compound from the model
-        :rtype: network.compound.Compound
+        :rtype: metabolism.Compound
         '''
         if str(cpd) in self.compounds:
             return self.compounds[str(cpd)]
@@ -72,7 +73,7 @@ class SBML:
         :param loc: The location of the compound (e) or (c)
         :type loc: str
         :return: The compound from the model
-        :rtype: network.compound.Compound
+        :rtype: metabolism.Compound
         '''
 
         if cpdid in self.compounds_by_id:
@@ -83,7 +84,7 @@ class SBML:
     def add_reaction(self, rxn):
         '''
         Add a reaction to the model
-        :param rxn: The reaction to be added as a reaction.Reaction object
+        :param rxn: The reaction to be added as a metabolism.Reaction object
         :type rxn: object.
         :return: None
         :rtype: None
@@ -138,7 +139,7 @@ def parse(sbml_file, verbose):
 
     # add the compounds
     for s in soup.listOfSpecies.find_all('species'):
-        cpd = compound.Compound(s['name'].replace('_c0', '').replace('_e0', ''), s['compartment'])
+        cpd = Compound(s['name'].replace('_c0', '').replace('_e0', ''), s['compartment'])
         cpd.abbreviation = s['id']
         cpd.charge = s['charge']
         if s['boundaryCondition'] == 'false':
@@ -172,7 +173,7 @@ def parse(sbml_file, verbose):
                 if verbose:
                     sys.stderr.write("ERROR: Can't unpack " + r['id'] + "\n")
                 continue
-        rxn = reaction.Reaction(rxnid)
+        rxn = Reaction(rxnid)
         if rxn in sbml.get_all_reactions():
             if verbose:
                 sys.stderr.write("Already found reaction: " + str(rxn) + " ... not overwriting\n")
@@ -188,18 +189,20 @@ def parse(sbml_file, verbose):
             for sp in rc.find_all('speciesReference'):
                 cpdname, cpdloc = sp['species'].split("_")
                 try:
-                    # cpd = sbml.get_a_compound(compound.Compound(cpdname, cpdloc))
+                    # cpd = sbml.get_a_compound(Compound(cpdname, cpdloc))
                     cpd = sbml.get_a_compound_by_id(sp['species'])
                 except ValueError:
                     # the compound is not in the model (but it should be!)
-                    cpdnew = compound.Compound(cpdname, cpdloc)
+                    cpdnew = Compound(cpdname, cpdloc)
                     if verbose:
                         sys.stderr.write("WARNING: " + cpdname + " loc: " +  cpdloc + " is supposed to be in the model but is not. 1. Added\n")
                     sbml.add_compound(cpdnew)
-                    cpd = sbml.get_a_compound(compound.Compound(cpdname, cpdloc))
+                    cpd = sbml.get_a_compound(Compound(cpdname, cpdloc))
 
                 rxn.add_left_compounds({cpd})
                 rxn.set_left_compound_abundance(cpd, float(sp['stoichiometry']))
+                if cpd.uptake_secretion:
+                    rxn.is_uptake_secretion = True
                 equation['left'].append(" (" + str(sp['stoichiometry']) + ") " + str(cpd))
 
 
@@ -207,21 +210,30 @@ def parse(sbml_file, verbose):
             for sp in rc.find_all('speciesReference'):
                 cpdname, cpdloc = sp['species'].split("_")
                 try:
-                    #cpd = sbml.get_a_compound(compound.Compound(cpdname, cpdloc))
+                    #cpd = sbml.get_a_compound(Compound(cpdname, cpdloc))
                     cpd = sbml.get_a_compound_by_id(sp['species'])
                 except ValueError:
                     # the compound is not in the model (but it should be!)
-                    cpdnew = compound.Compound(cpdname, cpdloc)
+                    cpdnew = Compound(cpdname, cpdloc)
                     if verbose:
                         sys.stderr.write("WARNING: " + str(cpdnew) + " is supposed to be in the model but is not. 2. Added\n")
                     sbml.add_compound(cpdnew)
-                    cpd = sbml.get_a_compound(compound.Compound(cpdname, cpdloc))
+                    cpd = sbml.get_a_compound(Compound(cpdname, cpdloc))
 
                 rxn.add_right_compounds({cpd})
                 rxn.set_right_compound_abundance(cpd, float(sp['stoichiometry']))
+                if cpd.uptake_secretion:
+                    rxn.is_uptake_secretion = True
                 equation['right'].append(" (" + str(sp['stoichiometry']) + ") " + str(cpd))
 
         rxn.equation = " + ".join(equation['left']) + " " + rxn.direction + " " + " + ".join(equation['right'])
+
+        for params in r.find_all('listOfParameters'):
+            for p in params.find_all('parameter'):
+                if p['id'].lower() == 'lower_bound':
+                    rxn.lower_bound = float(p['value'])
+                if p['id'].lower() == 'upper_bound':
+                    rxn.upper_bound = float(p['value'])
 
         sbml.add_reaction(rxn)
 

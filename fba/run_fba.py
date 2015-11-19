@@ -33,7 +33,7 @@ def run_fba(compounds, reactions, reactions_to_run, media, biomass_equation, ver
 
     cp, rc, reactions = create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, biomass_equation, verbose=False)
 
-    rbvals = reaction_bounds(reactions, rc, media)
+    rbvals = reaction_bounds(reactions, rc, media, verbose=verbose)
     compound_bounds(cp)
 
     if verbose:

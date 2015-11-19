@@ -3,7 +3,7 @@ import copy
 from metabolism import Reaction
 
 
-def uptake_and_secretion_reactions(model_compounds, compounds):
+def uptake_and_secretion_reactions(model_compounds, compounds, verbose=False):
     """
     Figure out which compounds can be taken up from the media and/or secreted into the media. We provide an endless
     reaction for these which allows them to be taken up and/or secreted without affecting the rest of the stoichiometric
@@ -20,7 +20,6 @@ def uptake_and_secretion_reactions(model_compounds, compounds):
     """
 
     uptake_sec_reactions = {}
-
     for c in model_compounds:
         if compounds[c].location == 'e' or compounds[c].name == 'Biomass':
             # this is an uptake or secretion reaction

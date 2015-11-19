@@ -4,7 +4,7 @@ from lp import col_bounds
 from lp import row_bounds
 
 
-def reaction_bounds(reactions, reactions_to_run, media, lower=-1000.0, mid=0.0, upper=1000.0):
+def reaction_bounds(reactions, reactions_to_run, media, lower=-1000.0, mid=0.0, upper=1000.0, verbose=False):
     """
     Set the bounds for each reaction. We set the reactions to run between
     either lower/mid, mid/upper, or lower/upper depending on whether the
@@ -28,14 +28,19 @@ def reaction_bounds(reactions, reactions_to_run, media, lower=-1000.0, mid=0.0, 
     """
 
     rbvals = {}
-
+    media_uptake_secretion_count = 0
+    other_uptake_secretion_count = 0
     for r in reactions_to_run:
+        # if we already know the bounds, eg from an SBML file
+        if r is not 'bme' and reactions[r].lower_bound is not None and reactions[r].upper_bound is not None:
+            rbvals[r] = (reactions[r].lower_bound, reactions[r].upper_bound)
+            continue
         if r in reactions:
             direction = reactions[r].direction
         elif r == 'bme':
             direction = '>'
         else:
-            sys.stderr.write("Did not find " + r + " in reactions\n")
+            sys.stderr.write("Did not find {} in reactions\n".format(r))
             direction = "="
 
         # this is where we define whether our media has the components
@@ -46,8 +51,10 @@ def reaction_bounds(reactions, reactions_to_run, media, lower=-1000.0, mid=0.0, 
                     in_media = True
             if in_media:
                 rbvals[r] = (lower, upper)
+                media_uptake_secretion_count += 1
             else:
                 rbvals[r] = (0.0, upper)
+                other_uptake_secretion_count += 1
             continue
 
         if direction == "=":
@@ -65,6 +72,10 @@ def reaction_bounds(reactions, reactions_to_run, media, lower=-1000.0, mid=0.0, 
         else:
             sys.stderr.write("DO NOT UNDERSTAND DIRECTION " + direction + " for " + r + "\n")
             rbvals[r] = (mid, upper)
+
+    if verbose:
+        sys.stderr.write("In parsing the bounds we found {} media uptake ".format(media_uptake_secretion_count) +
+                         "and secretion reactions and {} other u/s reactions\n".format(other_uptake_secretion_count))
 
     rbounds = [rbvals[r] for r in reactions_to_run]
     col_bounds(rbounds)

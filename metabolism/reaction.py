@@ -96,6 +96,8 @@ class Reaction:
         self.left_abundance = {}
         self.right_compounds = set()
         self.right_abundance = {}
+        self.lower_bound = None
+        self.upper_bound = None
         self.pLR = 0
         self.pRL = 0
         self.enzymes = set()

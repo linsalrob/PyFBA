@@ -1,1 +1,2 @@
 glpk
+beautifulsoup4
