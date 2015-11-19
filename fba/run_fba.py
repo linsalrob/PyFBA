@@ -7,13 +7,15 @@ from . import create_stoichiometric_matrix
 from . import reaction_bounds
 
 
-def run_fba(compounds, reactions, reactions_to_run, media, biomass_equation, verbose=False):
+def run_fba(compounds, reactions, reactions_to_run, media, biomass_equation, uptake_secretion={}, verbose=False):
     """
     Run an fba for a set of data. We required the reactions object,
     a list of reactions to run, the media, and the biomass_equation equation.
 
     With all of these we run the fba and return:
 
+    :param uptake_secretion: A hash of uptake and secretion reactions that should be added to the model. Calculated if not provided.
+    :type uptake_secretion: dict of Reaction
     :param compounds: The dict of all compounds
     :type compounds: dict
     :param reactions: The dict of all reactions
@@ -31,7 +33,8 @@ def run_fba(compounds, reactions, reactions_to_run, media, biomass_equation, ver
 
     """
 
-    cp, rc, reactions = create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, biomass_equation, verbose=False)
+    cp, rc, reactions = create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, biomass_equation,
+                                                     uptake_secretion=uptake_secretion, verbose=False)
 
     rbvals = reaction_bounds(reactions, rc, media, verbose=verbose)
     compound_bounds(cp)

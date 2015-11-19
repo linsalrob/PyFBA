@@ -1,15 +1,21 @@
 import sys
-
 from fba.external_reactions import uptake_and_secretion_reactions
 from lp import load, objective_coefficients
 
 
-def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, biomass_equation, verbose=False):
+def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, biomass_equation,
+                                 uptake_secretion=[], verbose=False):
     """Given the reactions data and a list of RIDs to include, build a
     stoichiometric matrix and load that into the linear solver.
 
+    The uptake and secretion reactions (sometimes called boundary reactions) are reactions that allow
+    compounds to flow into the media and secreted compounds away from the cell. You can either provide these
+    or we will calculate them for you based on your media and reactions.
+
     We also take this opportunity to set the objective function (as it is a member of the SM).
 
+    :param uptake_secretion: A hash of uptake and secretion reactions that should be added to the model. Calculated if not provided.
+    :type uptake_secretion: dict of Reaction
     :param compounds: a dict of the compounds present
     :type compounds: dict
     :param reactions: a dict of all the reactions
@@ -29,8 +35,8 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
     :rtype : (list, list, dict)
     """
 
-    sm = {} # the matrix
-    allcpds = set() # all the cpds in the matrix
+    sm = {}  # the matrix
+    allcpds = set()  # all the cpds in the matrix
 
     # initialize the compounds set and the stoichiometric matrix with
     # everything in the media. The order of compounds is irrelevant
@@ -40,7 +46,7 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
         allcpds.add(str(c))
         sm[str(c)] = {}
 
-    #iterate through the reactions
+    # iterate through the reactions
     for r in reactions_to_run:
         for c in reactions[r].left_compounds:
             allcpds.add(str(c))
@@ -75,25 +81,25 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
     # The reactions are determined by the external compounds (and biomass_equation), but we only add the left side of the
     # equation to the stoichiometric matrix. This means that they can appear and disappear at will!
     #
-    # When we set the reaction bounds we determine which things are in the media
-    upt_sec = uptake_and_secretion_reactions(allcpds, compounds)
-    for r in upt_sec:
-        reactions[upt_sec[r].name] = upt_sec[r]
-        for c in upt_sec[r].left_compounds:
+    # When we set the reaction bounds we determine which things are in the media unless they are provided for you
+    if not uptake_secretion:
+        uptake_secretion = uptake_and_secretion_reactions(allcpds, compounds)
+    for r in uptake_secretion:
+        reactions[uptake_secretion[r].name] = uptake_secretion[r]
+        for c in uptake_secretion[r].left_compounds:
             allcpds.add(str(c))
             if str(c) not in sm:
                 sm[str(c)] = {}
-            sm[str(c)][upt_sec[r].name] = 0 - upt_sec[r].get_left_compound_abundance(c)
+            sm[str(c)][uptake_secretion[r].name] = 0 - uptake_secretion[r].get_left_compound_abundance(c)
 
-
-    # now we need to make this into a matrix sorted by 
+    # now we need to make this into a matrix sorted by
     # reaction id and by cpds
     cp = list(allcpds)
     cp.sort()
     rc = list(reactions_to_run)
     rc.sort()
-    rc += [upt_sec[x].name for x in upt_sec]
-    
+    rc += [uptake_secretion[x].name for x in uptake_secretion]
+
     # it is important that we add these at the end
     rc.append("BIOMASS_EQN")
 
@@ -102,9 +108,9 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
 
     # here we create the matrix from our sm hash
     data = []
-    for i,j in enumerate(cp):
+    for i, j in enumerate(cp):
         if j not in sm:
-            sys.exit("Error while parsing: no " + j +  " in sm")
+            sys.exit("Error while parsing: no " + j + " in sm")
         data.append([])
         for c in rc:
             if c in sm[j]:
@@ -120,7 +126,7 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
     ob = []
     for i in rc:
         ob.append(0.0)
-    ob[-1]=1
+    ob[-1] = 1
 
     objective_coefficients(ob)
 

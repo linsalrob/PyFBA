@@ -234,9 +234,10 @@ if __name__ == '__main__':
 
     cpdIds, rxnIds, sm, objFunc = parse_stoichiometry(model)
     cpdIds, rxnIds = createSMatrix(cpdIds, rxnIds, sm, objFunc)
+
     reaction_bounds(model, rxnIds, media)
     compound_bounds(cpdIds)
 
     status, value = lp.solve()
-    print "Solved the FBA with status: %s" % status
-    print "Objective value: %f" % value
+    print("Solved the FBA with status: {}".format(status))
+    print("Objective value: {}".format(value))
