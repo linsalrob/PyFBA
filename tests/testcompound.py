@@ -29,10 +29,10 @@ class TestCompound(unittest.TestCase):
         self.compound.add_reactions({"a", "b", "c"})
         self.compound.add_reactions({"d"})
         self.assertTrue(self.compound.has_reaction("a"))
-        self.assertEquals(self.compound.number_of_reactions(), 4)
+        self.assertEqual(self.compound.number_of_reactions(), 4)
         # check that it is a set
         self.compound.add_reactions({"a", "b", "c"})
-        self.assertEquals(self.compound.number_of_reactions(), 4)
+        self.assertEqual(self.compound.number_of_reactions(), 4)
         # check that we are provided with a set
         self.assertRaises(
             TypeError,
