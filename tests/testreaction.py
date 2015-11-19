@@ -70,9 +70,9 @@ class TestReaction(unittest.TestCase):
             "c",
         )
         # check the value
-        self.assertEquals(
+        self.assertEqual(
             self.reaction.get_left_compound_abundance('a'), 1.5)
-        self.assertEquals(
+        self.assertEqual(
             self.reaction.left_abundance['a'], 1.5)
 
     def test_reaction_right_compounds(self):
@@ -128,9 +128,9 @@ class TestReaction(unittest.TestCase):
             "c",
         )
         # check the value
-        self.assertEquals(
+        self.assertEqual(
             self.reaction.get_right_compound_abundance('a'), 1.5)
-        self.assertEquals(
+        self.assertEqual(
             self.reaction.right_abundance['a'], 1.5)
 
     def test_all_compounds(self):
@@ -138,13 +138,13 @@ class TestReaction(unittest.TestCase):
         self.reaction.add_left_compounds({"x", "y", "z"})
         self.reaction.add_right_compounds({"a", "b", "c"})
         ans = {"x", "y", "z", "a", "b", "c"}
-        self.assertEquals(self.reaction.all_compounds(), ans)
+        self.assertEqual(self.reaction.all_compounds(), ans)
 
     def test_num_compounds(self):
         """Test that we can get all the compounds back"""
         self.reaction.add_left_compounds({"x", "y", "z"})
         self.reaction.add_right_compounds({"a", "b", "c"})
-        self.assertEquals(self.reaction.number_of_compounds(), 6)
+        self.assertEqual(self.reaction.number_of_compounds(), 6)
 
 
     def test_equals(self):

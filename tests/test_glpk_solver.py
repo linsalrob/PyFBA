@@ -105,8 +105,8 @@ class TestGLPKSolver(unittest.TestCase):
         lp.col_bounds([(0, None), (0, None), (0, None)])
         status, result = lp.solve()
         r = "%0.3f" % result
-        self.assertEquals(r, "733.333")
-        self.assertEquals(status, 'opt')
+        self.assertEqual(r, "733.333")
+        self.assertEqual(status, 'opt')
 
 
     def test_primal_hash(self):
@@ -126,7 +126,7 @@ class TestGLPKSolver(unittest.TestCase):
         status, result = lp.solve()
         col_pri = {'y': 66.66666666666666, 'x': 33.333333333333336, 'z': 0.0}
         col_res = lp.col_primal_hash()
-        self.assertEquals(col_pri, col_res)
+        self.assertEqual(col_pri, col_res)
 
     def test_primals(self):
         """Test getting the primals back as a list"""
@@ -145,7 +145,7 @@ class TestGLPKSolver(unittest.TestCase):
         status, result = lp.solve()
         col_pri = [33.333333333333336, 66.66666666666666, 0.0]
         col_res = lp.col_primals()
-        self.assertEquals(col_pri, col_res)
+        self.assertEqual(col_pri, col_res)
         
 
 

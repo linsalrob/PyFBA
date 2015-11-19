@@ -48,5 +48,5 @@ class TestLinearProgramming(unittest.TestCase):
 
         # convert the output to 3 sd to test
         r = "%0.3f" % self.lp.obj.value
-        self.assertEquals(r, "733.333")
-        self.assertEquals(self.lp.status, 'opt')
+        self.assertEqual(r, "733.333")
+        self.assertEqual(self.lp.status, 'opt')

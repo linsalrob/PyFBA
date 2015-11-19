@@ -78,7 +78,7 @@ class TestModelSeedParsing(unittest.TestCase):
 
         self.assertGreaterEqual(is_transport, 5272)
 
-        self.assertEquals(len(direction), 3)
+        self.assertEqual(len(direction), 3)
         self.assertGreaterEqual(direction['<'], 3328)
         self.assertGreaterEqual(direction['>'], 12760)
         self.assertGreaterEqual(direction['='], 18608)

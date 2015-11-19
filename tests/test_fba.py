@@ -5,8 +5,10 @@ import unittest
 import fba
 import metabolism
 import parse.model_seed
+from parse import read_media_file
 
-class testFBA(unittest.TestCase):
+
+class TestFBA(unittest.TestCase):
     def setUp(self):
         """
         This is run before everything else
@@ -25,7 +27,7 @@ class testFBA(unittest.TestCase):
             model_cpds.add(str(new_comp))
 
         upsec = fba.uptake_and_secretion_reactions(model_cpds, compounds)
-        self.assertEquals(len(upsec), 10)
+        self.assertEqual(len(upsec), 10)
 
         # now remove them and see there is nothing left
         emptyset = fba.remove_uptake_and_secretion_reactions(upsec)
@@ -38,7 +40,8 @@ class testFBA(unittest.TestCase):
         compounds, reactions, enzymes = parse.model_seed.compounds_reactions_enzymes()
         reactions2run = reactions.keys()[0:20]
         biomass_equation = metabolism.biomass_equation('gram_negative')
-        cp, rc, reactions = fba.create_stoichiometric_matrix(reactions2run, reactions, compounds, [], biomass_equation)
+        cp, rc, reactions = fba.create_stoichiometric_matrix(reactions2run, reactions, compounds, set(),
+                                                             biomass_equation)
         self.assertEqual(len(cp), 102)
         self.assertEqual(len(rc), 23)
         self.assertEqual(len(reactions), 34698)
@@ -47,15 +50,20 @@ class testFBA(unittest.TestCase):
         """Test running the fba. We build a run a complete FBA based on reaction_list.txt"""
         self.assertTrue(os.path.exists('tests/reaction_list.txt'))
         self.assertTrue(os.path.exists('media/ArgonneLB.txt'))
-        reactions_to_run = set()
+        compounds, reactions, enzymes = parse.model_seed.compounds_reactions_enzymes('gram_negative')
+        reactions2run = set()
         with open('tests/reaction_list.txt', 'r') as f:
             for l in f:
                 if l.startswith('#'):
                     continue
-                if "biomass_equation" in l:
-                    if args.v:
-                        sys.stderr.write("Biomass reaction was skipped from the list as it is imported\n")
+                if "biomass" in l.lower():
                     continue
                 r = l.strip()
                 if r in reactions:
                     reactions2run.add(r)
+        media = read_media_file('media/ArgonneLB.txt')
+        biomass = metabolism.biomass_equation('gram_negative')
+        status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass, verbose=False)
+        self.assertTrue(growth)
+        value = float('%0.3f' % value)
+        self.assertEqual(value, 282.674)
