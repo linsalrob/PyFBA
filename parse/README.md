@@ -20,7 +20,15 @@ analyse the FBA.
 ## SBML
 
 The SBML parser uses the [beautiful soup](http://www.beatifulsoup.org/) XML parser to import all the data from an SBML
-file. If you have `libsbml` installed you can also use the script [run_fba_sbml.py](../scripts/run_fba_sbml.py) to run
-an FBA from a SBML file.
+file. We have also provided code in [sbml_to_fba.py](../scripts/sbml_to_fba.py) to demonstrate how to extract the 
+information from an SBML file, convert it to metabolism.Reaction and metabolism.Compound objects, and test for growth.
+
+As an alternative, if you have `libsbml` installed you can also use the script 
+[run_fba_sbml.py](../scripts/run_fba_sbml.py) to run the FBA from the SBML file using a different parser.
 
 
+## Read Media
+
+The [read_media.py](read_media.py) script parses a media file in a format that we designed and generates a list
+of metabolism.Compound objects. The format is simple, tab separated text, with the columns [compound id, name, formula,
+charge], with one compound per line.

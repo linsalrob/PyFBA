@@ -34,7 +34,7 @@ def run_fba(compounds, reactions, reactions_to_run, media, biomass_equation, upt
     """
 
     cp, rc, reactions = create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, biomass_equation,
-                                                     uptake_secretion=uptake_secretion, verbose=False)
+                                                     uptake_secretion, verbose=False)
 
     rbvals = reaction_bounds(reactions, rc, media, verbose=verbose)
     compound_bounds(cp)

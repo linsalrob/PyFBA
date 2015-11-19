@@ -41,5 +41,5 @@ if __name__ == '__main__':
         json.dump({'reactions': reactions, 'reactions_to_run': reactions2run, 'compounds': compounds,
                    'media': media, 'biomass_equation': biomass_equation}, out)
 
-    status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_equation, True)
+    status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_equation, verbose=True)
     print("Initial run has " + str(value) + " --> Growth: " + str(growth))

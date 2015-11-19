@@ -32,5 +32,5 @@ if __name__ == '__main__':
     media = read_media_file(args.m)
     biomass_equation = biomass.biomass_equation('gramnegative')
 
-    status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_equation, True)
+    status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_equation, verbose=True)
     print("Initial run has " + str(value) + " --> Growth: " + str(growth))

@@ -4,7 +4,7 @@ from lp import load, objective_coefficients
 
 
 def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, biomass_equation,
-                                 uptake_secretion=[], verbose=False):
+                                 uptake_secretion={}, verbose=False):
     """Given the reactions data and a list of RIDs to include, build a
     stoichiometric matrix and load that into the linear solver.
 
@@ -82,6 +82,7 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
     # equation to the stoichiometric matrix. This means that they can appear and disappear at will!
     #
     # When we set the reaction bounds we determine which things are in the media unless they are provided for you
+
     if not uptake_secretion:
         uptake_secretion = uptake_and_secretion_reactions(allcpds, compounds)
     for r in uptake_secretion:

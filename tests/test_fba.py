@@ -1,4 +1,5 @@
 import copy
+import os
 import unittest
 
 import fba
@@ -41,3 +42,20 @@ class testFBA(unittest.TestCase):
         self.assertEqual(len(cp), 102)
         self.assertEqual(len(rc), 23)
         self.assertEqual(len(reactions), 34698)
+
+    def test_run_fba(self):
+        """Test running the fba. We build a run a complete FBA based on reaction_list.txt"""
+        self.assertTrue(os.path.exists('tests/reaction_list.txt'))
+        self.assertTrue(os.path.exists('media/ArgonneLB.txt'))
+        reactions_to_run = set()
+        with open('tests/reaction_list.txt', 'r') as f:
+            for l in f:
+                if l.startswith('#'):
+                    continue
+                if "biomass_equation" in l:
+                    if args.v:
+                        sys.stderr.write("Biomass reaction was skipped from the list as it is imported\n")
+                    continue
+                r = l.strip()
+                if r in reactions:
+                    reactions2run.add(r)
