@@ -9,7 +9,7 @@ def uptake_and_secretion_reactions(model_compounds, compounds, verbose=False):
     reaction for these which allows them to be taken up and/or secreted without affecting the rest of the stoichiometric
     matrix
 
-    We also add a reaction for biomass
+    We also add a reaction for biomass_equation
 
     :param model_compounds: A set of the identifiers of all the compounds we have identified so far
     :type model_compounds: set

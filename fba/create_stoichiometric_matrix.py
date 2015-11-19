@@ -20,7 +20,7 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
     :type media: set
     :param fba: the FBA object
     :type fba: flux_balance_analysis
-    :param biomass_equation: the biomass equation as a metabolism.Reaction object
+    :param biomass_equation: the biomass_equation equation as a metabolism.Reaction object
     :type biomass_equation: metabolism.Reaction
     :param verbose: print more information
     :type verbose: bool
@@ -60,19 +60,19 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
         allcpds.add(str(c))
         if str(c) not in sm:
             sm[str(c)] = {}
-        sm[str(c)]["bme"] = 0 - biomass_equation.get_left_compound_abundance(c)
+        sm[str(c)]["BIOMASS_EQN"] = 0 - biomass_equation.get_left_compound_abundance(c)
     for c in biomass_equation.right_compounds:
         if str(c) not in compounds:
             compounds[str(c)] = c
         allcpds.add(str(c))
         if str(c) not in sm:
             sm[str(c)] = {}
-        sm[str(c)]["bme"] = biomass_equation.get_right_compound_abundance(c)
+        sm[str(c)]["BIOMASS_EQN"] = biomass_equation.get_right_compound_abundance(c)
 
     # Add the uptake/secretion reactions. These are reactions that allow things to flow from the media
     # into the reaction, or from the cell outwards.
     #
-    # The reactions are determined by the external compounds (and biomass), but we only add the left side of the
+    # The reactions are determined by the external compounds (and biomass_equation), but we only add the left side of the
     # equation to the stoichiometric matrix. This means that they can appear and disappear at will!
     #
     # When we set the reaction bounds we determine which things are in the media
@@ -95,7 +95,7 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
     rc += [upt_sec[x].name for x in upt_sec]
     
     # it is important that we add these at the end
-    rc.append("bme")
+    rc.append("BIOMASS_EQN")
 
     if verbose:
         sys.stderr.write(sys.argv[0] + ": " + str(len(cp)) + " compounds and " + str(len(rc)) + " reactions\n")
@@ -115,7 +115,7 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
     # load the data into the model
     load(data, cp, rc)
 
-    # now set the objective function.It is the biomass
+    # now set the objective function.It is the biomass_equation
     # equation which is the last reaction in the network
     ob = []
     for i in rc:

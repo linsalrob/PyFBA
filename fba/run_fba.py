@@ -10,7 +10,7 @@ from . import reaction_bounds
 def run_fba(compounds, reactions, reactions_to_run, media, biomass_equation, verbose=False):
     """
     Run an fba for a set of data. We required the reactions object,
-    a list of reactions to run, the media, and the biomass equation.
+    a list of reactions to run, the media, and the biomass_equation equation.
 
     With all of these we run the fba and return:
 
@@ -22,7 +22,7 @@ def run_fba(compounds, reactions, reactions_to_run, media, biomass_equation, ver
     :type reactions_to_run: set
     :param media: An array of compound.Compound objects representing the media
     :type media: set
-    :param biomass_equation: The biomass equation
+    :param biomass_equation: The biomass_equation equation
     :type biomass_equation: network.reaction.Reaction
     :param verbose: Print more output
     :type verbose: bool

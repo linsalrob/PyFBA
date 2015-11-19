@@ -72,7 +72,7 @@ class Reaction:
     flag at will.
 
     is_biomass_reaction and biomass_direction indicate whether this
-    is a biomass reaction (T/F) and if so the direction that it runs
+    is a biomass_equation reaction (T/F) and if so the direction that it runs
     (L->R or R->L)
 
     Is_gapfilled indicates whether this reaction was added by gapfilling

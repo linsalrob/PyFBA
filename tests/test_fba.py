@@ -36,8 +36,8 @@ class testFBA(unittest.TestCase):
         # we need to get everything for this!
         compounds, reactions, enzymes = parse.model_seed.compounds_reactions_enzymes()
         reactions2run = reactions.keys()[0:20]
-        bme = metabolism.biomass_equation('gram_negative')
-        cp, rc, reactions = fba.create_stoichiometric_matrix(reactions2run, reactions, compounds, [], bme)
+        biomass_equation = metabolism.biomass_equation('gram_negative')
+        cp, rc, reactions = fba.create_stoichiometric_matrix(reactions2run, reactions, compounds, [], biomass_equation)
         self.assertEqual(len(cp), 102)
         self.assertEqual(len(rc), 23)
         self.assertEqual(len(reactions), 34698)

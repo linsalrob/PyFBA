@@ -4,7 +4,7 @@ from reaction import Reaction
 
 
 def standard_eqn():
-    """The standard biomass equation is derived from the SBML file
+    """The standard biomass_equation equation is derived from the SBML file
     (actually for C. sedlakii, but I suspect it is the same for others)
     and includes amino acids, nucleotides.
 
@@ -30,7 +30,7 @@ def standard_eqn():
 
 
 def kbase():
-    """The kbase biomass reaction.
+    """The kbase biomass_equation reaction.
 
     :returns: the reactants and products
     :rtype: dict, dict
@@ -76,7 +76,7 @@ def kbase():
 
 
 def kbase_simple():
-    """A slightly simplified version of the kbase biomass reaction
+    """A slightly simplified version of the kbase biomass_equation reaction
 
     :returns: the reactants and products
     :rtype: dict, dict
@@ -161,33 +161,33 @@ def gram_negative():
     return reactants, products
 
 
-def biomass_equation(bme_type='standard'):
-    """Get the biomass equation for a specific type of biomass equation.
+def biomass_equation(biomass_type='standard'):
+    """Get the biomass_equation equation for a specific type of biomass_equation equation.
 
-    bme_type can be one of:
-        standard:       the standard biomass equation we were using for the JSON models initially
-        kbase:          the revised biomass equation that was included in the kbase models
-        kbase_simple:   a simplified version of the kbase biomass equation
-        gram_negative:  a Gram negative biomass equation
+    biomass_type can be one of:
+        standard:       the standard biomass_equation equation we were using for the JSON models initially
+        kbase:          the revised biomass_equation equation that was included in the kbase models
+        kbase_simple:   a simplified version of the kbase biomass_equation equation
+        gram_negative:  a Gram negative biomass_equation equation
 
-    :param bme_type: The type of biomass equation to get
-    :type bme_type: str
-    :return: The biomass equation as a Reaction object
+    :param biomass_type: The type of biomass_equation equation to get
+    :type biomass_type: str
+    :return: The biomass_equation equation as a Reaction object
     :rtype: Reaction
     """
 
-    if bme_type == 'standard':
+    if biomass_type == 'standard':
         reactants, products = standard_eqn()
-    elif bme_type == 'kbase':
+    elif biomass_type == 'kbase':
         reactants, products = kbase()
-    elif bme_type == 'kbase_simple':
+    elif biomass_type == 'kbase_simple':
         reactants, products = kbase_simple()
-    elif bme_type == 'gram_negative' or bme_type == 'gramnegative':
+    elif biomass_type == 'gram_negative' or biomass_type == 'gramnegative':
         reactants, products = gram_negative()
     else:
-        sys.exit("ERROR: Do not understand what " + bme_type + " is for a biomass equation\n")
+        sys.exit("ERROR: Do not understand what " + biomass_type + " is for a biomass_equation equation\n")
 
-    r = Reaction('biomass')
+    r = Reaction('biomass_equation')
     for c in reactants:
         cpd = Compound(c, 'c')
         r.add_left_compounds({cpd})

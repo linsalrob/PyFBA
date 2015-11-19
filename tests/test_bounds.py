@@ -25,7 +25,7 @@ class TestBounds(unittest.TestCase):
         rd = Reaction('reaction US')
         rd.direction = '='
         rd.is_uptake_secretion = True
-        re = Reaction('bme')
+        re = Reaction('biomass_equation')
         re.direction = '>'
         rf = Reaction('reaction US Media')
         rf.direction = '='

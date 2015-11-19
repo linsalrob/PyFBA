@@ -21,7 +21,7 @@ if __name__ == '__main__':
         for l in f:
             if l.startswith('#'):
                 continue
-            if "biomass" in l:
+            if "biomass_equation" in l:
                 if args.v:
                     sys.stderr.write("Biomass reaction was skipped from the list as it is imported\n")
                 continue
@@ -30,7 +30,7 @@ if __name__ == '__main__':
                 reactions2run.add(r)
 
     media = read_media_file(args.m)
-    bme = biomass.biomass_equation('gramnegative')
+    biomass_equation = biomass.biomass_equation('gramnegative')
 
-    status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, bme, True)
+    status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_equation, True)
     print("Initial run has " + str(value) + " --> Growth: " + str(growth))

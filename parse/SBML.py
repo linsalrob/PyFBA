@@ -156,8 +156,8 @@ def parse(sbml_file, verbose):
     for r in soup.listOfReactions.find_all('reaction'):
         # I am going to split off the location for the reaction.
         # I don't believe we have the same reaction running in two different locations but maybe in plants, etc?
-        if 'biomass' in r['id']:
-            rxnid = 'biomass'
+        if 'biomass_equation' in r['id']:
+            rxnid = 'biomass_equation'
             rxnloc = 'c0'
         elif '_' not in r['id']:
             if verbose:

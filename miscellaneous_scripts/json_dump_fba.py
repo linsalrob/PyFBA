@@ -4,7 +4,7 @@ import os
 import sys
 import fba
 from parse import model_seed, read_media_file
-from metabolism import biomass
+from metabolism import biomass_equation
 import metabolism
 
 __author__ = 'Rob Edwards'
@@ -24,7 +24,7 @@ if __name__ == '__main__':
         for l in f:
             if l.startswith('#'):
                 continue
-            if "biomass" in l:
+            if "biomass_equation" in l:
                 if args.v:
                     sys.stderr.write("Biomass reaction was skipped from the list as it is imported\n")
                 continue
@@ -33,13 +33,13 @@ if __name__ == '__main__':
                 reactions2run.add(r)
 
     media = read_media_file(args.m)
-    bme = biomass.biomass_equation('gramnegative')
+    biomass_equation = biomass_equation.biomass_equation('gramnegative')
 
     # trim the reactions to only those ones that are used in the model
     reactions = {r: reactions[r] for r in reactions2run}
     with open(args.j, 'w') as out:
         json.dump({'reactions': reactions, 'reactions_to_run': reactions2run, 'compounds': compounds,
-                   'media': media, 'bme': bme}, out)
+                   'media': media, 'biomass_equation': biomass_equation}, out)
 
-    status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, bme, True)
+    status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_equation, True)
     print("Initial run has " + str(value) + " --> Growth: " + str(growth))
