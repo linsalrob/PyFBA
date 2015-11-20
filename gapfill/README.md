@@ -20,7 +20,7 @@ The steps that we take are
 The methods here, therefore, almost all return a set of reactions that are not currently in the model but which should
 be added to the model.
 
-In the standard [Model SEED Biochemistry files](../Biochemistry/ModelSEEDDatabase/) there over 30,000 reactions. This
+In the standard [Model SEED Biochemistry files](https://github.com/ModelSEED/ModelSEEDDatabase) there over 30,000 reactions. This
 is too many reactions that we can just add them all and then test which ones should be there (i.e. a complete brute
 force approach), so we finesse it by adding just those reactions that we have evidence for being associated with the
 model.
