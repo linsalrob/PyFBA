@@ -17,7 +17,6 @@ to trim out reactions that are not necessary, to end up with the smallest set of
 
 """
 
-
 def resolve_additional_reactions(ori_reactions, adnl_reactions, cpds, rcts, mediaset, biomass_eqn):
     """
     Iteratively resolve additional reactions that are required.
@@ -33,7 +32,7 @@ def resolve_additional_reactions(ori_reactions, adnl_reactions, cpds, rcts, medi
     :param mediaset: our media object
     :type mediaset: set
     :param biomass_eqn: our biomass object
-    :type biomass_eqn: network.reaction.Reaction
+    :type biomass_eqn: metabolism.Reaction
     :return: set of additional reactions from all of the added_reactions
     :rtype: set
     '''
@@ -97,21 +96,20 @@ if __name__ == '__main__':
     original_reactions = copy.copy(reactions2run)
 
     # get the suggestions
-    predef_reactions = gapfill.suggest_predefined_reactions(True)
+    essential_reactions = gapfill.suggest_essential_reactions(True)
     # find only the new reactions
-    predef_reactions.difference_update(reactions2run)
-    added_reactions.append(("predef", predef_reactions))
-    reactions2run.update(predef_reactions)
+    essential_reactions.difference_update(reactions2run)
+    added_reactions.append(("essential", essential_reactions))
+    reactions2run.update(essential_reactions)
     status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
     print("After adding predefined reactions we get " + str(value) + " (growth is " + str(growth) + ")\n\n")
 
     # if this grows then we want to find the minimal set of reactions
     # that we need to add for growth and call it good.
     if growth:
-        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 media, biomass_eqtn)
-        # print("Additional reactions required: " + str(additions) + "\n")
-        print('reactions' + " : " + str(original_reactions.union(additions)))
+        additional = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
+                                                  media, biomass_eqtn)
+        print('reactions' + " : " + str(original_reactions.union(additional)))
         sys.exit(0)
 
     close_reactions = set()

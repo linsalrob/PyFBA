@@ -2,7 +2,7 @@ import sys
 from random import shuffle
 
 import fba
-from gapfill import bisections
+from gapfill import bisections, limit_reactions_by_compound
 
 __author__ = 'Rob Edwards'
 
@@ -51,13 +51,23 @@ def minimize_additional_reactions(base_reactions, optional_reactions, compounds,
     if not growth:
         raise Exception("'base' union 'optional' reactions does not generate growth. We can not bisect the set\n")
 
+    # first, lets see if we can limit the reactions based on compounds present and still get growth
+    limited_rxn = limit_reactions_by_compound(reactions, base_reactions, optional_reactions)
+    status, value, growth = fba.run_fba(compounds, reactions, base_reactions.union(limited_rxn), media,
+                                        biomass_eqn)
+    if growth:
+        if verbose:
+            sys.stderr.write("Succesfully limited the reactions by compound and reduced " +
+                             " from {} to {}\n".format(len(optional_reactions), len(limited_rxn)))
+        optional_reactions = limited_rxn
+
     test = True
     tries = 0
     maxtries = 5
     current_rx_list = list(optional_reactions)
     itera = 0
-    sys.stderr.write("At the beginning the base list has " + str(len(base_reactions)) +
-                     " and the optional list has " + str(len(current_rx_list)) + " reactions\n")
+    sys.stderr.write("At the beginning the base list has {} ".format(len(base_reactions)) +
+                     " and the optional list has {} reactions\n".format(len(current_rx_list)))
 
     left = []
     right = []
@@ -70,9 +80,8 @@ def minimize_additional_reactions(base_reactions, optional_reactions, compounds,
         r2r = base_reactions.union(set(right))
         status, value, rgrowth = fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
         if verbose:
-            sys.stderr.write("Iteration: " + str(itera) + " Try: " + str(tries) + " Length of reactions " +
-                             str(len(left)) + " and " + str(len(right)) + " left: " + str(lgrowth) +
-                             " Right: " + str(rgrowth) + "\n")
+            sys.stderr.write("Iteration: {} Try: {} Length: {} and {}".format(itera, tries, len(left), len(right)) +
+                             " Growth: {} and {}\n".format(lgrowth, rgrowth))
 
         if lgrowth and rgrowth:
             # they both grow, so we can choose one!
@@ -105,9 +114,9 @@ def minimize_additional_reactions(base_reactions, optional_reactions, compounds,
                 r2r = base_reactions.union(set(right))
                 status, value, rgrowth = fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
                 if verbose:
-                    sys.stderr.write("Iteration: " + str(itera) + " (uneven: " + str(percent) + "%) Try: " +
-                                     str(tries) + " Length of reactions " + str(len(left)) + " and " +
-                                     str(len(right)) + " left: " + str(lgrowth) + " Right: " + str(rgrowth) + "\n")
+                    sys.stderr.write(
+                        "Iteration: {} Try: {} Length: {} and {}".format(itera, tries, len(left), len(right)) +
+                        " Growth: {} and {}\n".format(lgrowth, rgrowth))
                 if lgrowth:
                     tries = 0
                     current_rx_list = left
@@ -129,7 +138,7 @@ def minimize_additional_reactions(base_reactions, optional_reactions, compounds,
 
     remaining = set(left + right)
     if verbose:
-        sys.stderr.write("There are " + str(len(remaining)) + " reactions remaining: " + str(remaining) + "\n")
+        sys.stderr.write("There are {} reactions remaining: {}\n".format(len(remaining), remaining))
     return remaining
 
 

@@ -13,8 +13,7 @@ from minimize_additional_reactions import minimize_additional_reactions
 __all__ = ['suggest_from_media',
            'limit_reactions_by_compound',
            'suggest_by_compound',
-           'suggest_essential_reactions', 'suggest_predefined_reactions',
-           'suggest_reactions_from_subsystems',
+           'suggest_essential_reactions', 'suggest_reactions_from_subsystems',
            'suggest_reactions_without_proteins', 'suggest_reactions_with_proteins',
            'suggest_from_roles', 'compound_probability', 'minimize_additional_reactions',
            ]

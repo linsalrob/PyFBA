@@ -20,7 +20,10 @@ that trims out unwanted reactions.
 To run this gap filling approach, us the command:
 
 ```
-    python example_code/gapfill_from_reactions.py -r example_data/Citrobacter/ungapfilled_model/citrobacter.reactions -m
-    media/MOPS_NoC_Alpha-D-Glucose.txt -c example_data/Citrobacter/ungapfilled_model/closest.genomes.roles -g
-    example_data/Citrobacter/ungapfilled_model/citrobacter.roles -v > temp/gf.out 2> temp/gf.err
+    python example_code/gapfill_from_reactions.py -r example_data/Citrobacter/ungapfilled_model/citrobacter.reactions \
+    -m media/MOPS_NoC_Alpha-D-Glucose.txt -c example_data/Citrobacter/ungapfilled_model/closest.genomes.roles \
+    -g example_data/Citrobacter/ungapfilled_model/citrobacter.roles -v > temp/gf.out 2> temp/gf.err
 ```
+
+(note: the temp directory is not part of the git repository, and is ignored by git. You need to make that directory 
+before you start)

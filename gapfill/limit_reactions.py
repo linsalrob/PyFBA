@@ -1,7 +1,7 @@
 __author__ = 'Rob Edwards'
 
 
-def limit_reactions_by_compound(reactions, reactions2run, suggestions, max_rcts=100):
+def limit_reactions_by_compound(reactions, reactions2run, suggestions, max_rcts=50):
     """
     Limit the reactions in suggestions based on the compounds present in
     the reactions in reactions2run and the number of reactions that each
