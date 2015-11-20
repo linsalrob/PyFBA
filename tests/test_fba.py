@@ -9,6 +9,9 @@ from parse import read_media_file
 
 
 class TestFBA(unittest.TestCase):
+
+    compounds, reactions, enzymes = parse.model_seed.compounds_reactions_enzymes()
+
     def setUp(self):
         """
         This is run before everything else
@@ -36,12 +39,10 @@ class TestFBA(unittest.TestCase):
     def test_create_sm(self):
         """Test the stoichiometric matrix"""
 
-        # we need to get everything for this!
-        compounds, reactions, enzymes = parse.model_seed.compounds_reactions_enzymes()
-        reactions2run = reactions.keys()[0:20]
+        reactions2run = self.__class__.reactions.keys()[0:20]
         biomass_equation = metabolism.biomass_equation('gram_negative')
-        cp, rc, reactions = fba.create_stoichiometric_matrix(reactions2run, reactions, compounds, set(),
-                                                             biomass_equation)
+        cp, rc, reactions = fba.create_stoichiometric_matrix(reactions2run, self.__class__.reactions,
+                                                             self.__class__.compounds, set(), biomass_equation)
         self.assertEqual(len(cp), 102)
         self.assertEqual(len(rc), 23)
         self.assertEqual(len(reactions), 34698)
@@ -50,7 +51,7 @@ class TestFBA(unittest.TestCase):
         """Test running the fba. We build a run a complete FBA based on reaction_list.txt"""
         self.assertTrue(os.path.exists('tests/reaction_list.txt'))
         self.assertTrue(os.path.exists('media/ArgonneLB.txt'))
-        compounds, reactions, enzymes = parse.model_seed.compounds_reactions_enzymes('gram_negative')
+        compounds, reactions, enzymes = self.__class__.compounds, self.__class__.reactions, self.__class__.enzymes
         reactions2run = set()
         with open('tests/reaction_list.txt', 'r') as f:
             for l in f:
