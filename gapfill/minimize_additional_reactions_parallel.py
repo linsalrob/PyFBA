@@ -1,15 +1,15 @@
 import sys
 from random import shuffle
 
-import time
-
 import fba
 from gapfill import bisections, limit_reactions_by_compound
 
+from multiprocessing import Pool
+from multiprocessing.dummy import Pool as ThreadPool
+
 __author__ = 'Rob Edwards'
 
-
-def minimize_additional_reactions(base_reactions, optional_reactions, compounds, reactions, media,
+def minimize_additional_reactions_pl(base_reactions, optional_reactions, compounds, reactions, media,
                                   biomass_eqn, verbose=False):
     """
     Given two sets, one of base reactions (base_reactions), and one of optional
@@ -38,6 +38,8 @@ def minimize_additional_reactions(base_reactions, optional_reactions, compounds,
 
 
     """
+
+    pool = ThreadPool(2)
 
     base_reactions = set(base_reactions)
     optional_reactions = set(optional_reactions)
@@ -77,12 +79,17 @@ def minimize_additional_reactions(base_reactions, optional_reactions, compounds,
         itera += 1
         left, right = bisections.bisect(current_rx_list)
         # left, right = percent_split(current_rx_list, percent)
-        start = time.time()
-        r2r = base_reactions.union(set(left))
-        status, value, lgrowth = fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
-        r2r = base_reactions.union(set(right))
-        status, value, rgrowth = fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
-        sys.stderr.write("Running WITHOUT PARALLEL took {}\n".format(time.time()-start))
+
+        params = [
+            [compounds, reactions, base_reactions.union(set(left)), media, biomass_eqn],
+            [compounds, reactions, base_reactions.union(set(left)), media, biomass_eqn]
+        ]
+
+        # results is a list of the results from run_fba. We only care about growth.
+        results = pool.map(fba.run_fba, params)
+        lgrowth = results[0][2]
+        rgrowth = results[1][2]
+
         if verbose:
             sys.stderr.write("Iteration: {} Try: {} Length: {} and {}".format(itera, tries, len(left), len(right)) +
                              " Growth: {} and {}\n".format(lgrowth, rgrowth))
@@ -112,12 +119,15 @@ def minimize_additional_reactions(base_reactions, optional_reactions, compounds,
             left, right = bisections.percent_split(current_rx_list, percent)
             uneven_test = True
             while uneven_test and len(left) > 0 and len(right) > 0:
-                start = time.time()
-                r2r = base_reactions.union(set(left))
-                status, value, lgrowth = fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
-                r2r = base_reactions.union(set(right))
-                status, value, rgrowth = fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
-                sys.stderr.write("Running WITHOUT PARALLEL took {}\n".format(time.time() - start))
+                params = [
+                    [compounds, reactions, base_reactions.union(set(left)), media, biomass_eqn],
+                    [compounds, reactions, base_reactions.union(set(left)), media, biomass_eqn]
+                ]
+                # results is a list of the results from run_fba. We only care about growth.
+                results = pool.map(fba.run_fba, params)
+                lgrowth = results[0][2]
+                rgrowth = results[1][2]
+
                 if verbose:
                     sys.stderr.write(
                         "Iteration: {} Try: {} Length: {} and {}".format(itera, tries, len(left), len(right)) +
