@@ -1,6 +1,8 @@
 import sys
 from random import shuffle
 
+import time
+
 import fba
 from gapfill import bisections, limit_reactions_by_compound
 
@@ -78,8 +80,7 @@ def minimize_additional_reactions_pl(base_reactions, optional_reactions, compoun
     while test:
         itera += 1
         left, right = bisections.bisect(current_rx_list)
-        # left, right = percent_split(current_rx_list, percent)
-
+        start = time.time()
         params = [
             [compounds, reactions, base_reactions.union(set(left)), media, biomass_eqn],
             [compounds, reactions, base_reactions.union(set(left)), media, biomass_eqn]
@@ -89,6 +90,7 @@ def minimize_additional_reactions_pl(base_reactions, optional_reactions, compoun
         results = pool.map(fba.run_fba, params)
         lgrowth = results[0][2]
         rgrowth = results[1][2]
+        sys.stderr.write("Running WITH PARALLEL took {}\n".format(time.time() - start))
 
         if verbose:
             sys.stderr.write("Iteration: {} Try: {} Length: {} and {}".format(itera, tries, len(left), len(right)) +
@@ -119,6 +121,7 @@ def minimize_additional_reactions_pl(base_reactions, optional_reactions, compoun
             left, right = bisections.percent_split(current_rx_list, percent)
             uneven_test = True
             while uneven_test and len(left) > 0 and len(right) > 0:
+                start = time.time()
                 params = [
                     [compounds, reactions, base_reactions.union(set(left)), media, biomass_eqn],
                     [compounds, reactions, base_reactions.union(set(left)), media, biomass_eqn]
@@ -127,7 +130,7 @@ def minimize_additional_reactions_pl(base_reactions, optional_reactions, compoun
                 results = pool.map(fba.run_fba, params)
                 lgrowth = results[0][2]
                 rgrowth = results[1][2]
-
+                sys.stderr.write("Running WITH PARALLEL took {}\n".format(time.time() - start))
                 if verbose:
                     sys.stderr.write(
                         "Iteration: {} Try: {} Length: {} and {}".format(itera, tries, len(left), len(right)) +

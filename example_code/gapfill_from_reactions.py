@@ -48,7 +48,7 @@ def resolve_additional_reactions(ori_reactions, adnl_reactions, cpds, rcts, medi
         # get all the other reactions we need to add
         for tple in adnl_reactions:
             ori.update(tple[1])
-        new_essential = gapfill.minimize_additional_reactions(ori, new, cpds, rcts, mediaset, biomass_eqn,
+        new_essential = gapfill.minimize_additional_reactions_pl(ori, new, cpds, rcts, mediaset, biomass_eqn,
                                                               verbose=True)
         for new_r in new_essential:
             reactions[new_r].is_gapfilled = True
