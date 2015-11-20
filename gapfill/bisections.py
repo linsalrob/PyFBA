@@ -44,7 +44,7 @@ def optimize_split_by_rclust(rxns, clusters, percent=50):
     Optimize the split of reactions based on the reaction clusters.
 
     We have code that clusters reactions based on the Jaccard distance between the compounds in the reactions (see
-    scripts/group_reactions.py). This code uses that cluster information to try and optimize the split in reactions
+    example_code/group_reactions.py). This code uses that cluster information to try and optimize the split in reactions
     to minimize the number of different clusters on each side of the split.
 
     The approach that we take here is to sort the reactions based on their cluster first, and then split the list
