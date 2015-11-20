@@ -88,29 +88,81 @@ if __name__ == '__main__':
     biomass_eqtn = biomass.biomass_equation('gramnegative')
 
     status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn, verbose=args.v)
-    print("Initial run has " + str(value) + " --> Growth: " + str(growth))
+    sys.stderr.write("Initial run has " + str(value) + " --> Growth: " + str(growth))
     if growth:
         sys.exit("No need to gapfill!")
 
     added_reactions = []
     original_reactions = copy.copy(reactions2run)
 
-    # get the suggestions
+    # gapfill the model
+    #############################################################################################
+    #                                       ESSENTIAL PROTEINS                                  #
+    #############################################################################################
+
     essential_reactions = gapfill.suggest_essential_reactions()
     # find only the new reactions
     essential_reactions.difference_update(reactions2run)
     added_reactions.append(("essential", essential_reactions))
     reactions2run.update(essential_reactions)
     status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
-    print("After adding predefined reactions we get " + str(value) + " (growth is " + str(growth) + ")\n\n")
+    sys.stderr.write("After adding ESSENTIAL reactions we get {} (growth is {})\n\n".format(value, growth))
 
     # if this grows then we want to find the minimal set of reactions
     # that we need to add for growth and call it good.
     if growth:
-        additional = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
+        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
                                                   media, biomass_eqtn)
-        print('reactions' + " : " + str(original_reactions.union(additional)))
+        print('reactions' + " : " + str(original_reactions.union(additions)))
         sys.exit(0)
+
+    #############################################################################################
+    #                                       Media import reactions                              #
+    #############################################################################################
+
+    media_reactions = gapfill.suggest_from_media(compounds, reactions2run, media, verbose=args.v)
+    added_reactions.append(("media", media_reactions))
+    reactions2run.update(media_reactions)
+    status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
+    sys.stderr.write("After adding MEDIA reactions we get {} (growth is {})\n\n".format(value, growth))
+    if growth:
+        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
+                                                 media, biomass_eqtn)
+        print('reactions' + " : " + str(original_reactions.union(additions)))
+        sys.exit(0)
+    #############################################################################################
+    #                                        Subsystems                                         #
+    #############################################################################################
+
+    subsystem_reactions = gapfill.suggest_reactions_from_subsystems(reactions, reactions2run)
+    added_reactions.append(("subsystems", subsystem_reactions))
+    reactions2run.update(subsystem_reactions)
+    status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
+    sys.stderr.write("After adding SUBSYSTEM reactions we get {} (growth is {})\n\n".format(value, growth))
+    if growth:
+        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
+                                                 media, biomass_eqtn)
+        print('reactions' + " : " + str(original_reactions.union(additions)))
+        sys.exit(0)
+
+    #############################################################################################
+    #                                        Orphan compounds                                   #
+    #############################################################################################
+
+    orphan_reactions = gapfill.suggest_by_compound(compounds, reactions, reactions2run, 3)
+    added_reactions.append(("orphans", orphan_reactions))
+    reactions2run.update(orphan_reactions)
+    status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
+    sys.stderr.write("After adding ORPHAN reactions we get {} (growth is {})\n\n".format(value, growth))
+    if growth:
+        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
+                                                 media, biomass_eqtn)
+        print('reactions' + " : " + str(original_reactions.union(additions)))
+        sys.exit(0)
+
+    #############################################################################################
+    #                                        Other genomes and organisms                        #
+    #############################################################################################
 
     close_reactions = set()
     if args.c:
@@ -121,10 +173,9 @@ if __name__ == '__main__':
         added_reactions.append(("close genomes ", close_reactions))
         reactions2run.update(close_reactions)
 
-        sys.stderr.write("Reactions to run has " + str(len(reactions2run)) + " reactions\n")
+        sys.stderr.write("At {} reactions to run has {} reactions\n".format(args.c, len(reactions2run)))
         status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
-        sys.stderr.write("After adding reactions in " + args.c + " we get " +
-                         str(value) + " (growth is " + str(growth) + ")\n\n")
+        sys.stderr.write("After adding reactions in {} we get {} (growth is {})\n\n".format(args.c, value, growth))
 
         # if this grows then we want to find the minimal set of reactions
         # that we need to add for growth and call it good.
@@ -132,7 +183,7 @@ if __name__ == '__main__':
             additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
                                                      media, biomass_eqtn)
             # print("Additional reactions required: " + str(additions) + "\n")
-            print('reactions' + " : " + str(original_reactions.union(additions)))
+            print("'reactions': {}".format(original_reactions.union(additions)))
             sys.exit(0)
 
     genus_reactions = set()
@@ -144,10 +195,9 @@ if __name__ == '__main__':
         added_reactions.append(("other genera", genus_reactions))
         reactions2run.update(genus_reactions)
 
-        sys.stderr.write("Reactions to run has " + str(len(reactions2run)) + " reactions\n")
+        sys.stderr.write("At {} reactions to run has {} reactions\n".format(args.g, len(reactions2run)))
         status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
-        sys.stderr.write("After adding reactions in " + args.g + " we get " +
-                         str(value) + " (growth is " + str(growth) + ")\n\n")
+        sys.stderr.write("After adding reactions in {} we get {} (growth is {})\n\n".format(args.g, value, growth))
 
         # if this grows then we want to find the minimal set of reactions
         # that we need to add for growth and call it good.
@@ -155,8 +205,12 @@ if __name__ == '__main__':
             additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
                                                      media, biomass_eqtn)
             # print("Additional reactions required: " + str(additions) + "\n")
-            print('reactions' + " : " + str(original_reactions.union(additions)))
+            print("'reactions': {}".format(original_reactions.union(additions)))
             sys.exit(0)
+
+    #############################################################################################
+    #                                        Probability of inclusion                           #
+    #############################################################################################
 
     # use reactions wtih pLR or pRL > cutoff
     prob_reactions = gapfill.compound_probability(reactions, reactions2run, 0, True, True)
@@ -164,16 +218,20 @@ if __name__ == '__main__':
     added_reactions.append(("probability", prob_reactions))
     reactions2run.update(prob_reactions)
     status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
-    sys.stderr.write("After adding by probability we get " +
-                     str(value) + " (growth is " + str(growth) + ")\n\n")
+    sys.stderr.write("After adding PROBABILITY reactions we get {} (growth is {})\n\n".format(value, growth))
+
     # if this grows then we want to find the minimal set of reactions
     # that we need to add for growth and call it good.
     if growth:
         additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
                                                  media, biomass_eqtn)
         # print("Additional reactions required: " + str(additions) + "\n")
-        print('reactions' + " : " + str(original_reactions.union(additions)))
+        print("'reactions': {}".format(original_reactions.union(additions)))
         sys.exit(0)
+
+    #############################################################################################
+    #                       Reactions that [do or do not] map to proteins                       #
+    #############################################################################################
 
     # propose other reactions that we have proteins for
     with_p_reactions = gapfill.suggest_reactions_with_proteins(reactions, True)
@@ -182,8 +240,7 @@ if __name__ == '__main__':
     added_reactions.append(("With proteins", with_p_reactions))
     reactions2run.update(with_p_reactions)
     status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
-    sys.stderr.write("After adding all reactions with proteins we get: " +
-                     str(value) + " (growth is " + str(growth) + ")\n\n")
+    sys.stderr.write("After adding ALL WITH PROTEINS reactions we get {} (growth is {})\n\n".format(value, growth))
 
     # if this grows then we want to find the minimal set of reactions
     # that we need to add for growth and call it good.
@@ -191,5 +248,5 @@ if __name__ == '__main__':
         additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
                                                  media, biomass_eqtn)
         # print("Additional reactions required: " + str(additions) + "\n")
-        print('reactions' + " : " + str(original_reactions.union(additions)))
+        print("'reactions': {}".format(original_reactions.union(additions)))
         sys.exit(0)

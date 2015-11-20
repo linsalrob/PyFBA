@@ -104,4 +104,6 @@ def suggest_reactions_from_subsystems(reactions, reactions2run,
     if verbose:
         sys.stderr.write("Suggested reactions is " + str(len(suggested_reactions)) + "\n")
 
+    suggested_reactions.difference_update(reactions2run)
+
     return suggested_reactions
