@@ -13,7 +13,7 @@ def suggest_reactions_without_proteins(reactions, verbose=False):
     and it will break your computer if you try and solve it with FBA
 
 
-    :param reactions: our reactions dict
+    :param reactions: our reactions dictionary from parsing the model seed
     :type reactions: dict
     :param verbose: add additional output
     :type verbose: bool
@@ -30,20 +30,20 @@ def suggest_reactions_without_proteins(reactions, verbose=False):
     return nopegs
 
 
-def suggest_reactions_with_proteins(enz_react, verbose=False):
+def suggest_reactions_with_proteins(reactions, verbose=False):
     """
     Suggest those reactions that we don't have but that have proteins
     associated with them.
 
-    :param enz_react: our enzymes and reactions object from parsing the model seed
-    :type enz_react: object.
+    :param reactions: our reactions dictionary from parsing the model seed
+    :type enz_react: dict
     :param verbose: add additional output
-    :type verbose: bool.
+    :type verbose: bool
     :return: a set of reactions that could be added to test for growth
-    :rtype: set.
+    :rtype: set
     """
 
-    peg_rx = filters.reactions_with_proteins(enz_react, verbose=verbose)
+    peg_rx = filters.reactions_with_proteins(reactions, verbose=verbose)
 
     if verbose:
         sys.stderr.write("WITH proteins suggesting {} additional reactions\n".format(len(peg_rx)))
