@@ -106,7 +106,8 @@ if __name__ == '__main__':
     added_reactions.append(("essential", essential_reactions))
     reactions2run.update(essential_reactions)
     status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
-    sys.stderr.write("After adding ESSENTIAL reactions we get {} (growth is {})\n\n".format(value, growth))
+    sys.stderr.write("After adding {} ESSENTIAL reactions we get {} (growth is {})\n\n".format(len(essential_reactions),
+                                                                                               value, growth))
 
     # if this grows then we want to find the minimal set of reactions
     # that we need to add for growth and call it good.
@@ -124,7 +125,8 @@ if __name__ == '__main__':
     added_reactions.append(("media", media_reactions))
     reactions2run.update(media_reactions)
     status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
-    sys.stderr.write("After adding MEDIA reactions we get {} (growth is {})\n\n".format(value, growth))
+    sys.stderr.write("After adding {} MEDIA reactions we get {} (growth is {})\n\n".format(len(media_reactions),
+                                                                                           value, growth))
     if growth:
         additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
                                                  media, biomass_eqtn)
@@ -134,11 +136,12 @@ if __name__ == '__main__':
     #                                        Subsystems                                         #
     #############################################################################################
 
-    subsystem_reactions = gapfill.suggest_reactions_from_subsystems(reactions, reactions2run)
+    subsystem_reactions = gapfill.suggest_reactions_from_subsystems(reactions, reactions2run, 0.5)
     added_reactions.append(("subsystems", subsystem_reactions))
     reactions2run.update(subsystem_reactions)
     status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
-    sys.stderr.write("After adding SUBSYSTEM reactions we get {} (growth is {})\n\n".format(value, growth))
+    sys.stderr.write("After adding {} SUBSYSTEM reactions we get {} (growth is {})\n\n".format(len(subsystem_reactions),
+                                                                                               value, growth))
     if growth:
         additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
                                                  media, biomass_eqtn)
@@ -149,11 +152,12 @@ if __name__ == '__main__':
     #                                        Orphan compounds                                   #
     #############################################################################################
 
-    orphan_reactions = gapfill.suggest_by_compound(compounds, reactions, reactions2run, 3)
+    orphan_reactions = gapfill.suggest_by_compound(compounds, reactions, reactions2run, 1)
     added_reactions.append(("orphans", orphan_reactions))
     reactions2run.update(orphan_reactions)
     status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
-    sys.stderr.write("After adding ORPHAN reactions we get {} (growth is {})\n\n".format(value, growth))
+    sys.stderr.write("After adding {} ORPHAN reactions we get {} (growth is {})\n\n".format(len(orphan_reactions),
+                                                                                            value, growth))
     if growth:
         additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
                                                  media, biomass_eqtn)
@@ -175,7 +179,8 @@ if __name__ == '__main__':
 
         sys.stderr.write("At {} reactions to run has {} reactions\n".format(args.c, len(reactions2run)))
         status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
-        sys.stderr.write("After adding reactions in {} we get {} (growth is {})\n\n".format(args.c, value, growth))
+        sys.stderr.write("After adding {} reactions in {} we get {} (growth is {})\n\n".format(len(close_reactions),
+                                                                                               args.c, value, growth))
 
         # if this grows then we want to find the minimal set of reactions
         # that we need to add for growth and call it good.
@@ -197,7 +202,8 @@ if __name__ == '__main__':
 
         sys.stderr.write("At {} reactions to run has {} reactions\n".format(args.g, len(reactions2run)))
         status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
-        sys.stderr.write("After adding reactions in {} we get {} (growth is {})\n\n".format(args.g, value, growth))
+        sys.stderr.write("After adding {} reactions in {} we get {} (growth is {})\n\n".format(len(genus_reactions),
+                                                                                               args.g, value, growth))
 
         # if this grows then we want to find the minimal set of reactions
         # that we need to add for growth and call it good.
@@ -218,7 +224,8 @@ if __name__ == '__main__':
     added_reactions.append(("probability", prob_reactions))
     reactions2run.update(prob_reactions)
     status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
-    sys.stderr.write("After adding PROBABILITY reactions we get {} (growth is {})\n\n".format(value, growth))
+    sys.stderr.write("After adding {} PROBABILITY reactions we get {} (growth is {})\n\n".format(len(prob_reactions),
+                                                                                                 value, growth))
 
     # if this grows then we want to find the minimal set of reactions
     # that we need to add for growth and call it good.
@@ -240,7 +247,8 @@ if __name__ == '__main__':
     added_reactions.append(("With proteins", with_p_reactions))
     reactions2run.update(with_p_reactions)
     status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
-    sys.stderr.write("After adding ALL WITH PROTEINS reactions we get {} (growth is {})\n\n".format(value, growth))
+    sys.stderr.write("After adding {} ALL WITH PROTEINS reactions ".format(len(with_p_reactions)) +
+                     " we get {} (growth is {})\n\n".format(value, growth))
 
     # if this grows then we want to find the minimal set of reactions
     # that we need to add for growth and call it good.

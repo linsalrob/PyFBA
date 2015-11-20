@@ -49,7 +49,7 @@ def suggest_by_compound(compounds, reactions, reactions2run, max_reactions, verb
     external = 0
     internal = 0
     for c in compounds:
-        if str(compounds[c]) in cpd and cpd[str(compounds[c])] < max_reactions:
+        if str(compounds[c]) in cpd and cpd[str(compounds[c])] <= max_reactions:
             if compounds[c].location == 'e':
                 external += 1
                 ekeep.update(compounds[c].all_reactions())

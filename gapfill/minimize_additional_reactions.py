@@ -105,7 +105,6 @@ def minimize_additional_reactions(base_reactions, optional_reactions, compounds,
             # neither grows. Can we split the list unevenly and see
             # if we get growth
             percent = 40
-            shuffle(current_rx_list)
             left, right = bisections.percent_split(current_rx_list, percent)
             uneven_test = True
             while uneven_test and len(left) > 0 and len(right) > 0:
@@ -130,6 +129,7 @@ def minimize_additional_reactions(base_reactions, optional_reactions, compounds,
                     left, right = bisections.percent_split(current_rx_list, percent)
             if uneven_test:
                 # we never got growth, so we can't continue
+                # we take another stab and try again
                 tries += 1
                 current_rx_list = left + right
                 shuffle(current_rx_list)
