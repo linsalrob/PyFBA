@@ -45,19 +45,27 @@ def minimize_additional_reactions_pl(base_reactions, optional_reactions, compoun
 
     base_reactions = set(base_reactions)
     optional_reactions = set(optional_reactions)
-    # test that (a) the base_reactions set does not grow and the base_reactions
-    # + optional set does grow
-    status, value, growth = fba.run_fba(compounds, reactions, base_reactions, media, biomass_eqn)
-    if growth:
+
+    # test that (a) the base_reactions set does not grow and the base_reactions + optional set does grow
+    start = time.time()
+    params = [
+        [compounds, reactions, base_reactions, media, biomass_eqn],
+        [compounds, reactions, base_reactions.union(optional_reactions), media, biomass_eqn]
+    ]
+
+    # results is a list of the results from run_fba. We only care about growth.
+    results = pool.map(fba.run_fba, params)
+    lgrowth = results[0][2]
+    rgrowth = results[1][2]
+    sys.stderr.write("Running WITH PARALLEL took {}\n".format(time.time() - start))
+
+    if lgrowth:
         sys.stderr.write("The set of 'base' reactions results in growth so we don't need to bisect the optional set\n")
         return set()
-
-    status, value, growth = fba.run_fba(compounds, reactions, base_reactions.union(optional_reactions), media,
-                                        biomass_eqn)
-    if not growth:
+    if not rgrowth:
         raise Exception("'base' union 'optional' reactions does not generate growth. We can not bisect the set\n")
 
-    # first, lets see if we can limit the reactions based on compounds present and still get growth
+    # now lets see if we can limit the reactions based on compounds present and still get growth
     limited_rxn = limit_reactions_by_compound(reactions, base_reactions, optional_reactions)
     status, value, growth = fba.run_fba(compounds, reactions, base_reactions.union(limited_rxn), media,
                                         biomass_eqn)
@@ -67,6 +75,7 @@ def minimize_additional_reactions_pl(base_reactions, optional_reactions, compoun
                              " from {} to {}\n".format(len(optional_reactions), len(limited_rxn)))
         optional_reactions = limited_rxn
 
+    # now iterate through our list of reactions trying to break them down to the minimal set
     test = True
     tries = 0
     maxtries = 5

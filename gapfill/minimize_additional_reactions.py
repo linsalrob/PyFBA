@@ -59,7 +59,7 @@ def minimize_additional_reactions(base_reactions, optional_reactions, compounds,
                                         biomass_eqn)
     if growth:
         if verbose:
-            sys.stderr.write("Succesfully limited the reactions by compound and reduced " +
+            sys.stderr.write("Successfully limited the reactions by compound and reduced " +
                              " from {} to {}\n".format(len(optional_reactions), len(limited_rxn)))
         optional_reactions = limited_rxn
 
