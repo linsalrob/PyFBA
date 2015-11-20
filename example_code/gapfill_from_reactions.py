@@ -88,7 +88,7 @@ if __name__ == '__main__':
     biomass_eqtn = biomass.biomass_equation('gramnegative')
 
     status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn, verbose=args.v)
-    sys.stderr.write("Initial run has " + str(value) + " --> Growth: " + str(growth))
+    sys.stderr.write("For the initial run we get growth of {} which is {}\n".format(value, growth))
     if growth:
         sys.exit("No need to gapfill!")
 
@@ -120,7 +120,7 @@ if __name__ == '__main__':
     #                                       Media import reactions                              #
     #############################################################################################
 
-    media_reactions = gapfill.suggest_from_media(compounds, reactions2run, media, verbose=args.v)
+    media_reactions = gapfill.suggest_from_media(compounds, reactions, reactions2run, media, verbose=args.v)
     added_reactions.append(("media", media_reactions))
     reactions2run.update(media_reactions)
     status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)

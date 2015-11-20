@@ -3,7 +3,7 @@ import sys
 __author__ = "Rob Edwards"
 
 
-def suggest_from_media(compounds, reactions2run, media, verbose=False):
+def suggest_from_media(compounds, reactions, reactions2run, media, verbose=False):
     """
     Suggest which reactions we should add to include media compounds
 
@@ -28,5 +28,6 @@ def suggest_from_media(compounds, reactions2run, media, verbose=False):
             if verbose:
                 sys.stderr.write(str(c) + " is not imported\n")
             suggest.update(rxns)
+    suggest = {r for r in suggest if r in reactions}
 
     return suggest
