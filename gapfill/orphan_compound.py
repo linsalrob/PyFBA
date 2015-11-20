@@ -57,10 +57,10 @@ def suggest_by_compound(compounds, reactions, reactions2run, max_reactions, verb
                 internal += 1
                 ikeep.update(compounds[c].all_reactions())
 
-    ikeep.difference_update(reactions2run)
-    ekeep.difference_update(reactions2run)
-
     if verbose:
         sys.stdout.write("{} | {} | {} | {} | {}\n".format(max_reactions, internal, len(ikeep), external, len(ekeep)))
+
+    ikeep = {r for r in ikeep if r in reactions and r not in reactions2run}
+    ekeep = {r for r in ekeep if r in reactions and r not in reactions2run}
 
     return ikeep
