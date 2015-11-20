@@ -21,9 +21,9 @@ def resolve_additional_reactions(ori_reactions, adnl_reactions, cpds, rcts, medi
     """
     Iteratively resolve additional reactions that are required.
 
-     :param cpds: Our compounds dictionary object
-     :type cpds: dict
-     :param ori_reactions: the set of original reactions that form the base of the model
+    :param cpds: Our compounds dictionary object
+    :type cpds: dict
+    :param ori_reactions: the set of original reactions that form the base of the model
     :type ori_reactions: set
     :param adnl_reactions: a list of tuples of how the reactions were suggested, and the set of additional reactions
     :type adnl_reactions: list of tuple
@@ -35,7 +35,6 @@ def resolve_additional_reactions(ori_reactions, adnl_reactions, cpds, rcts, medi
     :type biomass_eqn: metabolism.Reaction
     :return: set of additional reactions from all of the added_reactions
     :rtype: set
-    '''
     """
 
     reqd_additional = set()
@@ -176,8 +175,6 @@ if __name__ == '__main__':
         close_reactions.difference_update(reactions2run)
         added_reactions.append(("close genomes ", close_reactions))
         reactions2run.update(close_reactions)
-
-        sys.stderr.write("At {} reactions to run has {} reactions\n".format(args.c, len(reactions2run)))
         status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
         sys.stderr.write("After adding {} reactions in {} we get {} (growth is {})\n\n".format(len(close_reactions),
                                                                                                args.c, value, growth))
@@ -199,8 +196,6 @@ if __name__ == '__main__':
         genus_reactions.difference_update(reactions2run)
         added_reactions.append(("other genera", genus_reactions))
         reactions2run.update(genus_reactions)
-
-        sys.stderr.write("At {} reactions to run has {} reactions\n".format(args.g, len(reactions2run)))
         status, value, growth = fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
         sys.stderr.write("After adding {} reactions in {} we get {} (growth is {})\n\n".format(len(genus_reactions),
                                                                                                args.g, value, growth))

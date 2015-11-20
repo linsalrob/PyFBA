@@ -11,6 +11,18 @@ from multiprocessing.dummy import Pool as ThreadPool
 
 __author__ = 'Rob Edwards'
 
+
+def pass_to_fba(params):
+    """
+    A helper function to take a list of parameters and pass them out to run_fba
+    :param params: The parameters for run_fba
+    :type params: list
+    :return: the run_fba results
+    :rtype: str, float, bool
+    """
+    compounds, reactions, base_reactions, media, biomass_eqn = params
+    return fba.run_fba(compounds, reactions, base_reactions, media, biomass_eqn)
+
 def minimize_additional_reactions_pl(base_reactions, optional_reactions, compounds, reactions, media,
                                   biomass_eqn, verbose=False):
     """
@@ -54,7 +66,7 @@ def minimize_additional_reactions_pl(base_reactions, optional_reactions, compoun
     ]
 
     # results is a list of the results from run_fba. We only care about growth.
-    results = pool.map(fba.run_fba, params)
+    results = pool.map(pass_to_fba, params)
     lgrowth = results[0][2]
     rgrowth = results[1][2]
     sys.stderr.write("Running WITH PARALLEL took {}\n".format(time.time() - start))
@@ -96,7 +108,7 @@ def minimize_additional_reactions_pl(base_reactions, optional_reactions, compoun
         ]
 
         # results is a list of the results from run_fba. We only care about growth.
-        results = pool.map(fba.run_fba, params)
+        results = pool.map(pass_to_fba, params)
         lgrowth = results[0][2]
         rgrowth = results[1][2]
         sys.stderr.write("Running WITH PARALLEL took {}\n".format(time.time() - start))
@@ -136,7 +148,7 @@ def minimize_additional_reactions_pl(base_reactions, optional_reactions, compoun
                     [compounds, reactions, base_reactions.union(set(left)), media, biomass_eqn]
                 ]
                 # results is a list of the results from run_fba. We only care about growth.
-                results = pool.map(fba.run_fba, params)
+                results = pool.map(pass_to_fba, params)
                 lgrowth = results[0][2]
                 rgrowth = results[1][2]
                 sys.stderr.write("Running WITH PARALLEL took {}\n".format(time.time() - start))
