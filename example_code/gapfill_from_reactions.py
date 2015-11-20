@@ -96,7 +96,7 @@ if __name__ == '__main__':
     original_reactions = copy.copy(reactions2run)
 
     # get the suggestions
-    essential_reactions = gapfill.suggest_essential_reactions(True)
+    essential_reactions = gapfill.suggest_essential_reactions()
     # find only the new reactions
     essential_reactions.difference_update(reactions2run)
     added_reactions.append(("essential", essential_reactions))
