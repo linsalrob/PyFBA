@@ -21,6 +21,12 @@ import copy
 
 MODELSEED_DIR = "Biochemistry/ModelSEEDDatabase/"
 
+if not os.path.exists(MODELSEED_DIR):
+    MODELSEED_DIR = ''.join(['PyFBA/', MODELSEED_DIR])
+    if not os.path.exists(MODELSEED_DIR):
+        sys.stderr.write("MODEL SEED DIR: {} does not exist. Path: {}\n".format(MODELSEED_DIR, os.getcwd()))
+        sys.exit(-1)
+
 
 def template_reactions(modeltype='microbial'):
     """
@@ -366,7 +372,9 @@ def complexes(cf="SOLRDump/TemplateReactions.tsv", verbose=False):
                         cplxes[cmplx] = set()
                     cplxes[cmplx].add(p[1])
     except IOError as e:
-        sys.exit("There was an error parsing " + cf + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
+        sys.stderr.write("There was an error parsing {}\n".format(os.path.join(MODELSEED_DIR, cf)))
+        sys.stderr.write("I/O error({0}): {1}\n".format(e.errno, e.strerror))
+        sys.exit(-1)
 
     return cplxes
 
