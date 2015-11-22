@@ -77,12 +77,10 @@ def minimize_additional_reactions(base_reactions, optional_reactions, compounds,
         itera += 1
         left, right = bisections.bisect(current_rx_list)
         # left, right = percent_split(current_rx_list, percent)
-        start = time.time()
         r2r = base_reactions.union(set(left))
         status, value, lgrowth = fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
         r2r = base_reactions.union(set(right))
         status, value, rgrowth = fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
-        sys.stderr.write("Running WITHOUT PARALLEL took {}\n".format(time.time()-start))
         if verbose:
             sys.stderr.write("Iteration: {} Try: {} Length: {} and {}".format(itera, tries, len(left), len(right)) +
                              " Growth: {} and {}\n".format(lgrowth, rgrowth))
@@ -112,12 +110,10 @@ def minimize_additional_reactions(base_reactions, optional_reactions, compounds,
             left, right = bisections.percent_split(current_rx_list, percent)
             uneven_test = True
             while uneven_test and len(left) > 0 and len(right) > 0:
-                start = time.time()
                 r2r = base_reactions.union(set(left))
                 status, value, lgrowth = fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
                 r2r = base_reactions.union(set(right))
                 status, value, rgrowth = fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
-                sys.stderr.write("Running WITHOUT PARALLEL took {}\n".format(time.time() - start))
                 if verbose:
                     sys.stderr.write(
                         "Iteration: {} Try: {} Length: {} and {}".format(itera, tries, len(left), len(right)) +
