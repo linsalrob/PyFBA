@@ -79,6 +79,8 @@ To install PyFBA use the `git clone` link you see on the right hand side:
  
 This will download the PyFBA code and install it in a directory called (imaginatively) **PyFBA**. 
 
+## ModelSEEDDatabase
+
 We rely on the [Model SEED](http://www.theseed.org/models) to provide the biochemistry tables that we use (although we 
 have designed PyFBA with the potential to use biochemistry tables from other sources if they become publicly 
 available!). To get the latest ModelSEED data, you need to run these two `git` commands in your new `PyFBA` directory:
