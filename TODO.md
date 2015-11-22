@@ -1,5 +1,4 @@
 #TODO list
 
-1. Make sure we set the is_gapfilled flag for every reaction that is added by gapfillling, and provide a 
-gap_fill_method for that reaction
-2. Write a `calculate_molecular_weight()` method
+1. Write a `calculate_molecular_weight()` method
+2. Rename SBML.parse to SBML.parse_sbml_file and import into __init__.py
