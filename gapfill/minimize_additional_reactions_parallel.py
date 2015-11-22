@@ -1,27 +1,32 @@
+import copy
 import sys
 from random import shuffle
 
 import time
-
-import fba
 from gapfill import bisections, limit_reactions_by_compound
-
-from multiprocessing import Pool
-from multiprocessing.dummy import Pool as ThreadPool
+import Queue
+from threading import Thread
 
 __author__ = 'Rob Edwards'
 
 
-def pass_to_fba(params):
-    """
-    A helper function to take a list of parameters and pass them out to run_fba
-    :param params: The parameters for run_fba
-    :type params: list
-    :return: the run_fba results
-    :rtype: str, float, bool
-    """
-    compounds, reactions, base_reactions, media, biomass_eqn = params
-    return fba.run_fba(compounds, reactions, base_reactions, media, biomass_eqn)
+class FBAWorker(Thread):
+    import fba
+
+    def __init__(self, queue):
+        Thread.__init__(self)
+        self.queue = queue
+
+    def run(self):
+        while True:
+            params = self.queue.get()
+            status, value, growth = self.__class__.fba.run_fba(*params)
+            sys.stderr.write("IN WORKER HAD {} and {}\n".format(value, growth))
+            self.queue.task_done()
+
+
+
+
 
 def minimize_additional_reactions_pl(base_reactions, optional_reactions, compounds, reactions, media,
                                   biomass_eqn, verbose=False):
@@ -53,7 +58,7 @@ def minimize_additional_reactions_pl(base_reactions, optional_reactions, compoun
 
     """
 
-    pool = ThreadPool(2)
+    q = Queue.Queue()
 
     base_reactions = set(base_reactions)
     optional_reactions = set(optional_reactions)
@@ -65,10 +70,31 @@ def minimize_additional_reactions_pl(base_reactions, optional_reactions, compoun
         [compounds, reactions, base_reactions.union(optional_reactions), media, biomass_eqn]
     ]
 
+    sys.stderr.write("BEFORE PASS TO FBA: c: {} r: {} r2r: {} (other r2r: {})\n".format(len(compounds),
+        len(reactions), len(base_reactions), len(base_reactions.union(optional_reactions))))
+
     # results is a list of the results from run_fba. We only care about growth.
-    results = pool.map(pass_to_fba, params)
+
+    #results = pool.map(pass_to_fba, params)
+    for p in params:
+        fbaw = FBAWorker(q)
+        fbaw.daemon = True
+        fbaw.start()
+
+    for p in params:
+        q.put(p)
+
+    q.join()
+    results = q.get()
+
     lgrowth = results[0][2]
     rgrowth = results[1][2]
+
+    #results = fba.run_fba(*params[0])
+    #lgrowth = results[2]
+    #results = fba.run_fba(*params[1])
+    #rgrowth = results[2]
+
     sys.stderr.write("Running WITH PARALLEL took {}\n".format(time.time() - start))
 
     if lgrowth:
@@ -79,8 +105,11 @@ def minimize_additional_reactions_pl(base_reactions, optional_reactions, compoun
 
     # now lets see if we can limit the reactions based on compounds present and still get growth
     limited_rxn = limit_reactions_by_compound(reactions, base_reactions, optional_reactions)
-    status, value, growth = fba.run_fba(compounds, reactions, base_reactions.union(limited_rxn), media,
-                                        biomass_eqn)
+    # status, value, growth = fba.run_fba(compounds, reactions, base_reactions.union(limited_rxn), media,
+    #                                    biomass_eqn)
+    #  ############### WE NEED SOMETHING HERE!!!!!!
+    # results = pass_to_fba(q, [compounds, reactions, base_reactions.union(limited_rxn), media, biomass_eqn])
+    growth = results[2]
     if growth:
         if verbose:
             sys.stderr.write("Successfully limited the reactions by compound and reduced " +
@@ -108,7 +137,7 @@ def minimize_additional_reactions_pl(base_reactions, optional_reactions, compoun
         ]
 
         # results is a list of the results from run_fba. We only care about growth.
-        results = pool.map(pass_to_fba, params)
+        ############### WE NEED SOMETHING HERE!!!!!!
         lgrowth = results[0][2]
         rgrowth = results[1][2]
         sys.stderr.write("Running WITH PARALLEL took {}\n".format(time.time() - start))
@@ -148,7 +177,9 @@ def minimize_additional_reactions_pl(base_reactions, optional_reactions, compoun
                     [compounds, reactions, base_reactions.union(set(left)), media, biomass_eqn]
                 ]
                 # results is a list of the results from run_fba. We only care about growth.
-                results = pool.map(pass_to_fba, params)
+
+                ############### WE NEED SOMETHING HERE!!!!!!
+
                 lgrowth = results[0][2]
                 rgrowth = results[1][2]
                 sys.stderr.write("Running WITH PARALLEL took {}\n".format(time.time() - start))
