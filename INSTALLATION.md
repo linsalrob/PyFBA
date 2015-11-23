@@ -147,8 +147,8 @@ Set the following two environment variables:
 
 Environment variable name | points to | example
 --- | --- | ---
-<pre>ModelSEEDDatabase</pre> | the location of the Model SEED Database directory | ModelSEEDDatabase=/data/ModelSEEDDatabase
-<pre>PYFBA_MEDIA_DIR</pre> | the location of the media files |  PYFBA_MEDIA_DIR=$HOME/FBA/media
+```ModelSEEDDatabase``` | the location of the Model SEED Database directory | ```ModelSEEDDatabase=/data/ModelSEEDDatabase```
+```PYFBA_MEDIA_DIR``` | the location of the media files |  ```PYFBA_MEDIA_DIR=$HOME/FBA/media```
 
 For more information on setting the environment variables, see one of these sites:
 * [Windows](https://www.microsoft.com/resources/documentation/windows/xp/all/proddocs/en-us/sysdm_advancd_environmnt_addchange_variable.mspx)

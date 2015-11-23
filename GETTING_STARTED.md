@@ -19,15 +19,26 @@ If you have downloaded the annotation, there are two essential steps that you ne
 
 ### Convert the genome annotation to reactions
 
-You can use the [example code](example_code) to get started. First, we will create a set of reactions from your genome:
+You can use the [example code](example_code) to get started. First, we will create a set of reactions from your genome.
+First, download the assigned_functions file from the genome directory, or get a list of all funcational roles in your
+genome. Next, convert those to a list of reactions, using one of two commands:
+
+If you have an assigned_functions file that has [peg, functional role]:
 
 ```
-fba_from_reactions.py 
+    python example_code/assigned_functions_to_reactions.py -a assigned_functions > reactions.list
+```
 
+or, if you just have a list of functional roles, one per line:
 
+```
+    python example_code/assigned_functions_to_reactions.py -r functional_roles > reactions.list
+```
 
+### Build a gapfilled model
 
----
+We build a model from the reactions and then try and gap fill it using one of our approaches. 
+
 
 <b id="f1">1</b> The reason that the answers are similar, but not identical, is because the linear solvers give
 slightly different answers. The Model SEED uses a commercial linear solver, but you are probably using GLPK. [↩](#a1)
