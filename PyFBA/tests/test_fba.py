@@ -2,6 +2,8 @@ import copy
 import os
 import unittest
 
+import sys
+
 import PyFBA
 
 test_file_loc = ''
@@ -15,7 +17,11 @@ if os.path.exists('../media/ArgonneLB.txt'):
     media_file_loc = '../media'
 elif os.path.exists('media/ArgonneLB.txt'):
     media_file_loc = 'media'
-
+elif 'PYFBA_MEDIA_DIR' in os.environ and os.path.exists(os.path.join(os.environ['PYFBA_MEDIA_DIR'], 'ArgonneLB.txt')):
+    media_file_loc = os.environ['PYFBA_MEDIA_DIR']
+else:
+    sys.stderr.write("No media found. Can't proceed with testing the FBA.\n")
+    sys.stderr.write("You can specify the media location by setting the PYFBA_MEDIA_DIR environment variable\n")
 
 class TestFBA(unittest.TestCase):
 
@@ -58,6 +64,8 @@ class TestFBA(unittest.TestCase):
 
     def test_run_fba(self):
         """Test running the fba. We build a run a complete FBA based on reaction_list.txt"""
+        if media_file_loc == '':
+            return
         self.assertTrue(os.path.exists(os.path.join(test_file_loc, 'reaction_list.txt')))
         self.assertTrue(os.path.exists(os.path.join(media_file_loc, 'ArgonneLB.txt')))
         compounds, reactions, enzymes = self.__class__.compounds, self.__class__.reactions, self.__class__.enzymes

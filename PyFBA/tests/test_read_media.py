@@ -1,6 +1,8 @@
 import os
 import unittest
 
+import sys
+
 import PyFBA
 from parse import read_media_file
 
@@ -9,6 +11,12 @@ if os.path.exists('../media/ArgonneLB.txt'):
     media_file_loc = '../media'
 elif os.path.exists('media/ArgonneLB.txt'):
     media_file_loc = 'media'
+elif 'PYFBA_MEDIA_DIR' in os.environ and os.path.exists(os.path.join(os.environ['PYFBA_MEDIA_DIR'], 'ArgonneLB.txt')):
+    media_file_loc = os.environ['PYFBA_MEDIA_DIR']
+else:
+    sys.stderr.write("No media found. Can't proceed with the tests.\n")
+    sys.stderr.write("You can specify the media location by setting the PYFBA_MEDIA_DIR environment variable\n")
+    sys.exit(0)
 
 
 class TestReadMedia(unittest.TestCase):

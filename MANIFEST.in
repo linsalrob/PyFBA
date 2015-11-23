@@ -3,3 +3,4 @@ recursive-include example_code *.py
 recursive-include example_data *
 recursive-include media *txt
 recursive-include PyFBA/Biochemistry/SEED *
+include PyFBA/tests/*.txt

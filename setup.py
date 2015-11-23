@@ -68,11 +68,11 @@ setup(
     description='A Python implementation of flux balance analysis',
     tests_require = ['nose'],
     cmdclass={'test': NoseTestCommand},
-    install_requires=['beautifulsoup4', 'glpk=>0.3.1'],
+    install_requires=['beautifulsoup4', 'glpk>=0.3.1', 'python-libsbml-experimental'],
+    include_package_data=True,
     dependency_links = ['https://github.com/bradfordboyle/pyglpk/tarball/master#egg=glpk-0.3.1'],
     classifiers=[
         'Development Status :: 4 - Beta',
-        'Environment:: Console',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',

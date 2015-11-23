@@ -1,5 +1,7 @@
 # INSTALLING PyFBA
 
+# Prerequisites
+
 ## GLPK
 
 To install PyFBA we first need to install a linear solver. We use the [GNU Linear Programming Kit
@@ -68,55 +70,94 @@ clear. We will have detailed installation instructions shortly.
 You need to install [PyGLPK](https://github.com/bradfordboyle/pyglpk). Make sure that you install [this fork of
 PyGLPK](https://github.com/bradfordboyle/pyglpk) as the original has not worked for quite some time!
 
-
-## Install PyFBA
-
-To install PyFBA use the `git clone` link you see on the right hand side:
- 
-```
-    git clone https://github.com/linsalrob/PyFBA.git
-```
- 
-This will download the PyFBA code and install it in a directory called (imaginatively) **PyFBA**. 
-
-## ModelSEEDDatabase
+## Install the ModelSEEDDatabase
 
 We rely on the [Model SEED](http://www.theseed.org/models) to provide the biochemistry tables that we use (although we 
 have designed PyFBA with the potential to use biochemistry tables from other sources if they become publicly 
-available!). To get the latest ModelSEED data, you need to run these two `git` commands in your new `PyFBA` directory:
-
-```
-    git submodule init
-    git submodule update
-```
-
-These will checkout and download all the Model SEED data for you.
-
-As an alternative to this two step process, you can also just use the one line recursive git clone:
-
-```
-    git clone --recursive https://github.com/linsalrob/PyFBA.git
-```
-
-which will download all of the PyFBA *and* Model SEED code in one shot.
-
+available!). To get the latest ModelSEED database you need to clone their GIT repository to a destination on your hard 
+drive. You then need to set the [ModelSEEDDatabase environment variable](#set_the_environment_variables) as explained 
+below.
 
 ## Python modules
 
-See the file [requirements.txt](requirements.txt) for the Python modules that need to be installed as dependencies for
-PyFBA.
+PyFBA depends on a few different Python modules:
 
-## libSBML
+    * [libSBML](http://sbml.org/)
+    * [Beautiful Soup 4](http://www.crummy.com/software/BeautifulSoup/)
+    * [PyGLPK](https://github.com/bradfordboyle/pyglpk)
+    
+As noted [above](#install_pyglpk), you should install PyGLPK from [GitHub](https://github.com/bradfordboyle/pyglpk). 
+However, `setup.py` will try and do the right thing for you.
+
+### libSBML
 
 One or two of the scripts (notably [scripts/run_fba_sbml.py](scripts/run_fba_sbml.py) requires that you have libSBML 
-installed to read the SBML files. We also have our own [SBML parser](parser/SBML.py) if you don't want to install 
-libSBML.
+installed to read the SBML files. 
 
-If you wish to install it you should be able to do so with `pip install`:
+`setup.py` will attempt to install this for you. If you wish to install it manually you should be able to do so 
+with `pip install`:
 
 ```
     pip install python-libsbml-experimental
 ````
+
+### Beautiful Soup 4
+
+XML parsing is a pain in the butt, and so we use [Beautiful Soup 4](http://www.crummy.com/software/BeautifulSoup)
+to make life easy! `setup.py` should try and install this for you, but if you wish to do it manually, you should
+be able to do so with `pip intall`:
+
+```
+   pip install beautifulsoup4
+```
+
+# Install PyFBA
+
+You should be able to install PyFBA from [PyPI](https://pypi.python.org) using `pip install`:
+
+```
+    pip install pyfba
+```
+
+If that does not work, you can clone the git hub repository and run setup.py manually:
+
+```
+    git clone https://github.com/linsalrob/PyFBA.git
+    cd PyFBA
+    # run the tests
+    python setup.py test
+    # install the code
+    python setup.py install
+```
+
+If you do not have administrative (root) access to your machine you can also install the code in a 
+[local directory](https://docs.python.org/2/install/#alternate-installation):
+```
+    python setup.py install --user
+```
+
+
+# Set the environment variables
+
+PyFBA relies on the Model SEED Database, and we need to know where that is installed. We also provide some example
+media files with the download and you can set an environment variable (PYFBA_MEDIA_DIR) that points to the location of
+those files if you want to include them for your models.
+ 
+Set the following two environment variables:
+
+Environment variable name | points to | example
+--- | --- | ---
+<pre>ModelSEEDDatabase</pre> | the location of the Model SEED Database directory | ModelSEEDDatabase=/data/ModelSEEDDatabase
+<pre>PYFBA_MEDIA_DIR</pre> | the location of the media files |  PYFBA_MEDIA_DIR=$HOME/FBA/media
+
+For more information on setting the environment variables, see one of these sites:
+* [Windows](https://www.microsoft.com/resources/documentation/windows/xp/all/proddocs/en-us/sysdm_advancd_environmnt_addchange_variable.mspx)
+* MacOS:
+    * You can set them globally as described (here)[http://stackoverflow.com/questions/135688/setting-environment-variables-in-os-x/3756686#3756686]
+or (here)[https://developer.apple.com/library/mac/documentation/MacOSX/Conceptual/BPRuntimeConfig/Articles/EnvironmentVars.html]
+    * You can set them in your .bashrc/.profile as described for Linux (below)
+    * You can set them in each terminal by using ```export ModelSEEDDatabase=/data/ModelSEEDDatabase```
+* [Linux](http://www.cyberciti.biz/faq/set-environment-variable-linux/)
 
 
 # Tests
@@ -127,6 +168,12 @@ solve a simple set of equations. You should check that runs with `nosetests test
 test that should pass. If that test does not pass, there is an issue with your installation of GLPK, GMP, or PyGLPK and
 you should check that each of them are installed in the correct locations.
 
-There are many more tests in the [tests](tests/) folder and you can run all of them with `nosetests tests/`. They 
+There are many more tests in the [tests](PyFBA/tests/) folder and you can run all of them with `nosetests tests/`. They 
 should all run without an error, and will test different aspects of the PyFBA installation.
 
+If you download and install the code from github, you can also run:
+
+```
+python setup.py test
+```
+to run all the tests
