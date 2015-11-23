@@ -5,6 +5,7 @@ import PyFBA
 A class to test the reaction class. 
 """
 
+
 class TestReaction(unittest.TestCase):
 
     def setUp(self):
@@ -18,8 +19,7 @@ class TestReaction(unittest.TestCase):
         self.assertEqual(name, "test reaction")
 
     def test_reaction_left_compounds(self):
-        """Left compounds are a set of compounds that are on the left
-        of the reaction. They can be any objects. """
+        """Left compounds are a set of compounds that are on the left of the reaction."""
         # check that we are provided with a set
         self.assertRaises(
             TypeError,
@@ -36,8 +36,7 @@ class TestReaction(unittest.TestCase):
         self.assertEqual(self.reaction.number_of_left_compounds(), 3)
 
     def test_reaction_left_compounds_abundance(self):
-        """Test adding the abundance of compounds on the left side of
-        the equation"""
+        """Test adding the abundance of compounds on the left side of the equation"""
         self.reaction.add_left_compounds({"a"})
         # check that we raise an Exception if the compound is not there
         self.assertRaises(
@@ -59,8 +58,7 @@ class TestReaction(unittest.TestCase):
         self.reaction.set_left_compound_abundance('a', 1.5)
 
     def test_reaction_left_compounds_abundance_retrieval(self):
-        """Test getting the abundance of compounds on the left side of
-        the equation"""
+        """Test getting the abundance of compounds on the left side of the equation"""
         self.reaction.add_left_compounds({"a"})
         self.reaction.set_left_compound_abundance('a', 1.5)
         # check we throw an exception 
@@ -76,8 +74,7 @@ class TestReaction(unittest.TestCase):
             self.reaction.left_abundance['a'], 1.5)
 
     def test_reaction_right_compounds(self):
-        """Right compounds are a set of compounds that are on the right
-        of the reaction. They can be any objects. """
+        """Right compounds are a set of compounds that are on the right of the reaction."""
         # check that we are provided with a set
         self.assertRaises(
             TypeError,
@@ -94,8 +91,7 @@ class TestReaction(unittest.TestCase):
         self.assertEqual(self.reaction.number_of_right_compounds(), 3)
     
     def test_reaction_right_compounds_abundance(self):
-        """Test adding the abundance of compounds on the right side of
-        the equation"""
+        """Test adding the abundance of compounds on the right side of the equation"""
         self.reaction.add_right_compounds({"a"})
         # check that we raise an Exception if the compound is not there
         self.assertRaises(
@@ -117,8 +113,7 @@ class TestReaction(unittest.TestCase):
         self.reaction.set_right_compound_abundance('a', 1.5)
 
     def test_reaction_right_compounds_abundance_retrieval(self):
-        """Test getting the abundance of compounds on the right side of
-        the equation"""
+        """Test getting the abundance of compounds on the right side of the equation"""
         self.reaction.add_right_compounds({"a"})
         self.reaction.set_right_compound_abundance('a', 1.5)
         # check we throw an exception 
@@ -141,11 +136,10 @@ class TestReaction(unittest.TestCase):
         self.assertEqual(self.reaction.all_compounds(), ans)
 
     def test_num_compounds(self):
-        """Test that we can get all the compounds back"""
+        """Test that we can get the number of compounds back"""
         self.reaction.add_left_compounds({"x", "y", "z"})
         self.reaction.add_right_compounds({"a", "b", "c"})
         self.assertEqual(self.reaction.number_of_compounds(), 6)
-
 
     def test_equals(self):
         """Test the equals method defined for two reactions"""
@@ -159,8 +153,7 @@ class TestReaction(unittest.TestCase):
         self.assertNotEqual(self.reaction, other_reaction)
 
     def test_equals_reverse(self):
-        """Test the equals method defined for two reactions but
-        when l=r and r=l"""
+        """Test the equals method defined for two reactions but when l=r and r=l"""
         other_reaction = PyFBA.metabolism.Reaction("similar reaction")
         self.reaction.add_right_compounds({"a", "b", "c"})
         self.reaction.add_left_compounds({"1", "2", "3"})
@@ -197,8 +190,6 @@ class TestReaction(unittest.TestCase):
         self.assertTrue(self.reaction.opposite_sides("1", "a"))
         self.assertTrue(self.reaction.opposite_sides("1", "b"))
         self.assertTrue(self.reaction.opposite_sides("1", "c"))
-
-
 
     def test_p_LR(self):
         """Test the probability of running left to right"""
@@ -243,6 +234,7 @@ class TestReaction(unittest.TestCase):
         )
 
     def test_enzymes(self):
+        """Test adding enzymes to reactions and complexes to enzymes"""
         self.reaction.add_enzymes({'a', 'b', 'c'})
         self.assertTrue(self.reaction.has_enzyme("a"))
         self.assertFalse(self.reaction.has_enzyme("A"))
@@ -258,8 +250,8 @@ class TestReaction(unittest.TestCase):
         )
         self.assertEqual({'a', 'b', 'c'}, self.reaction.all_enzymes())
 
-
     def test_pegs(self):
+        """Test identifying pegs in reactions"""
         self.reaction.add_pegs({"1", "w", "2", "a"})
         self.assertTrue(self.reaction.has_peg("w"))
         self.assertFalse(self.reaction.has_peg("W"))
@@ -270,8 +262,7 @@ class TestReaction(unittest.TestCase):
         )
 
     def test_input_output(self):
-        """Input and output should start out false, but we should be
-        able to make them true"""
+        """Input and output should start out false, but we should be able to make them true"""
         self.assertFalse(self.reaction.is_input_reaction())
         self.assertFalse(self.reaction.is_output_reaction())
         self.reaction.toggle_input_reaction()
@@ -280,8 +271,7 @@ class TestReaction(unittest.TestCase):
         self.assertTrue(self.reaction.is_output_reaction())
 
     def test_reverse_reaction(self):
-        """Convert everything from the left side to the right
-        side and vice versa"""
+        """Convert everything from the left side to the right side and vice versa"""
         self.reaction.add_left_compounds({'a', 'b', 'c'})
         self.reaction.add_right_compounds({'x', 'y', 'z'})
         self.reaction.set_left_compound_abundance('a', 1)
@@ -301,7 +291,6 @@ class TestReaction(unittest.TestCase):
         self.assertEqual(self.reaction.get_right_compound_abundance('b'), 2)
         self.assertEqual(self.reaction.get_probability_right_to_left(), 20)
         self.assertEqual(self.reaction.get_probability_left_to_right(), 10)
-
 
 
 if __name__ == '__main__':

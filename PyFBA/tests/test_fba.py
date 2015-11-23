@@ -4,6 +4,18 @@ import unittest
 
 import PyFBA
 
+test_file_loc = ''
+if os.path.exists('tests/roles.txt'):
+    test_file_loc = 'tests'
+elif os.path.exists('PyFBA/tests/roles.txt'):
+    test_file_loc = 'PyFBA/tests'
+
+media_file_loc = ''
+if os.path.exists('../media/ArgonneLB.txt'):
+    media_file_loc = '../media'
+elif os.path.exists('media/ArgonneLB.txt'):
+    media_file_loc = 'media'
+
 
 class TestFBA(unittest.TestCase):
 
@@ -46,11 +58,11 @@ class TestFBA(unittest.TestCase):
 
     def test_run_fba(self):
         """Test running the fba. We build a run a complete FBA based on reaction_list.txt"""
-        self.assertTrue(os.path.exists('tests/reaction_list.txt'))
-        self.assertTrue(os.path.exists('../media/ArgonneLB.txt'))
+        self.assertTrue(os.path.exists(os.path.join(test_file_loc, 'reaction_list.txt')))
+        self.assertTrue(os.path.exists(os.path.join(media_file_loc, 'ArgonneLB.txt')))
         compounds, reactions, enzymes = self.__class__.compounds, self.__class__.reactions, self.__class__.enzymes
         reactions2run = set()
-        with open('tests/reaction_list.txt', 'r') as f:
+        with open(os.path.join(test_file_loc, 'reaction_list.txt'), 'r') as f:
             for l in f:
                 if l.startswith('#'):
                     continue
@@ -59,7 +71,7 @@ class TestFBA(unittest.TestCase):
                 r = l.strip()
                 if r in reactions:
                     reactions2run.add(r)
-        media = PyFBA.parse.read_media_file('../media/ArgonneLB.txt')
+        media = PyFBA.parse.read_media_file(os.path.join(media_file_loc, 'ArgonneLB.txt'))
         biomass = PyFBA.metabolism.biomass_equation('gram_negative')
         status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass, verbose=False)
         self.assertTrue(growth)

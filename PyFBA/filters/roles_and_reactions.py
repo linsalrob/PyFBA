@@ -15,7 +15,7 @@ def reactions_to_roles(reaction_set, verbose=False):
     :param verbose: print error reporting
     :type verbose: bool
     :return: a hash of reaction ids and set of the associated roles
-    :rtype: dict of sets
+    :rtype: dict of set of str
     """
 
     if isinstance(reaction_set, list):
@@ -72,7 +72,7 @@ def roles_to_reactions(roles, verbose=False):
     :param verbose: print error reporting
     :type verbose: bool
     :return: a hash of roles and set of the associated reaction ids
-    :rtype: dict of sets
+    :rtype: dict of set of str
     """
 
     if isinstance(roles, list):

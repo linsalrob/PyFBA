@@ -2,18 +2,6 @@ import unittest
 import glpk
 
 
-
-"""
-A class to test the Linear Programming Installation.
-
-This class does not require any code from PyFBA and should pass a single test if your installation is correct.
-
-This example is from https://github.com/bradfordboyle/pyglpk/blob/master/html/ex_ref.html
-
-
-
-"""
-
 class TestLinearProgramming(unittest.TestCase):
 
     def setUp(self):
@@ -34,7 +22,7 @@ class TestLinearProgramming(unittest.TestCase):
         # self.lp.matrix = [1.0, 10.0, 2.0, 1.0, 4.0, 2.0, 1.0, 5.0, 6.0]
 
         # the objective coefficient
-        self.lp.obj[:] = [ 10.0, 6.0, 4.0 ]
+        self.lp.obj[:] = [10.0, 6.0, 4.0]
 
         # add the row and column bounds
         rbounds = [(None, 100.0), (None, 600.0), (None, 300.0)]

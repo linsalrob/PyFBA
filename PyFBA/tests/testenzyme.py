@@ -5,6 +5,7 @@ import PyFBA
 A class to test the compound class. 
 """
 
+
 class TestEnzyme(unittest.TestCase):
 
     def setUp(self):
@@ -45,7 +46,7 @@ class TestEnzyme(unittest.TestCase):
         self.assertEqual(len(self.enz.roles), 6)
 
     def has_role(self):
-        """Test the has role funtion"""
+        """Test the has role function"""
         self.assertTrue(self.enz.has_role('b'))
         self.assertFalse(self.enz.has_role('B'))
 
@@ -68,12 +69,12 @@ class TestEnzyme(unittest.TestCase):
             {'peg1', 'peg2'}
         )
         # this should work
-        self.enz.add_pegs({'p1':'a', 'p2':'b'})
+        self.enz.add_pegs({'p1': 'a', 'p2': 'b'})
         # check that the role must be present
         self.assertRaises(
             KeyError,
             self.enz.add_pegs,
-            {'p3':'role not present!'}
+            {'p3': 'role not present!'}
         )
 
     def test_add_a_peg(self):
@@ -99,7 +100,7 @@ class TestEnzyme(unittest.TestCase):
     def test_number_of_pegs(self):
         """ How many pegs do we have? """
         self.assertEqual(self.enz.number_of_pegs(), 0)
-        self.enz.add_pegs({'p1':'a', 'p2':'b', 'p3' : 'c'})
+        self.enz.add_pegs({'p1': 'a', 'p2': 'b', 'p3': 'c'})
         self.assertEqual(self.enz.number_of_pegs(), 3)
 
     def test_add_reaction(self):

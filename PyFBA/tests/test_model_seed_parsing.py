@@ -19,17 +19,14 @@ if not os.path.exists(MODELSEED_DIR):
 
 class TestModelSeedParsing(unittest.TestCase):
 
-
     def setUp(self):
         """
         This is run before everything else
-        :return:
-        :rtype:
         """
         self.assertTrue(os.path.exists(MODELSEED_DIR))
 
     def test_template_working(self):
-        '''Test the template parsing is correcting the orientation of reactions'''
+        """Test the template parsing is correcting the orientation of reactions"""
         # without template parsing rxn00001 has direction =
         # after GramNegative template parsing rxn00001 has direction >
         compounds, reactions = PyFBA.parse.model_seed.reactions()
@@ -96,7 +93,7 @@ class TestModelSeedParsing(unittest.TestCase):
         self.assertGreaterEqual(direction['='], 18608)
 
     def test_complexes(self):
-        """test parsing the complexes by parse.model_seed"""
+        """Test parsing the complexes by parse.model_seed"""
         cmplxs = PyFBA.parse.model_seed.complexes()
         self.assertGreaterEqual(len(cmplxs), 4183)
 
@@ -113,7 +110,8 @@ class TestModelSeedParsing(unittest.TestCase):
         enzs = PyFBA.parse.model_seed.enzymes()
         self.assertEqual(len(enzs), 4067)
 
-    def test_enzymes_and_reactions(self):
+    def test_compounds_enzymes_and_reactions(self):
+        """Test retrieving the compounds, enzymes, and reactions"""
         cpds, rcts, enzs = PyFBA.parse.model_seed.compounds_reactions_enzymes()
         self.assertEqual(len(enzs), 4067)
         self.assertGreaterEqual(len(rcts), 34696)

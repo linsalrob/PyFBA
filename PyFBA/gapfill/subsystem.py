@@ -5,13 +5,13 @@ import PyFBA
 
 __author__ = 'Rob Edwards'
 
+# We want to find the path to the Biochemistry/SEED/ files. This is a relative path and is two levels above us
+pyfbadir, tail = os.path.split(__file__)
+pyfbadir, tail = os.path.split(pyfbadir)
+SS_FILE_PATH = os.path.join(pyfbadir, "Biochemistry/SEED/Subsystems/SS_functions_Oct_2015.txt")
 
-this_dir, this_filename = os.path.split(__file__)
-SS_FILE_PATH = os.path.join(this_dir, "data", "data.txt")
 
-def suggest_reactions_from_subsystems(reactions, reactions2run,
-                                      ssfile="Biochemistry/SEED/Subsystems/SS_functions_Oct_2015.txt", threshold=0,
-                                      verbose=False):
+def suggest_reactions_from_subsystems(reactions, reactions2run, ssfile=SS_FILE_PATH, threshold=0, verbose=False):
     """
     Read roles and subsystems from the subsystems file (which has
     role, subsystem, classification 1, classification 2) and make
@@ -23,13 +23,13 @@ def suggest_reactions_from_subsystems(reactions, reactions2run,
     :param reactions: our reactions dictionary from parsing the model seed
     :type reactions: dict
     :param reactions2run: set of reactions that  we are going to run
-    :type reactions2run: set.
+    :type reactions2run: set
     :param ssfile: a subsystem file (really the output of dump_functions.pl on the seed machines)
-    :type ssfile: str.
+    :type ssfile: str
     :param verbose: add additional output
-    :type verbose: bool.
+    :type verbose: bool
     :return: a set of reactions that could be added to test for growth
-    :rtype: set.
+    :rtype: set
     """
 
     if not os.path.exists(ssfile):

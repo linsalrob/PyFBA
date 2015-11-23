@@ -5,6 +5,7 @@ import PyFBA
 A class to test the compound class. 
 """
 
+
 class TestCompound(unittest.TestCase):
 
     def setUp(self):
@@ -23,9 +24,11 @@ class TestCompound(unittest.TestCase):
         self.assertEqual(hash(self.compound), hash(("test compound", 'c')))
 
     def test_location(self):
+        """Test the location of a compound"""
         self.assertEqual(self.compound.location, 'c')
 
     def test_in_reactions(self):
+        """Test which reactions the compound is in"""
         self.compound.add_reactions({"a", "b", "c"})
         self.compound.add_reactions({"d"})
         self.assertTrue(self.compound.has_reaction("a"))
