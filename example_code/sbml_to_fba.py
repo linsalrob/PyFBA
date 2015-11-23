@@ -3,9 +3,7 @@ import copy
 import os
 import sys
 
-from fba import run_fba
-from metabolism import biomass_equation, Compound
-from parse import SBML, read_media_file
+import PyFBA
 
 __author__ = 'Rob Edwards'
 
@@ -18,7 +16,7 @@ args = parser.parse_args()
 if not os.path.exists(args.s):
     sys.exit("SBML file {} was not found".format(args.s))
 
-sbml = SBML.parse(args.s, False)
+sbml = PyFBA.parse.parse_sbml_file(args.s, False)
 
 # get the reactions from the SBML file. This is a dict of metabolite.Reaction objects
 rxn = sbml.reactions
@@ -26,7 +24,7 @@ if args.v:
     sys.stderr.write("List of 'rxns' list: {}\n".format(len(rxn)))
 
 # filter out reactions where one of the components is an uptake/secretion reaction (aka boundary reaction)
-reactions_to_run  = set()
+reactions_to_run = set()
 uptake_secretion_reactions = {}
 biomass_equation = None
 for r in rxn:
@@ -50,13 +48,13 @@ cps = sbml.compounds
 cpds = {}
 for c in cps:
     if not cps[c].uptake_secretion:
-        cpds[c]  = cps[c]
+        cpds[c] = cps[c]
 
 if args.v:
     sys.stderr.write("List of 'cpds' list: {}\n".format(len(cpds)))
 
 # read the media file
-media = read_media_file(args.m)
+media = PyFBA.parse.read_media_file(args.m)
 
 # correct some of the media names so that they match the compounds in the
 # SBML file. This is why we should use compound IDs and not names!
@@ -71,13 +69,13 @@ for m in media:
         if testname in cpds:
             newname = m.name.replace('-', '_')
             newloc = m.location
-            newmedia.add(Compound(newname, newloc))
+            newmedia.add(PyFBA.metabolism.Compound(newname, newloc))
         else:
             testname = str(intracellular_m).replace('+', '')
             if testname in cpds:
                 newname = m.name.replace('+', '')
                 newloc = m.location
-                newmedia.add(Compound(newname, newloc))
+                newmedia.add(PyFBA.metabolism.Compound(newname, newloc))
             else:
                 newmedia.add(m)
 
@@ -96,5 +94,6 @@ for u in uptake_secretion_reactions:
 
 
 # run the fba
-status, value, growth = run_fba(cpds, rxn, reactions_to_run, media, biomass_equation, uptake_secretion_reactions, args.v)
+status, value, growth = PyFBA.fba.run_fba(cpds, rxn, reactions_to_run, media, biomass_equation,
+                                          uptake_secretion_reactions, args.v)
 sys.stdout.write("The FBA completed with value; {} and growth: {}\n".format(value, growth))

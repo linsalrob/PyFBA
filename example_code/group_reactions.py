@@ -5,7 +5,7 @@ This should segregate reactions based on common compounds, but not those that ar
 import argparse
 import sys
 
-from parse import model_seed
+import PyFBA
 
 
 def jaccard(s1, s2):
@@ -229,7 +229,7 @@ if __name__ == "__main__":
     parser.add_argument('-t', help="Threshold for clustering. Default = 0.5", type=float, default=0.5)
     args = parser.parse_args()
 
-    compounds, allreactions, enzymes = model_seed.compounds_reactions_enzymes()
+    compounds, allreactions, enzymes = PyFBA.parse.model_seed.compounds_reactions_enzymes()
 
     reaction_keys = allreactions.keys()
 

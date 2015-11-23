@@ -24,7 +24,7 @@ Copyright Rob Edwards, Daniel Cuevas 2015
 
 import sys
 import libsbml
-import lp
+import PyFBA.lp as lp
 import argparse
 
 
