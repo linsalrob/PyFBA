@@ -2,4 +2,4 @@ include *.txt
 recursive-include example_code *.py
 recursive-include example_data *
 recursive-include media *txt
-recursive-include Biochemistry/SEED *
+recursive-include PyFBA/Biochemistry/SEED *
