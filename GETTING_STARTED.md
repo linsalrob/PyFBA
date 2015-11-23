@@ -37,7 +37,16 @@ or, if you just have a list of functional roles, one per line:
 
 ### Build a gapfilled model
 
-We build a model from the reactions and then try and gap fill it using one of our approaches. 
+We build a model from the reactions and then try and gap fill it using all of our approaches. 
+
+```
+python scripts/gapfill_from_reactions.py -r reactions.list -m MOPS_NoC_Alpha-D-Glucose.txt > out.txt 2> out.err
+```
+
+This will use the media file `MOPS_NoC_Alpha-D-Glucose.txt` and try and gap fill the model so that it grows on this 
+media.
+
+---
 
 
 <b id="f1">1</b> The reason that the answers are similar, but not identical, is because the linear solvers give
