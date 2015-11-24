@@ -1,0 +1,150 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Pyfba by linsalrob</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Pyfba</h1>
+        <p>A python implementation of flux balance analysis to model microbial metabolism</p>
+
+        <p class="view"><a href="https://github.com/linsalrob/PyFBA">View the Project on GitHub <small>linsalrob/PyFBA</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/linsalrob/PyFBA/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/linsalrob/PyFBA/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/linsalrob/PyFBA">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+<h1 id="installing-pyfba">INSTALLING PyFBA</h1>
+<h1 id="prerequisites">Prerequisites</h1>
+<h2 id="glpk">GLPK</h2>
+<p>To install PyFBA we first need to install a linear solver. We use the <a href="https://www.gnu.org/software/glpk/">GNU Linear Programming Kit GLPK</a> program as our linear solver, although you can use others. In addition, you will need to install the <a href="https://gmplib.org/">Gnu Multiple Precision</a> arithmetic library. Finally, we install PyGLPK, a Python wrapper around GLPK.</p>
+<h3 id="install-glpk-on-linux">Install GLPK on Linux</h3>
+<h4 id="installing-glpk-on-ubuntu-or-other-debian-systems">Installing GLPK on Ubuntu or other Debian systems</h4>
+<p>If you are on a Debian system you can install them with</p>
+<p><code>apt-get install libglpk-dev glpk-utils glpk-doc libglpk36 libgmp10 libgmpxx4ldbl</code></p>
+<p>(You maybe able to get away with less, but that is what I have installed).</p>
+<p>Once you have that installed, you should be able to continue with the PyGLPK installation below</p>
+<h4 id="installing-glpk-on-centos">Installing GLPK on CentOS</h4>
+<p>If you are on a CentOS system, the easiest way to install this is to first install GMP, download the GLPK library from GNU, and build it:</p>
+<pre><code>yum install gmp.x86_64 gmp-devel.x86_64
+mkdir glpk 
+cd glpk/ 
+wget ftp://mirrors.kernel.org/gnu/glpk/glpk-4.56.tar.gz
+tar zxf glpk-4.56.tar.gz
+cd glpk-4.56 
+./configure  --with-gmp
+make 
+make test 
+make install</code></pre>
+<p>At this point, you need to add <code>/usr/local/lib</code> to your <code>LD_LIBRARY_PATH</code> and then continue with the PyGLPK installation below</p>
+<p><code>export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib python2.7 setup.py build python2.7 setup.py install</code></p>
+<h3 id="installing-glpk-on-mac-osx-10.10-yosemite">Installing GLPK on Mac OSX 10.10 Yosemite</h3>
+<p>Unfortunately, the easiest way is to build glpk from source</p>
+<p>Download the following file: http://ftp.gnu.org/gnu/glpk/glpk-4.47.tar.gz and then open a Terminal and install GLPK:</p>
+<pre><code>mkdir glpk_install
+cd glpk_install
+# Move tar file here to this directory 
+mv ~/Downloads/glpk-4.47.tar.gz ./ 
+tar xzf glpk-4.47.tar.gz 
+cd glpk-4.47
+./configure
+make 
+make test 
+make install</code></pre>
+<h3 id="installing-glpk-on-windows">Installing GLPK on Windows</h3>
+<p>You will need to install <a href="http://winglpk.sourceforge.net/">WinGLPK</a> but their installation instructions are not very clear. We will have detailed installation instructions shortly.</p>
+<h2 id="install-pyglpk">Install PyGLPK</h2>
+<p>You need to install <a href="https://github.com/bradfordboyle/pyglpk">PyGLPK</a>. Make sure that you install <a href="https://github.com/bradfordboyle/pyglpk">this fork of PyGLPK</a> as the original has not worked for quite some time!</p>
+<h2 id="install-the-modelseeddatabase">Install the ModelSEEDDatabase</h2>
+<p>We rely on the <a href="http://www.theseed.org/models">Model SEED</a> to provide the biochemistry tables that we use (although we have designed PyFBA with the potential to use biochemistry tables from other sources if they become publicly available!). To get the latest ModelSEED database you need to clone their GIT repository to a destination on your hard drive. You then need to set the <a href="#set_the_environment_variables">ModelSEEDDatabase environment variable</a> as explained below.</p>
+<h2 id="python-modules">Python modules</h2>
+<p>PyFBA depends on a few different Python modules:</p>
+<pre><code>* [libSBML](http://sbml.org/)
+* [Beautiful Soup 4](http://www.crummy.com/software/BeautifulSoup/)
+* [PyGLPK](https://github.com/bradfordboyle/pyglpk)</code></pre>
+<p>As noted <a href="#install_pyglpk">above</a>, you should install PyGLPK from <a href="https://github.com/bradfordboyle/pyglpk">GitHub</a>. However, <code>setup.py</code> will try and do the right thing for you.</p>
+<h3 id="libsbml">libSBML</h3>
+<p>One or two of the scripts (notably <a href="scripts/run_fba_sbml.py">scripts/run_fba_sbml.py</a> requires that you have libSBML installed to read the SBML files.</p>
+<p><code>setup.py</code> will attempt to install this for you. If you wish to install it manually you should be able to do so with <code>pip install</code>:</p>
+<pre><code>    pip install python-libsbml-experimental</code></pre>
+<h3 id="beautiful-soup-4">Beautiful Soup 4</h3>
+<p>XML parsing is a pain in the butt, and so we use <a href="http://www.crummy.com/software/BeautifulSoup">Beautiful Soup 4</a> to make life easy! <code>setup.py</code> should try and install this for you, but if you wish to do it manually, you should be able to do so with <code>pip intall</code>:</p>
+<pre><code>   pip install beautifulsoup4</code></pre>
+<h1 id="install-pyfba">Install PyFBA</h1>
+<p>You should be able to install PyFBA from <a href="https://pypi.python.org">PyPI</a> using <code>pip install</code>:</p>
+<pre><code>    pip install pyfba</code></pre>
+<p>If that does not work, you can clone the git hub repository and run setup.py manually:</p>
+<pre><code>    git clone https://github.com/linsalrob/PyFBA.git
+    cd PyFBA
+    # run the tests
+    python setup.py test
+    # install the code
+    python setup.py install</code></pre>
+<p>If you do not have administrative (root) access to your machine you can also install the code in a <a href="https://docs.python.org/2/install/#alternate-installation">local directory</a>:</p>
+<pre><code>    python setup.py install --user</code></pre>
+<h1 id="set-the-environment-variables">Set the environment variables</h1>
+<p>PyFBA relies on the Model SEED Database, and we need to know where that is installed. We also provide some example media files with the download and you can set an environment variable (PYFBA_MEDIA_DIR) that points to the location of those files if you want to include them for your models.</p>
+<p>Set the following two environment variables:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Environment variable name</th>
+<th align="left">points to</th>
+<th align="left">example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>ModelSEEDDatabase</code></td>
+<td align="left">the location of the Model SEED Database directory</td>
+<td align="left"><code>ModelSEEDDatabase=/data/ModelSEEDDatabase</code></td>
+</tr>
+<tr class="even">
+<td align="left"><code>PYFBA_MEDIA_DIR</code></td>
+<td align="left">the location of the media files</td>
+<td align="left"><code>PYFBA_MEDIA_DIR=$HOME/FBA/media</code></td>
+</tr>
+</tbody>
+</table>
+<p>For more information on setting the environment variables, see one of these sites: * <a href="https://www.microsoft.com/resources/documentation/windows/xp/all/proddocs/en-us/sysdm_advancd_environmnt_addchange_variable.mspx">Windows</a> * MacOS: * You can set them globally as described (here)[http://stackoverflow.com/questions/135688/setting-environment-variables-in-os-x/3756686#3756686] or (here)[https://developer.apple.com/library/mac/documentation/MacOSX/Conceptual/BPRuntimeConfig/Articles/EnvironmentVars.html] * You can set them in your .bashrc/.profile as described for Linux (below) * You can set them in each terminal by using <code>export ModelSEEDDatabase=/data/ModelSEEDDatabase</code> * <a href="http://www.cyberciti.biz/faq/set-environment-variable-linux/">Linux</a></p>
+<h1 id="tests">Tests</h1>
+<p>The code in tests/testlp.py uses the example in the documentation (which is also the example in the GLPK documentation) to solve a linear programming problem, and only requires GLPX/GMP and PyGLPK. It does not require any PyFBA code to solve a simple set of equations. You should check that runs with <code>nosetests tests/testlp.py</code> and it should run a single test that should pass. If that test does not pass, there is an issue with your installation of GLPK, GMP, or PyGLPK and you should check that each of them are installed in the correct locations.</p>
+<p>There are many more tests in the <a href="PyFBA/tests/">tests</a> folder and you can run all of them with <code>nosetests tests/</code>. They should all run without an error, and will test different aspects of the PyFBA installation.</p>
+<p>If you download and install the code from github, you can also run:</p>
+<pre><code>python setup.py test</code></pre>
+<p>to run all the tests</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/linsalrob">linsalrob</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-70621720-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
+
