@@ -4,7 +4,9 @@ import unittest
 
 import PyFBA
 
-MODELSEED_DIR = os.environ['ModelSEEDDatabase']
+MODELSEED_DIR = ""
+if 'ModelSEEDDatabase' in os.environ:
+    MODELSEED_DIR = os.environ['ModelSEEDDatabase']
 
 if not MODELSEED_DIR:
     sys.stderr.write("The ModelSEEDDatabase environment variable is not set.\n")

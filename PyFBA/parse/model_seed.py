@@ -17,13 +17,14 @@ import re
 import PyFBA
 import copy
 
-if 'ModelSEEDDatabase' not in os.environ:
+MODELSEED_DIR = ""
+if 'ModelSEEDDatabase' in os.environ:
+        MODELSEED_DIR = os.environ['ModelSEEDDatabase']
+else:
     sys.stderr.write("Please ensure that you install the Model SEED Database somewhere, and set the environment " +
                      "variable ModelSEEDDatabase to point to that directory.\n" +
                      " See INSTALLATION.md for more information\n")
     sys.exit(-1)
-
-MODELSEED_DIR = os.environ['ModelSEEDDatabase']
 
 if not MODELSEED_DIR:
     sys.stderr.write("The ModelSEEDDatabase environment variable is not set.\n")

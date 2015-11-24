@@ -1,0 +1,12 @@
+Version 0.5.1
+=============
+
+-   Removed installation dependencies from setup.py because they break
+    installation! You need to install the dependencies manually
+-   Refactored the code to remove the os.environ dependencies
+
+Version 0.5
+===========
+
+-   Initial release
+
