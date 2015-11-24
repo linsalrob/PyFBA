@@ -84,18 +84,6 @@ make install</code></pre>
 <h3 id="beautiful-soup-4">Beautiful Soup 4</h3>
 <p>XML parsing is a pain in the butt, and so we use <a href="http://www.crummy.com/software/BeautifulSoup">Beautiful Soup 4</a> to make life easy! <code>setup.py</code> should try and install this for you, but if you wish to do it manually, you should be able to do so with <code>pip intall</code>:</p>
 <pre><code>   pip install beautifulsoup4</code></pre>
-<h1 id="install-pyfba">Install PyFBA</h1>
-<p>You should be able to install PyFBA from <a href="https://pypi.python.org">PyPI</a> using <code>pip install</code>:</p>
-<pre><code>    pip install pyfba</code></pre>
-<p>If that does not work, you can clone the git hub repository and run setup.py manually:</p>
-<pre><code>    git clone https://github.com/linsalrob/PyFBA.git
-    cd PyFBA
-    # run the tests
-    python setup.py test
-    # install the code
-    python setup.py install</code></pre>
-<p>If you do not have administrative (root) access to your machine you can also install the code in a <a href="https://docs.python.org/2/install/#alternate-installation">local directory</a>:</p>
-<pre><code>    python setup.py install --user</code></pre>
 <h1 id="set-the-environment-variables">Set the environment variables</h1>
 <p>PyFBA relies on the Model SEED Database, and we need to know where that is installed. We also provide some example media files with the download and you can set an environment variable (PYFBA_MEDIA_DIR) that points to the location of those files if you want to include them for your models.</p>
 <p>Set the following two environment variables:</p>
@@ -121,6 +109,18 @@ make install</code></pre>
 </tbody>
 </table>
 <p>For more information on setting the environment variables, see one of these sites: * <a href="https://www.microsoft.com/resources/documentation/windows/xp/all/proddocs/en-us/sysdm_advancd_environmnt_addchange_variable.mspx">Windows</a> * MacOS: * You can set them globally as described (here)[http://stackoverflow.com/questions/135688/setting-environment-variables-in-os-x/3756686#3756686] or (here)[https://developer.apple.com/library/mac/documentation/MacOSX/Conceptual/BPRuntimeConfig/Articles/EnvironmentVars.html] * You can set them in your .bashrc/.profile as described for Linux (below) * You can set them in each terminal by using <code>export ModelSEEDDatabase=/data/ModelSEEDDatabase</code> * <a href="http://www.cyberciti.biz/faq/set-environment-variable-linux/">Linux</a></p>
+<h1 id="install-pyfba">Install PyFBA</h1>
+<p>You should be able to install PyFBA from <a href="https://pypi.python.org">PyPI</a> using <code>pip install</code>:</p>
+<pre><code>    pip install pyfba</code></pre>
+<p>If that does not work, you can clone the git hub repository and run setup.py manually:</p>
+<pre><code>    git clone https://github.com/linsalrob/PyFBA.git
+    cd PyFBA
+    # run the tests
+    python setup.py test
+    # install the code
+    python setup.py install</code></pre>
+<p>If you do not have administrative (root) access to your machine you can also install the code in a <a href="https://docs.python.org/2/install/#alternate-installation">local directory</a>:</p>
+<pre><code>    python setup.py install --user</code></pre>
 <h1 id="tests">Tests</h1>
 <p>The code in tests/testlp.py uses the example in the documentation (which is also the example in the GLPK documentation) to solve a linear programming problem, and only requires GLPX/GMP and PyGLPK. It does not require any PyFBA code to solve a simple set of equations. You should check that runs with <code>nosetests tests/testlp.py</code> and it should run a single test that should pass. If that test does not pass, there is an issue with your installation of GLPK, GMP, or PyGLPK and you should check that each of them are installed in the correct locations.</p>
 <p>There are many more tests in the <a href="PyFBA/tests/">tests</a> folder and you can run all of them with <code>nosetests tests/</code>. They should all run without an error, and will test different aspects of the PyFBA installation.</p>
