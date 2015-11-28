@@ -200,6 +200,7 @@ gh-pages:
 	rm -rf build sources static _sources _static
 	git checkout working $(GH_PAGES_SOURCES)
 	git reset HEAD
+	make clean
 	make DOCSDIR=docs html
 	mv -fv build/html/* ./
 	mv -f _static static
