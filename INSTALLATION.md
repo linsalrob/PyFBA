@@ -91,7 +91,7 @@ However, `setup.py` will try and do the right thing for you.
 
 ### libSBML
 
-One or two of the scripts (notably [scripts/run_fba_sbml.py](scripts/run_fba_sbml.py) requires that you have libSBML 
+One or two of the scripts (notably [scripts/run_fba_sbml.py](scripts/run_fba_sbml.py)) requires that you have libSBML 
 installed to read the SBML files. 
 
 `setup.py` will attempt to install this for you. If you wish to install it manually you should be able to do so 
