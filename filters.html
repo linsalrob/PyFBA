@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Filters for FBA &mdash; PyFBA 0.6 documentation</title>
+    <title>Filters for manipulating data &mdash; PyFBA 0.6 documentation</title>
     
     <link rel="stylesheet" href="static/better.css" type="text/css" />
     <link rel="stylesheet" href="static/pygments.css" type="text/css" />
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="static/doctools.js"></script>
     <link rel="top" title="PyFBA 0.6 documentation" href="index.html" />
     <link rel="up" title="PyFBA Documentation" href="api.html" />
-    <link rel="next" title="Parsing modules" href="parse.html" />
+    <link rel="next" title="Gapfilling" href="gapfilling.html" />
     <link rel="prev" title="Flux Balance Analysis" href="fba.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
@@ -46,7 +46,7 @@
           <a href="fba.html" title="Previous document">Flux Balance Analysis</a>
         </li>
         <li>
-          <a href="parse.html" title="Next document">Parsing modules</a>
+          <a href="gapfilling.html" title="Next document">Gapfilling</a>
           &rarr;
         </li>
     </ul>
@@ -65,7 +65,7 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Filters for FBA</a><ul>
+<li><a class="reference internal" href="#">Filters for manipulating data</a><ul>
 <li><a class="reference internal" href="#module-PyFBA.filters.reactions_and_proteins">Identifying reactions with/without proteins</a></li>
 <li><a class="reference internal" href="#module-PyFBA.filters.roles_and_reactions">Converting between roles and reactions and vice-versa</a></li>
 </ul>
@@ -76,8 +76,8 @@
   <p class="topless"><a href="fba.html"
                         title="previous chapter">Flux Balance Analysis</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="parse.html"
-                        title="next chapter">Parsing modules</a></p>
+  <p class="topless"><a href="gapfilling.html"
+                        title="next chapter">Gapfilling</a></p>
 <div class="sourcelink">
   <a href="sources/filters.txt" rel="nofollow">
     Show page source
@@ -105,31 +105,115 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="filters-for-fba">
-<h1>Filters for FBA<a class="headerlink" href="#filters-for-fba" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="filters-for-manipulating-data">
+<h1>Filters for manipulating data<a class="headerlink" href="#filters-for-manipulating-data" title="Permalink to this headline">¶</a></h1>
 <p>The <em>filters</em> module provides some common filters for moving between proteins, roles, enzymes, and reactions. These
 are accessory functions that you will want to use with your FBA work</p>
 <div class="section" id="module-PyFBA.filters.reactions_and_proteins">
 <span id="identifying-reactions-with-without-proteins"></span><h2>Identifying reactions with/without proteins<a class="headerlink" href="#module-PyFBA.filters.reactions_and_proteins" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="PyFBA.filters.reactions_and_proteins.reactions_with_no_proteins">
+<code class="descclassname">PyFBA.filters.reactions_and_proteins.</code><code class="descname">reactions_with_no_proteins</code><span class="sig-paren">(</span><em>reactions</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.filters.reactions_and_proteins.reactions_with_no_proteins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Figure out which reactions in our set have no proteins associated with them.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">members:</th><td class="field-body"></td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reactions</strong> (<em>dict</em>) &#8211; The reactions dictionary</li>
+<li><strong>verbose</strong> (<em>bool</em>) &#8211; prints out how many reactions have no proteins out of the total</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a set of reaction ids that have no proteins associated with them.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">set</p>
+</td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="function">
+<dt id="PyFBA.filters.reactions_and_proteins.reactions_with_proteins">
+<code class="descclassname">PyFBA.filters.reactions_and_proteins.</code><code class="descname">reactions_with_proteins</code><span class="sig-paren">(</span><em>reactions</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.filters.reactions_and_proteins.reactions_with_proteins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Figure out which reactions in our set have proteins associated with them.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reactions</strong> (<em>dict</em>) &#8211; The reactions dictionary</li>
+<li><strong>verbose</strong> (<em>bool</em>) &#8211; prints out how many reactions have no proteins out of the total</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a set of reaction ids that have proteins associated with them.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">set</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 <div class="section" id="module-PyFBA.filters.roles_and_reactions">
 <span id="converting-between-roles-and-reactions-and-vice-versa"></span><h2>Converting between roles and reactions and vice-versa<a class="headerlink" href="#module-PyFBA.filters.roles_and_reactions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="PyFBA.filters.roles_and_reactions.reactions_to_roles">
+<code class="descclassname">PyFBA.filters.roles_and_reactions.</code><code class="descname">reactions_to_roles</code><span class="sig-paren">(</span><em>reaction_set</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.filters.roles_and_reactions.reactions_to_roles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert between reactions and roles using the model seed data</p>
+<p>For a set of reaction IDs return a hash of the reaction id and the
+roles in that reaction.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">members:</th><td class="field-body"></td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reaction_set</strong> (<em>set</em>) &#8211; A set of reaction IDs that we want to convert to roles</li>
+<li><strong>verbose</strong> (<em>bool</em>) &#8211; print error reporting</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a hash of reaction ids and set of the associated roles</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict of set of str</p>
+</td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="function">
+<dt id="PyFBA.filters.roles_and_reactions.roles_to_reactions">
+<code class="descclassname">PyFBA.filters.roles_and_reactions.</code><code class="descname">roles_to_reactions</code><span class="sig-paren">(</span><em>roles</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.filters.roles_and_reactions.roles_to_reactions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert between roles and reactions using the model seed data</p>
+<p>For a set of roles return a hash where the key is the role and 
+the value is the set of reactions that role is involved in.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>roles</strong> (<em>set</em>) &#8211; A set of roles that we want to convert to reaction IDs</li>
+<li><strong>verbose</strong> (<em>bool</em>) &#8211; print error reporting</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a hash of roles and set of the associated reaction ids</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict of set of str</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 </div>
 
@@ -147,7 +231,7 @@ are accessory functions that you will want to use with your FBA work</p>
           <a href="fba.html" title="Previous document">Flux Balance Analysis</a>
         </li>
         <li>
-          <a href="parse.html" title="Next document">Parsing modules</a>
+          <a href="gapfilling.html" title="Next document">Gapfilling</a>
           &rarr;
         </li>
     </ul>

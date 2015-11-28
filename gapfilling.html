@@ -1,0 +1,382 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Gapfilling &mdash; PyFBA 0.6 documentation</title>
+    
+    <link rel="stylesheet" href="static/better.css" type="text/css" />
+    <link rel="stylesheet" href="static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="static/jquery.js"></script>
+    <script type="text/javascript" src="static/underscore.js"></script>
+    <script type="text/javascript" src="static/doctools.js"></script>
+    <link rel="top" title="PyFBA 0.6 documentation" href="index.html" />
+    <link rel="up" title="PyFBA Documentation" href="api.html" />
+    <link rel="next" title="Parsing modules" href="parse.html" />
+    <link rel="prev" title="Filters for manipulating data" href="filters.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  </head>
+  <body role="document">
+    <header id="pageheader"><h1><a href="index.html ">
+        PyFBA 0.6 documentation
+    </a></h1></header>
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+	<a href="index.html"><img src="static/PyFBA.png" border="0" alt="sampledoc"/></a>
+</div>
+
+  <div class="related top">
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="filters.html" title="Previous document">Filters for manipulating data</a>
+        </li>
+        <li>
+          <a href="parse.html" title="Next document">Parsing modules</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+  <nav id="breadcrumbs">
+    <ul>
+      <li><a href="index.html">PyFBA</a></li>
+      <li>
+        <a href="api.html">PyFBA Documentation</a>
+      </li> 
+    </ul>
+  </nav>
+  </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="filters.html"
+                        title="previous chapter">Filters for manipulating data</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="parse.html"
+                        title="next chapter">Parsing modules</a></p>
+<div class="sourcelink">
+  <a href="sources/gapfilling.txt" rel="nofollow">
+    Show page source
+  </a>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="gapfilling">
+<h1>Gapfilling<a class="headerlink" href="#gapfilling" title="Permalink to this headline">¶</a></h1>
+<p>Gap filling is more of an art form than a science!</p>
+<p>The goal of gap filling is to add reactions to your metabolic network that complete the network, but not to add so many
+reactions that the model will grow under any circumstance at any time. You just want the model to grow in the right
+conditions!</p>
+<p>PyFBA includes several different gap filling approaches, and the API is designed so that it is easy to add and test your
+own gap filling designs.</p>
+<p>First, lets take a look at the built in approaches:</p>
+<span class="target" id="module-PyFBA.gapfill.essentials"></span><dl class="function">
+<dt id="PyFBA.gapfill.essentials.suggest_essential_reactions">
+<code class="descclassname">PyFBA.gapfill.essentials.</code><code class="descname">suggest_essential_reactions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.gapfill.essentials.suggest_essential_reactions" title="Permalink to this definition">¶</a></dt>
+<dd><p>There are 110 reactions (one of which is biomass) that are in
+_every_ model produced thus far and we include them in all models.
+This is a set of those reactions just to make sure that we have
+added them!</p>
+</dd></dl>
+
+<span class="target" id="module-PyFBA.gapfill.maps_to_proteins"></span><dl class="function">
+<dt id="PyFBA.gapfill.maps_to_proteins.suggest_reactions_with_proteins">
+<code class="descclassname">PyFBA.gapfill.maps_to_proteins.</code><code class="descname">suggest_reactions_with_proteins</code><span class="sig-paren">(</span><em>reactions</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.gapfill.maps_to_proteins.suggest_reactions_with_proteins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Suggest those reactions that we don&#8217;t have but that have proteins
+associated with them.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reactions</strong> &#8211; our reactions dictionary from parsing the model seed</li>
+<li><strong>verbose</strong> (<em>bool</em>) &#8211; add additional output</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a set of reactions that could be added to test for growth</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">set</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="PyFBA.gapfill.maps_to_proteins.suggest_reactions_without_proteins">
+<code class="descclassname">PyFBA.gapfill.maps_to_proteins.</code><code class="descname">suggest_reactions_without_proteins</code><span class="sig-paren">(</span><em>reactions</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.gapfill.maps_to_proteins.suggest_reactions_without_proteins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the reactions that don&#8217;t have any proteins associated with them.</p>
+<p>This is a bad idea to add all of these since there are about 30,000
+and it will break your computer if you try and solve it with FBA</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reactions</strong> (<em>dict</em>) &#8211; our reactions dictionary from parsing the model seed</li>
+<li><strong>verbose</strong> (<em>bool</em>) &#8211; add additional output</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a set of reactions that could be added to test for growth</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">set</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="module-PyFBA.gapfill.media"></span><dl class="function">
+<dt id="PyFBA.gapfill.media.suggest_from_media">
+<code class="descclassname">PyFBA.gapfill.media.</code><code class="descname">suggest_from_media</code><span class="sig-paren">(</span><em>compounds</em>, <em>reactions</em>, <em>reactions2run</em>, <em>media</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.gapfill.media.suggest_from_media" title="Permalink to this definition">¶</a></dt>
+<dd><p>Suggest which reactions we should add to include media compounds</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reactions</strong> (<em>dict</em>) &#8211; Our reactions dict object</li>
+<li><strong>verbose</strong> (<em>bool</em>) &#8211; Print more output</li>
+<li><strong>compounds</strong> (<em>dict</em>) &#8211; Our compounds dictionary</li>
+<li><strong>reactions2run</strong> (<em>set.</em>) &#8211; The reactions we are running</li>
+<li><strong>media</strong> (<em>set.</em>) &#8211; A set of the compounds in the media</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The suggested reactions</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">set.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="module-PyFBA.gapfill.orphan_compound"></span><dl class="function">
+<dt id="PyFBA.gapfill.orphan_compound.suggest_by_compound">
+<code class="descclassname">PyFBA.gapfill.orphan_compound.</code><code class="descname">suggest_by_compound</code><span class="sig-paren">(</span><em>compounds</em>, <em>reactions</em>, <em>reactions2run</em>, <em>max_reactions</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.gapfill.orphan_compound.suggest_by_compound" title="Permalink to this definition">¶</a></dt>
+<dd><p>Suggest by compounds that are orphaned.</p>
+<p>This is a slightly different approach to suggesting by compound.
+We look for &#8220;orphan&#8221; compounds that only have a few connections to
+other reactions, and then add those to our network to see what
+happens.</p>
+<p>Note: that our notion of two compounds being equal normally
+includes their location (and str(c) includes the location).
+However, we probably have several instances of:</p>
+<blockquote>
+<div>cpd [e] -&gt; cpd [c]
+and
+cpd [c] -&gt; products</div></blockquote>
+<p>These should be considered to be the same, and we probably
+don&#8217;t want to consider external compounds any way</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reactions</strong> (<em>dict</em>) &#8211; The reactions dictionary</li>
+<li><strong>compounds</strong> (<em>dict</em>) &#8211; The compounds dictionary</li>
+<li><strong>reactions2run</strong> (<em>set</em>) &#8211; The set of reactions that we will already run</li>
+<li><strong>max_reactions</strong> (<em>int</em>) &#8211; The maximum number of reactions that a compound can be associated with. Avoids, eg. H2O</li>
+<li><strong>verbose</strong> (<em>bool</em>) &#8211; Print more output</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A set of proposed reactions to add</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">set</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="module-PyFBA.gapfill.probability"></span><dl class="function">
+<dt id="PyFBA.gapfill.probability.compound_probability">
+<code class="descclassname">PyFBA.gapfill.probability.</code><code class="descname">compound_probability</code><span class="sig-paren">(</span><em>reactions</em>, <em>reactions2run</em>, <em>cutoff=0</em>, <em>rxn_with_proteins=True</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.gapfill.probability.compound_probability" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate a probability for the reaction to run left to right and
+right to left.</p>
+<p>The probability is basically the fraction of compounds that are
+present, so we need to know all compounds in all our reactions!</p>
+<p>If you set cutoff to zero we will use the minimum score in our
+current reactions.</p>
+<dl class="docutils">
+<dt>Notes</dt>
+<dd><p class="first">Our test case with Citrobacter found that there are
+1490 compounds present, and the average composition
+was:</p>
+<blockquote>
+<div>Left: 0.998276852384
+Right: 1.0</div></blockquote>
+<p>If we used 0.998276852384 as a cutoff, we propose an
+additional 10,947 reactions and everything breaks!</p>
+<p class="last">If we limit it to just those reactions connected to
+pegs we add an additional 464 reactions</p>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reactions</strong> (<em>dict</em>) &#8211; our reactions dict</li>
+<li><strong>reactions2run</strong> (<em>set</em>) &#8211; The current set of reactions that we will run</li>
+<li><strong>cutoff</strong> (<em>float</em>) &#8211; is a minimum probability that must be exceeded for the reaction to be proposed</li>
+<li><strong>rxn_with_proteins</strong> (<em>bool</em>) &#8211; limits to just those reactions that have proteins</li>
+<li><strong>verbose</strong> (<em>bool</em>) &#8211; print more output</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a set of suggested reactions to add</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">set</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="module-PyFBA.gapfill.roles"></span><dl class="function">
+<dt id="PyFBA.gapfill.roles.suggest_from_roles">
+<code class="descclassname">PyFBA.gapfill.roles.</code><code class="descname">suggest_from_roles</code><span class="sig-paren">(</span><em>roles_file</em>, <em>reactions</em>, <em>threshold=0</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.gapfill.roles.suggest_from_roles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Identify a set of reactions that we should add based on a roles file.</p>
+<dl class="docutils">
+<dt>We assume that the roles file has the format:</dt>
+<dd>[role, probability]</dd>
+</dl>
+<p>separated by tabs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>threshold</strong> (<em>float</em>) &#8211; the threshold for inclusion of the role based on the probability in the file (default = All roles)</li>
+<li><strong>roles_file</strong> (<em>str.</em>) &#8211; a file with a list of roles and their probabilities</li>
+<li><strong>reactions</strong> (<em>dict.</em>) &#8211; The reactions dictionary from parsing the model seed</li>
+<li><strong>verbose</strong> (<em>bool.</em>) &#8211; add additional output</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a set of reactions that could be added to test for growth</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">set.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="module-PyFBA.gapfill.subsystem"></span><dl class="function">
+<dt id="PyFBA.gapfill.subsystem.suggest_reactions_from_subsystems">
+<code class="descclassname">PyFBA.gapfill.subsystem.</code><code class="descname">suggest_reactions_from_subsystems</code><span class="sig-paren">(</span><em>reactions</em>, <em>reactions2run</em>, <em>ssfile='/data/PyFBA/PyFBA/Biochemistry/SEED/Subsystems/SS_functions_Oct_2015.txt'</em>, <em>threshold=0</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.gapfill.subsystem.suggest_reactions_from_subsystems" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read roles and subsystems from the subsystems file (which has
+role, subsystem, classification 1, classification 2) and make
+suggestions for missing roles based on the subsystems that only have
+partial reaction coverage.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>threshold</strong> (<em>float</em>) &#8211; The minimum fraction of the genes that are already in the subsystem for it to be added (default=0)</li>
+<li><strong>reactions</strong> (<em>dict</em>) &#8211; our reactions dictionary from parsing the model seed</li>
+<li><strong>reactions2run</strong> (<em>set</em>) &#8211; set of reactions that  we are going to run</li>
+<li><strong>ssfile</strong> (<em>str</em>) &#8211; a subsystem file (really the output of dump_functions.pl on the seed machines)</li>
+<li><strong>verbose</strong> (<em>bool</em>) &#8211; add additional output</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a set of reactions that could be added to test for growth</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">set</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="related bottom">
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="filters.html" title="Previous document">Filters for manipulating data</a>
+        </li>
+        <li>
+          <a href="parse.html" title="Next document">Parsing modules</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+  <nav id="breadcrumbs">
+    <ul>
+      <li><a href="index.html">PyFBA</a></li>
+      <li>
+        <a href="api.html">PyFBA Documentation</a>
+      </li> 
+    </ul>
+  </nav>
+  </div>
+  <footer id="pagefooter">&copy; 2015, Daniel Cuevas, Taylor O&#39;Connell and Robert Edwards.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a>
+      1.3.1
+        with the <a href="http://github.com/irskep/sphinx-better-theme">
+          better</a> theme.
+
+  </footer>
+
+  
+  </body>
+</html>
