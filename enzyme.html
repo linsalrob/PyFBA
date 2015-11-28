@@ -1,0 +1,313 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Metabolism : The Enzyme class &mdash; PyFBA 0.6 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyFBA 0.6 documentation" href="index.html" />
+    <link rel="up" title="PyFBA Documentation" href="api.html" />
+    <link rel="next" title="Metabolism : The Reaction Class" href="reaction.html" />
+    <link rel="prev" title="PyFBA Documentation" href="api.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+	<a href="index.html"><img src="_static/PyFBA.png" border="0" alt="sampledoc"/></a>
+</div>
+
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="api.html">PyFBA Documentation</a><ul>
+      <li>Previous: <a href="api.html" title="previous chapter">PyFBA Documentation</a></li>
+      <li>Next: <a href="reaction.html" title="next chapter">Metabolism : The Reaction Class</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/enzyme.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="metabolism-the-enzyme-class">
+<h1>Metabolism : The Enzyme class<a class="headerlink" href="#metabolism-the-enzyme-class" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="PyFBA.metabolism.Enzyme">
+<em class="property">class </em><code class="descclassname">PyFBA.metabolism.</code><code class="descname">Enzyme</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Enzyme" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>The enzyme class has a few components:</dt>
+<dd><ul class="first last simple">
+<li>The subunit(s) that make up the enzyme</li>
+<li>The genes that encode those subunit(s)</li>
+<li>The reactions that this enzyme is connected to.</li>
+</ul>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; the name of the enzyme object</li>
+<li><strong>roles</strong> &#8211; the set of roles associated with the enzyme object</li>
+<li><strong>pegs</strong> &#8211; a dict of pegs associated with the enzyme object and their associated roles</li>
+<li><strong>roles_w_pegs</strong> &#8211; a dict of roles associated with the enzyme and their pegs</li>
+<li><strong>reactions</strong> &#8211; a set of reaction IDs that this enzyme connects to</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="PyFBA.metabolism.Enzyme.add_a_peg">
+<code class="descname">add_a_peg</code><span class="sig-paren">(</span><em>peg</em>, <em>role</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Enzyme.add_a_peg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a single peg and the role that it connects to.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>peg</strong> (<em>str</em>) &#8211; The peg id</li>
+<li><strong>role</strong> (<em>str</em>) &#8211; The role it connects to</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last">KeyError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Enzyme.add_pegs">
+<code class="descname">add_pegs</code><span class="sig-paren">(</span><em>pegs</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Enzyme.add_pegs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a hash of pegs and roles. Keys must be pegs, values must be roles.</p>
+<p>Will throw a KeyError if the Role is not present</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pegs</strong> (<em>dict</em>) &#8211; A hash of pegs and roles that encode the enzyme (e.g. from the assigned functions file)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body">KeyError</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Enzyme.add_reaction">
+<code class="descname">add_reaction</code><span class="sig-paren">(</span><em>reaction</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Enzyme.add_reaction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a reaction that this enzyme is inolved in.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reaction</strong> (<a class="reference internal" href="reaction.html#PyFBA.metabolism.Reaction" title="PyFBA.metabolism.Reaction"><em>Reaction</em></a>) &#8211; The reaction object that this is involved with</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Enzyme.add_roles">
+<code class="descname">add_roles</code><span class="sig-paren">(</span><em>roles</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Enzyme.add_roles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add roles to this enzyme or complex</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>roles</strong> (<em>set</em>) &#8211; A set of functional roles that encode the enzyme</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Enzyme.has_peg_for_role">
+<code class="descname">has_peg_for_role</code><span class="sig-paren">(</span><em>role</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Enzyme.has_peg_for_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do we have at least one peg for this role?</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>role</strong> (<em>str</em>) &#8211; The role we are looking for</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">If a peg is present</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Enzyme.has_role">
+<code class="descname">has_role</code><span class="sig-paren">(</span><em>role</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Enzyme.has_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does this enzyme have this role?</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>role</strong> (<em>str</em>) &#8211; A functional role</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A boolean</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Enzyme.number_of_pegs">
+<code class="descname">number_of_pegs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Enzyme.number_of_pegs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of pegs assocaited with this enzyme.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Enzyme.number_of_reactions">
+<code class="descname">number_of_reactions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Enzyme.number_of_reactions" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of reactions that this enzyme is involved in</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Enzyme.number_of_roles">
+<code class="descname">number_of_roles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Enzyme.number_of_roles" title="Permalink to this definition">¶</a></dt>
+<dd><p>How many roles does this enzyme have?</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Enzyme.number_of_roles_with_pegs">
+<code class="descname">number_of_roles_with_pegs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Enzyme.number_of_roles_with_pegs" title="Permalink to this definition">¶</a></dt>
+<dd><p>How many of our roles have pegs associated with them?</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Enzyme.probability">
+<code class="descname">probability</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Enzyme.probability" title="Permalink to this definition">¶</a></dt>
+<dd><p>The probability that this reaction occurs in the cell.
+Currently the number of pegs/number of roles. Thus if most of
+the pegs are present then the enzyme is likely to function</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the probability that this reaction is complete</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Daniel Cuevas, Taylor O'Connell and Robert Edwards.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+      |
+      <a href="_sources/enzyme.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
