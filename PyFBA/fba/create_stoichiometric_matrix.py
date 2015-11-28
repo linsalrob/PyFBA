@@ -24,13 +24,13 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
     :type reactions_to_run: set
     :param media: a set of compounds that would make up the media
     :type media: set
-    :param biomass_equation: the biomass_equation equation as a metabolism.Reaction object
+    :param biomass_equation: the biomass_equation equation as a Reaction object
     :type biomass_equation: metabolism.Reaction
     :param verbose: print more information
     :type verbose: bool
-    :returns: Sorted lists of all the compunds and reactions in the model, and a revised reactions dict that \
-                includes the uptake and secretion reactions
-    :rtype : (list, list, dict)
+    :returns: Sorted lists of all the compounds and reactions in the model, and a revised reactions dict that includes the uptake and secretion reactions
+    :rtype: list, list, dict
+
     """
 
     sm = {}  # the matrix

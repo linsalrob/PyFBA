@@ -1,87 +1,66 @@
 import sys
 
-"""
-A reaction is the central concept of metabolism and is the conversion of
-substrates to products. 
-
-A reaction is an object that describes how to get from one compound 
-to another. We need to know what the compound(s) on the left of the
-equation are, what the compounds on the right of the reaction are,
-and the probability that the reaction proceeds in either direction.
-
-If the reaction is truly reversible the probability can be 1 in both
-cases. If it is unidreictional the probability can be 0 in one 
-direction.
-
-The likelihod that a reaction completes will be some product of its
-delta G and its p. We could also do something simpler, e.g. if there 
-is a -ve delta G (favorable reaction) we can increase p and if there 
-is a +ve delta G (unfavorable reaction) we can decrease p.
-
-We have arbitrarily called the reaction as proceeding from left to right
-but it could equally go the other way around. The reaction.__eq__() 
-method will check for either left->left/right->right and 
-left->right/right->left, and therefore we include a reverse reaction
-method that will reverse a reaction.
-
-"""
-
 
 class Reaction:
     """
-    The reaction describes what we know. At a bare minimum we need a 
-    a name for the reaction. The name can either be the reaction id 
-    (e.g. mddelSEED or KEGG id), or another name for this reaction.
+    A reaction is the central concept of metabolism and is the conversion of substrates to products.
 
-    The equation is the full formula of the reaction. It is optional
-    but you should include it if you have it.
+    The reaction describes what we know. At a bare minimum we need a a name for the reaction. The name can either be the
+    reaction id (e.g. modelSEED or KEGG id), or another name for this reaction.
+
+    A reaction is an object that describes how to get from one compound to another. We need to know what the compound(s)
+    on the left of the equation are, what the compounds on the right of the reaction are, and the probability that the
+    reaction proceeds in either direction. If the reaction is truly reversible the probability can be 1 in both cases.
+    If it is unidirectional the probability can be 0 in one direction.
+
+    The likelihood that a reaction completes will be some product of its delta G and its p. We could also do something
+    simpler, e.g. if there is a -ve delta G (favorable reaction) we can increase p and if there is a +ve delta G
+    (unfavorable reaction) we can decrease p.
 
     The direction and reversible is the direction that the equation can run.
+
     Acceptable values are:
-        None    We don't know the direction
-        >       Left to right
-        <       Right to left
-        =       Bidirectional
+    ======   ===========================
+    Value    Meaning
+    ======   ===========================
+    None     We don't know the direction
+    >        Left to right
+    <        Right to left
+    =        Bidirectional
+    ======   ===========================
 
-    The left and right compounds are sets, which should contain compound
-    objects. 
-
-    The left and right abundances are hashes, with the key being the
-    compound and the value being the amount of that compound produced or
-    consumed by the reaction.
-    
-    The two probabilities are from left to right (pLR) and right to left
-    (pRL). These are relative to how the compounds are defined.
-
-    The set of enzyme(s) that complete the reaction should be included.
-    Usually (sometimes? often?) this will be a single enzyme but 
-    sometimes it may be several enzymes. (I may refactor this to be an
-    enzyme object).
-
-    Pegs are a set of proteins that are involved in fullfulling this 
-    reaction.
-
-    Input (inp) and output (outp) are the reactions that will start 
-    everything off. Generally, import reactions (converting 
-    extracellular compounds to intracellular compounds) are inputs. 
-    Converting intracellular compounds to extracellular are output
-
-    ran is a boolean flag you can set to note if this reaction
-    was ran, so you can then iteration through all reactions
-    to see which ones we ran. Feel free to set/unset this
-    flag at will.
-
-    is_biomass_reaction and biomass_direction indicate whether this
-    is a biomass_equation reaction (T/F) and if so the direction that it runs
-    (L->R or R->L)
-
-    Is_gapfilled indicates whether this reaction was added by gapfilling
+    :ivar name: The name of the reaction
+    :ivar description: A description of the reaction
+    :ivar equation: The reaction equation
+    :ivar direction: The direction of the reaction (<, =, >, or ?)
+    :ivar left_compounds: A set of compounds on the left side of the reaction
+    :ivar left_abundance: A dict of the compounds on the left and their abundance
+    :ivar right_compounds: The set of compounds on the right side of the equation
+    :ivar right_abundance: A dict of the compounds on the right and their abundance
+    :ivar lower_bound: The lower bound for the reaction
+    :ivar upper_bound: The upper bound for the reaction
+    :ivar pLR: The probability the reaction proceeds left to right
+    :ivar pRL: The probability the reaction proceeds right to left
+    :ivar enzymes: The enzyme complex IDs involved in the reaction
+    :ivar pegs: The protein-encoding genes involved in the reaction
+    :ivar deltaG: The delta G
+    :ivar deltaG_error: The error in the delta G
+    :ivar inp: Whether the reaction is an input reaction
+    :ivar outp: Whether the reaction is an output reaction
+    :ivar is_transport: Whether the reaction is a transport reaction (imports or exports something)
+    :ivar ran: Boolean to note whether the reaction ran
+    :ivar is_biomass_reaction: Boolean to note whether this is a biomass reaction
+    :ivar biomass_direction: If it is a biomass reaction, what is the direction
+    :ivar is_gapfilled: Boolean to note whether the reaction was gapfilled
+    :ivar gapfill_method: If the reaction was gapfilled, how was it gapfilled
+    :ivar is_uptake_secretion: Is the reaction involved in uptake of compounds or secretion of compounds.
 
     """
 
     def __init__(self, name):
         """
         Instantiate the reaction
+
         :param name: The name of the reaction
         :type name: str
         :return:
@@ -138,6 +117,7 @@ class Reaction:
     def __cmp__(self, other):
         """
         Compare whether two things are the same
+
         :param other: The other reaction
         :type other: Reaction
         :return: an integer, zero if they are the same
@@ -172,6 +152,7 @@ class Reaction:
     def __hash__(self):
         """
         The hash function is based on the name of the reaction.
+
         :rtype: int
         """
         return hash(self.name)
@@ -179,8 +160,8 @@ class Reaction:
 
     def __str__(self):
         """
-        The string version of the reaction.
-        Currently we return self.name as the str
+        The string version of the reaction. Currently we return self.name as the str
+
         :rtype: str
         """
 
@@ -190,6 +171,7 @@ class Reaction:
     def set_direction(self, direction):
         """
         Set the direction of the reaction.
+
         :param direction: The direction of the reaction
         :type direction: str
         :rtype: str
@@ -240,6 +222,7 @@ class Reaction:
     def get_left_compound_abundance(self, cmpd):
         """
         Get the abundance of the compound on the left side of the equation.
+
         :param cmpd: The compound to get the abundance of
         :type cmpd: Compound
         :return: The compounds abundance
@@ -254,6 +237,7 @@ class Reaction:
     def number_of_left_compounds(self):
         """
         The number of compounds on the left side of the equation.
+
         :rtype: int
         """
         return len(self.left_compounds)
@@ -291,6 +275,7 @@ class Reaction:
     def get_right_compound_abundance(self, cmpd):
         """
         Get the abundance of the compound on the right side of the equation.
+
         :param cmpd: The compound to get the abundance of
         :type cmpd: Compound
         :return: The compounds abundance
@@ -306,6 +291,7 @@ class Reaction:
     def number_of_right_compounds(self):
         """
         The number of compounds on the right side of the equation.
+
         :rtype: int
         """
         return len(self.right_compounds)
@@ -313,6 +299,7 @@ class Reaction:
     def all_compounds(self):
         """
         Get all the compounds involved in this reaction.
+
         :return: A set of all the compounds
         :rtype: set
         """
@@ -321,6 +308,7 @@ class Reaction:
     def number_of_compounds(self):
         """
         Get the total number of compounds involved in this reaction.
+
         :rtype: int
         """
         return len(self.all_compounds())
@@ -328,6 +316,7 @@ class Reaction:
     def has(self, cmpd):
         """
         Does this reaction have a compound? Just returns true if the compound is present somewhere in the reaction.
+
         :param cmpd: The compound to test for
         :type cmpd: Compound
         :rtype: bool
@@ -337,6 +326,7 @@ class Reaction:
     def opposite_sides(self, cmpd1, cmpd2):
         """
         Are these two compounds on opposite sides of the reaction?
+
         :param cmpd1: The first compound
         :type cmpd1: Compound
         :param cmpd2: The second compound
@@ -417,6 +407,7 @@ class Reaction:
     def has_enzyme(self, enz):
         """
         Check whether an enzyme is involved in this reaction.
+
         :param enz: An Enzyme object
         :type enz: Enzyme
         :return: Whether we have this enzyme
@@ -427,6 +418,7 @@ class Reaction:
     def all_enzymes(self):
         """
         Get all the enzymes involved in this reaction. Returns a set of complex IDs.
+
         :rtype: set
         """
         return self.enzymes
@@ -434,6 +426,7 @@ class Reaction:
     def number_of_enzymes(self):
         """
         Gets the number of enzymes involved in this reaction.
+
         :rtype: int
         """
         return len(self.enzymes)
@@ -441,6 +434,7 @@ class Reaction:
     def add_pegs(self, pegs):
         """
         Add one or more pegs to this reaction. Pegs must be a set.
+
         :param pegs: The pegs to add to the reaction
         :type pegs: set
         """
@@ -452,6 +446,7 @@ class Reaction:
     def has_peg(self, peg):
         """
         Check whether a peg is involved in this reaction.
+
         :param peg: The peg to check for
         :type peg: str
         :rtype: bool
@@ -460,8 +455,8 @@ class Reaction:
 
     def set_deltaG(self, dg):
         """
-        Set the value for delta G (Gibbs free energy) for this
-        reaction. Recall -ve deltaG means the reaction is favorable.
+        Set the value for delta G (Gibbs free energy) for this reaction. Recall -ve deltaG means the reaction is
+        favorable.
 
         :param dg: The delta G of the reaction
         :type dg: float
@@ -476,6 +471,7 @@ class Reaction:
     def get_deltaG(self):
         """
         Get the value for delta G (Gibbs free energy) for this reaction.
+
         :rtype: float
         """
         return self.deltaG
@@ -510,6 +506,7 @@ class Reaction:
     def is_input_reaction(self):
         """
         Is this an input reaction?
+
         :rtype: bool
         """
         if self.inp is False and self.outp is False:

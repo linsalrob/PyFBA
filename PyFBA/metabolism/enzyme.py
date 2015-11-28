@@ -9,20 +9,28 @@ from . import Reaction
 
 class Enzyme:
     """
-    The enzyme class has a few components
-    
-    The subunit(s) that make up the enzyme
+    The enzyme class has a few components:
+      * The subunit(s) that make up the enzyme
+      * The genes that encode those subunit(s)
+      * The reactions that this enzyme is connected to.
 
-    The genes that encode those subunit(s)
-
-    The reactions that this enzyme is connected to.
-
+    :ivar name: the name of the enzyme object
+    :type name: str
+    :ivar roles: the set of roles associated with the enzyme object
+    :type roles: set
+    :ivar pegs: a dict of pegs associated with the enzyme object and their associated roles
+    :type pegs: dict
+    :ivar roles_w_pegs: a dict of roles associated with the enzyme and their pegs
+    :type roles_w_pegs: dict
+    :ivar reactions: a set of reaction IDs that this enzyme connects to
+    :type reactions: set
     """
 
 
     def __init__(self, name):
         """
         Instantiate the enzyme
+
         :param name: the name of the enzyme
         :type name: str
         """
@@ -31,11 +39,12 @@ class Enzyme:
         self.roles = set()  # Roles (text strings)
         self.pegs = {}  # a hash that connects Roles to PEGs
         self.roles_w_pegs = {}  # which roles have pegs
-        self.reactions = set()  # RIDs that the enzymeconnects to
+        self.reactions = set()  # RIDs that the enzyme connects to
 
     def __eq__(self, other):
         """
         Is this enzyme the same as another one?
+
         :param other: The other enzyme
         :type other: Enzyme
         :return: Whether the two enzymes are the same
@@ -49,6 +58,7 @@ class Enzyme:
     def __ne__(self, other):
         """
         Are these not equal?
+
         :param other: The other enzyme
         :type other: Enzyme
         :return: Whether the two enzymes are not equal
@@ -62,6 +72,7 @@ class Enzyme:
     def __hash__(self):
         """
         The hash function is based on the name of the compound.
+
         :rtype: int
         """
         return hash(self.name)
@@ -69,6 +80,7 @@ class Enzyme:
     def __str__(self):
         """
         The string representation of the enzyme
+
         :rtype: str
         """
         return "ENZYME: " + self.name + " (roles: " + "; ".join([x for x in self.roles]) + ")"
@@ -76,6 +88,7 @@ class Enzyme:
     def add_roles(self, roles):
         """
         Add roles to this enzyme or complex
+
         :param roles: A set of functional roles that encode the enzyme
         :type roles: set
         """
@@ -86,6 +99,7 @@ class Enzyme:
     def has_role(self, role):
         """
         Does this enzyme have this role?
+
         :param role: A functional role
         :type role: str
         :returns: A boolean
@@ -96,6 +110,7 @@ class Enzyme:
     def number_of_roles(self):
         """
         How many roles does this enzyme have?
+
         :rtype: int
         """
         return len(self.roles)
@@ -105,6 +120,7 @@ class Enzyme:
         Add a hash of pegs and roles. Keys must be pegs, values must be roles.
 
         Will throw a KeyError if the Role is not present
+
         :param pegs: A hash of pegs and roles that encode the enzyme (e.g. from the assigned functions file)
         :type pegs: dict
         :raises: KeyError
@@ -123,6 +139,7 @@ class Enzyme:
     def add_a_peg(self, peg, role):
         """
         Add a single peg and the role that it connects to.
+
         :param peg: The peg id
         :type peg: str
         :param role: The role it connects to
@@ -142,6 +159,7 @@ class Enzyme:
     def number_of_pegs(self):
         """
         The number of pegs assocaited with this enzyme.
+
         :rtype: int
         """
         return len(self.pegs)
@@ -149,6 +167,7 @@ class Enzyme:
     def number_of_roles_with_pegs(self):
         """
         How many of our roles have pegs associated with them?
+
         :rtype: int
         """
         return len(self.roles_w_pegs)
@@ -156,6 +175,7 @@ class Enzyme:
     def has_peg_for_role(self, role):
         """
         Do we have at least one peg for this role?
+
         :param role: The role we are looking for
         :type role: str
         :return: If a peg is present
@@ -166,6 +186,7 @@ class Enzyme:
     def add_reaction(self, reaction):
         """
         Add a reaction that this enzyme is inolved in.
+
         :param reaction: The reaction object that this is involved with
         :type reaction: Reaction
         """
@@ -177,6 +198,7 @@ class Enzyme:
     def number_of_reactions(self):
         """
         The number of reactions that this enzyme is involved in
+
         :rtype: int
         """
         return len(self.reactions)

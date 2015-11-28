@@ -10,6 +10,14 @@ __author__ = 'Rob Edwards'
 
 class SBML:
     """A SBML object representing the model data.
+
+    :ivar model_id: the identifier of the model
+    :ivar model_name: the name of the model
+    :ivar reactions: a dictionary of Reaction objects with str(obj) as the key
+    :ivar compounds: a dictionary of Compound objects with str(obj) as the key
+    :ivar compounds_by_id: a dictionary of Compound objects with compound.model_seed_id as the key
+    :ivar compartment: a dictionary of compartments in the model
+
     """
 
     def __init__(self):
@@ -38,7 +46,7 @@ class SBML:
         """
         Get the compounds in the model
         :return: A list of the compounds in this model
-        :rtype: list.
+        :rtype: list of Compound
         """
         return self.compounds.values()
 
@@ -48,7 +56,7 @@ class SBML:
         :param cpd: The compound to fetch
         :type cpd: object.
         :return: The compound from the model
-        :rtype: metabolism.Compound
+        :rtype: Compound
         """
         if str(cpd) in self.compounds:
             return self.compounds[str(cpd)]
@@ -61,7 +69,7 @@ class SBML:
         :param cpdid: compound id
         :type cpdid: str
         :return: The compound from the model
-        :rtype: metabolism.Compound
+        :rtype: Compound
         """
 
         if cpdid in self.compounds_by_id:
@@ -83,7 +91,7 @@ class SBML:
         """
         Get all the reactions
         :return: A set of the reactions in the model
-        :rtype: set.
+        :rtype: set of Reaction
         """
         return self.reactions
 
@@ -93,7 +101,7 @@ class SBML:
         :param rxn: The reaction to retrieve
         :type rxn: object.
         :return: The reaction object
-        :rtype: object.
+        :rtype: Reaction
 
         """
 
@@ -103,7 +111,7 @@ class SBML:
             raise ValueError(str(rxn) + " is not present in the model")
 
 
-def parse_sbml_file(sbml_file, verbose):
+def parse_sbml_file(sbml_file, verbose=False):
     """
     Parse an SBML file and return an SBML object.
 

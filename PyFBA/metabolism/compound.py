@@ -1,39 +1,35 @@
-"""
-A compound is the essential metabolic compound that is involved in a
-reaction.
-
-"""
 
 COMMON_REACTION_LIMIT = 5
 
 
 class Compound:
     """
-    A compound has at the very minimum a name and a location. We
-    provide a mechanism for you to add other information to the compound
-    in case you need it:
+    A compound is the essential metabolic compound that is involved in a reaction.
 
-        name:       the name of the  compound
-        location:   the location of the compound. e.g.:
-                        e: extracellular
-                        c: cytoplasmic
-                        h: chloroplast
-                        p: periplasm
-        reactions:  a set of reaction objects that this compound is connected to
-        model_seed_id:  the cpd id from the model seed.
-        abbreviation:   a short name for the compound
-        formula:        the compounds formula
-        mw:             the molecular weight of the compound
-        common:         Boolean: this is a common compound. I roughly define this as being in > COMMON_REACTION_LIMIT
-                        reactions
-        charge:         the charge associated with the compound
-        uptake_secretion: The compound is involved in uptake from the media or secretion back to the media
+    A compound has at the very minimum a name and a location. The location is typically one of:
+       * e: extracellular
+       * c: cytoplasmic
+       * h: chloroplast
+       * p: periplasm
+
+    Other variables associated with the Compound class:
+    :ivar name: the name of the  compound
+    :ivar location: the location of the compound.
+    :ivar reactions: a set of reaction objects that this compound is connected to
+    :ivar model_seed_id: the compound id from the model seed.
+    :ivar abbreviation: a short name for the compound
+    :ivar formula: the compounds formula
+    :ivar mw: the molecular weight of the compound
+    :ivar common: Boolean: this is a common compound. This means the coompound is in > COMMON_REACTION_LIMIT reactions
+    :ivar charge: the charge associated with the compound
+    :ivar uptake_secretion: The compound is involved in uptake from the media or secretion back to the media
 
     """
 
     def __init__(self, name, location):
         """
         Initiate the object
+
         :param name: The name of the compound
         :type name: str
         :param location: The location of the compound
@@ -101,6 +97,7 @@ class Compound:
     def __hash__(self):
         """
         The hash function is based on the name of the compound.
+
         :rtype: int
         """
         return hash((self.name, self.location))
@@ -130,8 +127,9 @@ class Compound:
     def has_reaction(self, rxn):
         """
         Is this compound involved in this reaction?
-        :param rxn: A metabolism.Reaction object
-        :type rxn: metabolism.Reaction
+
+        :param rxn: A Reaction object
+        :type rxn: Reaction
         :return: Whether the reaction is present
         :rtype: bool
         """
@@ -141,6 +139,7 @@ class Compound:
     def number_of_reactions(self):
         """
         How many reactions is this compound involved in?
+
         :rtype: int
         """
         return len(self.reactions)
@@ -149,6 +148,7 @@ class Compound:
     def all_reactions(self):
         """
         Return a set of all the reactions that this compound is involved in
+
         :rtype: int
         """
         return self.reactions
@@ -176,6 +176,7 @@ class Compound:
     def calculate_molecular_weight(self):
         """
         Calculate and return the molecular weight of this compound
+
         :return: The molecular weight
         :rtype: float
         """
