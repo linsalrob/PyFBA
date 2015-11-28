@@ -129,7 +129,7 @@ html_theme = 'better'
 #html_title = None
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
-#html_short_title = None
+html_short_title = 'PyFBA'
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
