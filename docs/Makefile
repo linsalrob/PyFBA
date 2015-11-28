@@ -46,6 +46,7 @@ help:
 	@echo "  changes    to make an overview of all changed/added/deprecated items"
 	@echo "  xml        to make Docutils-native XML files"
 	@echo "  pseudoxml  to make pseudoxml-XML files for display purposes"
+	@echo "  gh-pages   to make and upload pages to github pages"
 	@echo "  linkcheck  to check all external links for integrity"
 	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
 	@echo "  coverage   to run coverage check of the documentation (if enabled)"
@@ -194,7 +195,6 @@ pseudoxml:
 	@echo "Build finished. The pseudo-XML files are in $(BUILDDIR)/pseudoxml."
 
 gh-pages:
-	cd ..
 	git checkout gh-pages
 	rm -rf build _sources _static
 	git checkout working $(GH_PAGES_SOURCES)
