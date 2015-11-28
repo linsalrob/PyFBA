@@ -196,6 +196,7 @@ pseudoxml:
 
 gh-pages:
 	git checkout gh-pages
+	cd ..
 	rm -rf build _sources _static
 	git checkout working $(GH_PAGES_SOURCES)
 	git reset HEAD
