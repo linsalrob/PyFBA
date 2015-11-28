@@ -5,7 +5,7 @@ __author__ = "Rob Edwards"
 
 def suggest_from_media(compounds, reactions, reactions2run, media, verbose=False):
     """
-    Suggest which reactions we should add to include media compounds
+    Identify a set of reactions that you should add to your model for growth based on the media compounds
 
     :param reactions: Our reactions dict object
     :type reactions: dict
@@ -17,8 +17,8 @@ def suggest_from_media(compounds, reactions, reactions2run, media, verbose=False
     :type reactions2run: set.
     :param media: A set of the compounds in the media
     :type media: set.
-    :return: The suggested reactions
-    :rtype: set.
+    :return: A set of proposed reactions that should be added to your model to see if it grows
+    :rtype: set
     """
 
     # which compounds are in our media

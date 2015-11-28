@@ -5,7 +5,7 @@ __author__ = "Rob Edwards"
 
 def suggest_by_compound(compounds, reactions, reactions2run, max_reactions, verbose=False):
     """
-    Suggest by compounds that are orphaned.
+    Identify a set of reactions that you should add to your model for growth because they contain orphan compounds
 
     This is a slightly different approach to suggesting by compound.
     We look for "orphan" compounds that only have a few connections to
@@ -33,7 +33,7 @@ def suggest_by_compound(compounds, reactions, reactions2run, max_reactions, verb
     :type max_reactions: int
     :param verbose: Print more output
     :type verbose: bool
-    :return: A set of proposed reactions to add
+    :return: A set of proposed reactions that should be added to your model to see if it grows
     :rtype: set
 
     """

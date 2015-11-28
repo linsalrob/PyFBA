@@ -13,10 +13,11 @@ SS_FILE_PATH = os.path.join(pyfbadir, "Biochemistry/SEED/Subsystems/SS_functions
 
 def suggest_reactions_from_subsystems(reactions, reactions2run, ssfile=SS_FILE_PATH, threshold=0, verbose=False):
     """
-    Read roles and subsystems from the subsystems file (which has
-    role, subsystem, classification 1, classification 2) and make
-    suggestions for missing roles based on the subsystems that only have
-    partial reaction coverage.
+    Identify a set of reactions that you should add to your model for growth based on the subsystems that are present
+    in your model and their coverage.
+
+    Read roles and subsystems from the subsystems file (which has role, subsystem, classification 1, classification 2)
+    and make suggestions for missing reactions based on the subsystems that only have partial reaction coverage.
 
     :param threshold: The minimum fraction of the genes that are already in the subsystem for it to be added (default=0)
     :type threshold: float
@@ -28,7 +29,7 @@ def suggest_reactions_from_subsystems(reactions, reactions2run, ssfile=SS_FILE_P
     :type ssfile: str
     :param verbose: add additional output
     :type verbose: bool
-    :return: a set of reactions that could be added to test for growth
+    :return: A set of proposed reactions that should be added to your model to see if it grows
     :rtype: set
     """
 

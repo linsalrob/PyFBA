@@ -5,26 +5,14 @@ from . import suggest_reactions_with_proteins
 
 def compound_probability(reactions, reactions2run, cutoff=0, rxn_with_proteins=True, verbose=False):
     """
-    Calculate a probability for the reaction to run left to right and
-    right to left.
+    Identify a set of reactions that you should add to your model for growth based on the probability for the reaction
+    to run left to right and right to left.
 
-    The probability is basically the fraction of compounds that are
-    present, so we need to know all compounds in all our reactions!
+    The probability is basically the fraction of compounds that are present.
 
-    If you set cutoff to zero we will use the minimum score in our
-    current reactions.
-
-    Notes
-        Our test case with Citrobacter found that there are
-        1490 compounds present, and the average composition
-        was:
-            Left: 0.998276852384
-            Right: 1.0
-        If we used 0.998276852384 as a cutoff, we propose an
-        additional 10,947 reactions and everything breaks!
-
-        If we limit it to just those reactions connected to
-        pegs we add an additional 464 reactions
+    If you set cutoff to zero we calculate the minimum coverage of the compounds in the reactions already in the model
+    and use that to determine which other reactions should be added based on the observation that they have a similar
+    proportion of compounds already in the network.
 
     :param reactions: our reactions dict
     :type reactions: dict
@@ -36,7 +24,7 @@ def compound_probability(reactions, reactions2run, cutoff=0, rxn_with_proteins=T
     :type rxn_with_proteins: bool
     :param verbose: print more output
     :type verbose: bool
-    :return: a set of suggested reactions to add
+    :return: A set of proposed reactions that should be added to your model to see if it grows
     :rtype: set
     """
 

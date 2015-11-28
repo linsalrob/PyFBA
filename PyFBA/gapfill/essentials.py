@@ -3,10 +3,13 @@ __author__ = 'Rob Edwards'
 
 def suggest_essential_reactions():
     """
-    There are 110 reactions (one of which is biomass) that are in
-    _every_ model produced thus far and we include them in all models.
-    This is a set of those reactions just to make sure that we have
-    added them!
+    Identify a set of reactions that you should add to your model for growth because they are essential reactions.
+
+    There are 110 reactions (one of which is biomass) that are in _every_ model produced thus far and we include them
+    in all models. This is a set of those reactions just to make sure that we have added them!
+
+    :return: A set of proposed reactions that should be added to your model to see if it grows
+    :rtype: set
     """
 
     rxns = {

@@ -106,6 +106,17 @@ required for growth. the [bisections](bisections.py) code has methods for taking
 into different parts (either equally or unequally) and returning two separate sets of reactions. We also try and 
 optimize the splits based on clustering reactions, for example by the compounds that are present in the reaction.
 
+
+# Writing new gapfilling methods
+
+Writing new methods is trivial. The only constraint is that you should return a set of reaction IDs that are not 
+currently in the model. 
+
+A typical gap filling approach will be to accept as parameters to your methods the reactions dict that has all reaction
+data, and the set of reactions_to_run that are currently in the model (so you know which reactions are unique). Identify
+which reactions you think should be added to the model, and return that set of IDs.
+
+
 ---
 
 <b id="f1">1</b> Your definition of similar may vary, but we often use all organisms in the same genus or all

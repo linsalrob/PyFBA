@@ -9,9 +9,8 @@ def suggest_from_roles(roles_file, reactions, threshold=0, verbose=False):
     """
     Identify a set of reactions that we should add based on a roles file.
 
-    We assume that the roles file has the format:
-        [role, probability]
-    separated by tabs.
+    We assume that the roles file has the format: [role, probability] separated by tabs. We make no assumption about
+    where you got that file, but you might, for example, look at the closely related organisms.
 
     :param threshold: the threshold for inclusion of the role based on the probability in the file (default = All roles)
     :type threshold: float
@@ -21,8 +20,8 @@ def suggest_from_roles(roles_file, reactions, threshold=0, verbose=False):
     :type reactions: dict.
     :param verbose: add additional output
     :type verbose: bool.
-    :return: a set of reactions that could be added to test for growth
-    :rtype: set.
+    :return: A set of proposed reactions that should be added to your model to see if it grows
+    :rtype: set
     """
 
     role_suggestions = {}

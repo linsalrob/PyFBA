@@ -7,17 +7,17 @@ __author__ = "Rob Edwards"
 
 def suggest_reactions_without_proteins(reactions, verbose=False):
     """
-    Add the reactions that don't have any proteins associated with them.
+    Identify a set of reactions that don't have any proteins associated with them.
 
-    This is a bad idea to add all of these since there are about 30,000
-    and it will break your computer if you try and solve it with FBA
+    It is generally a bad idea to add all of these to your model since there are about 30,000 and they will probably
+    break your computer if you try and solve it with FBA
 
 
     :param reactions: our reactions dictionary from parsing the model seed
     :type reactions: dict
     :param verbose: add additional output
     :type verbose: bool
-    :return: a set of reactions that could be added to test for growth
+    :return: A set of proposed reactions that should be added to your model to see if it grows
     :rtype: set
     """
 
@@ -32,7 +32,7 @@ def suggest_reactions_without_proteins(reactions, verbose=False):
 
 def suggest_reactions_with_proteins(reactions, verbose=False):
     """
-    Suggest those reactions that we don't have but that have proteins
+    Identify a set of reactions that you should add to your model for growth based on the reactions that have proteins
     associated with them.
 
     :param reactions: our reactions dictionary from parsing the model seed
