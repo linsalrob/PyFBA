@@ -204,8 +204,9 @@ gh-pages:
 	mv -fv build/html/* ./
 	mv -f _static static
 	mv -f _sources sources
-	perl -i -npe 's/_static/static/g' *
-	perl -i -npe 's#static/_static#static#g' static/*
+	perl -i -npe 's/_static/sources/g' *.html static/searchtools.js
+	# perl -i -npe 's/_static/static/g' *
+	# perl -i -npe 's#static/_static#static#g' static/*
 	rm -rf $(GH_PAGES_SOURCES) build
 	git add -A
 	git commit -m "Generated gh-pages for `git log working -1 --pretty=short --abbrev-commit`" && git push origin gh-pages ; git checkout working 
