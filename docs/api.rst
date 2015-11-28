@@ -36,6 +36,14 @@ Converting between reactions and roles, identifying roles with no proteins, etc
 
    filters.rst
 
+Gapfilling
+----------
+
+.. toctree::
+   :maxdepth: 2
+
+   gapfilling.rst
+
 The parsing modules
 -------------------
 
