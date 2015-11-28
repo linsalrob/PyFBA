@@ -1,4 +1,4 @@
-Flux Balance Analaysis
+Flux Balance Analysis
 ======================
 
 The *PyFBA.fba* modules include code for developing the stoichiometric matrix, adding reaction bounds and compound

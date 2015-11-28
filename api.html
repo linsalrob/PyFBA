@@ -25,7 +25,7 @@
     <script type="text/javascript" src="static/doctools.js"></script>
     <link rel="top" title="PyFBA 0.6 documentation" href="index.html" />
     <link rel="next" title="Metabolism : The Enzyme class" href="enzyme.html" />
-    <link rel="prev" title="Welcome to PyFBA. A python interface for Flux Balance Analysis" href="index.html" />
+    <link rel="prev" title="Welcome to PyFBA" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
   <body role="document">
@@ -42,7 +42,7 @@
     <ul>
         <li>
           &larr;
-          <a href="index.html" title="Previous document">Welcome to PyFBA. A python interface for Flux Balance Analysis</a>
+          <a href="index.html" title="Previous document">Welcome to PyFBA</a>
         </li>
         <li>
           <a href="enzyme.html" title="Next document">Metabolism : The Enzyme class</a>
@@ -64,6 +64,7 @@
 <li><a class="reference internal" href="#">PyFBA Documentation</a><ul>
 <li><a class="reference internal" href="#the-metabolism-data">The metabolism data</a></li>
 <li><a class="reference internal" href="#the-fba-modules">The FBA modules</a></li>
+<li><a class="reference internal" href="#filters-for-manipulating-data">Filters for manipulating data</a></li>
 <li><a class="reference internal" href="#the-parsing-modules">The parsing modules</a></li>
 </ul>
 </li>
@@ -71,7 +72,7 @@
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="index.html"
-                        title="previous chapter">Welcome to PyFBA. A python interface for Flux Balance Analysis</a></p>
+                        title="previous chapter">Welcome to PyFBA</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="enzyme.html"
                         title="next chapter">Metabolism : The Enzyme class</a></p>
@@ -106,6 +107,7 @@
 <span id="pyfba-documentation"></span><h1>PyFBA Documentation<a class="headerlink" href="#module-PyFBA" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="the-metabolism-data">
 <h2>The metabolism data<a class="headerlink" href="#the-metabolism-data" title="Permalink to this headline">¶</a></h2>
+<p>Classes for handling the data</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="enzyme.html">Metabolism : The Enzyme class</a></li>
@@ -116,9 +118,10 @@
 </div>
 <div class="section" id="the-fba-modules">
 <h2>The FBA modules<a class="headerlink" href="#the-fba-modules" title="Permalink to this headline">¶</a></h2>
+<p>Code for generating the stoichiometric matrix and running the FBA</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="fba.html">Flux Balance Analaysis</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="fba.html">Flux Balance Analysis</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="fba.html#module-PyFBA.fba.create_stoichiometric_matrix">Methods associated with creating the stoichiometric matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fba.html#module-PyFBA.fba.bounds">Adding the limits to the reactions and compounds</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fba.html#module-PyFBA.fba.external_reactions">Identifying the reactions that are uptake and secretion reactions</a></li>
@@ -128,8 +131,22 @@
 </ul>
 </div>
 </div>
+<div class="section" id="filters-for-manipulating-data">
+<h2>Filters for manipulating data<a class="headerlink" href="#filters-for-manipulating-data" title="Permalink to this headline">¶</a></h2>
+<p>Converting between reactions and roles, identifying roles with no proteins, etc</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="filters.html">Filters for FBA</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="filters.html#module-PyFBA.filters.reactions_and_proteins">Identifying reactions with/without proteins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="filters.html#module-PyFBA.filters.roles_and_reactions">Converting between roles and reactions and vice-versa</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
 <div class="section" id="the-parsing-modules">
 <h2>The parsing modules<a class="headerlink" href="#the-parsing-modules" title="Permalink to this headline">¶</a></h2>
+<p>Parsing data from different sources</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="parse.html">Parsing modules</a></li>
@@ -149,7 +166,7 @@
     <ul>
         <li>
           &larr;
-          <a href="index.html" title="Previous document">Welcome to PyFBA. A python interface for Flux Balance Analysis</a>
+          <a href="index.html" title="Previous document">Welcome to PyFBA</a>
         </li>
         <li>
           <a href="enzyme.html" title="Next document">Metabolism : The Enzyme class</a>
