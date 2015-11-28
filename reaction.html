@@ -1,0 +1,659 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Metabolism : The Reaction Class &mdash; PyFBA 0.6 documentation</title>
+    
+    <link rel="stylesheet" href="static/better.css" type="text/css" />
+    <link rel="stylesheet" href="static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="static/jquery.js"></script>
+    <script type="text/javascript" src="static/underscore.js"></script>
+    <script type="text/javascript" src="static/doctools.js"></script>
+    <link rel="top" title="PyFBA 0.6 documentation" href="index.html" />
+    <link rel="up" title="PyFBA Documentation" href="api.html" />
+    <link rel="next" title="Metabolism : The Compound Class" href="compound.html" />
+    <link rel="prev" title="Metabolism : The Enzyme class" href="enzyme.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  </head>
+  <body role="document">
+    <header id="pageheader"><h1><a href="index.html ">
+        PyFBA 0.6 documentation
+    </a></h1></header>
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+	<a href="index.html"><img src="static/PyFBA.png" border="0" alt="sampledoc"/></a>
+</div>
+
+  <div class="related top">
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="enzyme.html" title="Previous document">Metabolism : The Enzyme class</a>
+        </li>
+        <li>
+          <a href="compound.html" title="Next document">Metabolism : The Compound Class</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+  <nav id="breadcrumbs">
+    <ul>
+      <li><a href="index.html">PyFBA 0.6 documentation</a></li>
+      <li>
+        <a href="api.html">PyFBA Documentation</a>
+      </li> 
+    </ul>
+  </nav>
+  </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="enzyme.html"
+                        title="previous chapter">Metabolism : The Enzyme class</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="compound.html"
+                        title="next chapter">Metabolism : The Compound Class</a></p>
+<div class="sourcelink">
+  <a href="sources/reaction.txt" rel="nofollow">
+    Show page source
+  </a>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="metabolism-the-reaction-class">
+<h1>Metabolism : The Reaction Class<a class="headerlink" href="#metabolism-the-reaction-class" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="PyFBA.metabolism.Reaction">
+<em class="property">class </em><code class="descclassname">PyFBA.metabolism.</code><code class="descname">Reaction</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction" title="Permalink to this definition">¶</a></dt>
+<dd><p>A reaction is the central concept of metabolism and is the conversion of substrates to products.</p>
+<p>The reaction describes what we know. At a bare minimum we need a a name for the reaction. The name can either be the
+reaction id (e.g. modelSEED or KEGG id), or another name for this reaction.</p>
+<p>A reaction is an object that describes how to get from one compound to another. We need to know what the compound(s)
+on the left of the equation are, what the compounds on the right of the reaction are, and the probability that the
+reaction proceeds in either direction. If the reaction is truly reversible the probability can be 1 in both cases.
+If it is unidirectional the probability can be 0 in one direction.</p>
+<p>The likelihood that a reaction completes will be some product of its delta G and its p. We could also do something
+simpler, e.g. if there is a -ve delta G (favorable reaction) we can increase p and if there is a +ve delta G
+(unfavorable reaction) we can decrease p.</p>
+<p>The direction and reversible is the direction that the equation can run.</p>
+<p>Acceptable values are:
+======   ===========================
+Value    Meaning
+======   ===========================
+None     We don&#8217;t know the direction
+&gt;        Left to right
+&lt;        Right to left
+=        Bidirectional
+======   ===========================</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; The name of the reaction</li>
+<li><strong>description</strong> &#8211; A description of the reaction</li>
+<li><strong>equation</strong> &#8211; The reaction equation</li>
+<li><strong>direction</strong> &#8211; The direction of the reaction (&lt;, =, &gt;, or ?)</li>
+<li><strong>left_compounds</strong> &#8211; A set of compounds on the left side of the reaction</li>
+<li><strong>left_abundance</strong> &#8211; A dict of the compounds on the left and their abundance</li>
+<li><strong>right_compounds</strong> &#8211; The set of compounds on the right side of the equation</li>
+<li><strong>right_abundance</strong> &#8211; A dict of the compounds on the right and their abundance</li>
+<li><strong>lower_bound</strong> &#8211; The lower bound for the reaction</li>
+<li><strong>upper_bound</strong> &#8211; The upper bound for the reaction</li>
+<li><strong>pLR</strong> &#8211; The probability the reaction proceeds left to right</li>
+<li><strong>pRL</strong> &#8211; The probability the reaction proceeds right to left</li>
+<li><strong>enzymes</strong> &#8211; The enzyme complex IDs involved in the reaction</li>
+<li><strong>pegs</strong> &#8211; The protein-encoding genes involved in the reaction</li>
+<li><strong>deltaG</strong> &#8211; The delta G</li>
+<li><strong>deltaG_error</strong> &#8211; The error in the delta G</li>
+<li><strong>inp</strong> &#8211; Whether the reaction is an input reaction</li>
+<li><strong>outp</strong> &#8211; Whether the reaction is an output reaction</li>
+<li><strong>is_transport</strong> &#8211; Whether the reaction is a transport reaction (imports or exports something)</li>
+<li><strong>ran</strong> &#8211; Boolean to note whether the reaction ran</li>
+<li><strong>is_biomass_reaction</strong> &#8211; Boolean to note whether this is a biomass reaction</li>
+<li><strong>biomass_direction</strong> &#8211; If it is a biomass reaction, what is the direction</li>
+<li><strong>is_gapfilled</strong> &#8211; Boolean to note whether the reaction was gapfilled</li>
+<li><strong>gapfill_method</strong> &#8211; If the reaction was gapfilled, how was it gapfilled</li>
+<li><strong>is_uptake_secretion</strong> &#8211; Is the reaction involved in uptake of compounds or secretion of compounds.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.add_enzymes">
+<code class="descname">add_enzymes</code><span class="sig-paren">(</span><em>enz</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.add_enzymes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add one or more enzymes that completes this reaction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>enz</strong> (<em>set</em>) &#8211; A set of enzymes that you want to add</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.add_left_compounds">
+<code class="descname">add_left_compounds</code><span class="sig-paren">(</span><em>cmpds</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.add_left_compounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>The compounds on the left are a set of compounds that the reaction typically uses as substrates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cmpds</strong> (<em>set</em>) &#8211; The compounds that should be added</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.add_pegs">
+<code class="descname">add_pegs</code><span class="sig-paren">(</span><em>pegs</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.add_pegs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add one or more pegs to this reaction. Pegs must be a set.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pegs</strong> (<em>set</em>) &#8211; The pegs to add to the reaction</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.add_right_compounds">
+<code class="descname">add_right_compounds</code><span class="sig-paren">(</span><em>cmpds</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.add_right_compounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>The compounds on the right are a set of compounds that the reaction typically uses as substrates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cmpds</strong> (<em>set</em>) &#8211; The compounds that should be added</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.all_compounds">
+<code class="descname">all_compounds</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.all_compounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all the compounds involved in this reaction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A set of all the compounds</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.all_enzymes">
+<code class="descname">all_enzymes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.all_enzymes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all the enzymes involved in this reaction. Returns a set of complex IDs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.check_input_output">
+<code class="descname">check_input_output</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.check_input_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether this reaction is an input or output reaction.</p>
+<p>This is called when we ask is_input_reaction / is_output_reaction and both inp and outp are False</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.get_deltaG">
+<code class="descname">get_deltaG</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.get_deltaG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the value for delta G (Gibbs free energy) for this reaction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.get_left_compound_abundance">
+<code class="descname">get_left_compound_abundance</code><span class="sig-paren">(</span><em>cmpd</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.get_left_compound_abundance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the abundance of the compound on the left side of the equation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cmpd</strong> (<a class="reference internal" href="compound.html#PyFBA.metabolism.Compound" title="PyFBA.metabolism.Compound"><em>Compound</em></a>) &#8211; The compound to get the abundance of</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The compounds abundance</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.get_probability_left_to_right">
+<code class="descname">get_probability_left_to_right</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.get_probability_left_to_right" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the probability of the reaction running left to right. Note you can also access this as reaction.pLR</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The probablity</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Rtype p:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.get_probability_right_to_left">
+<code class="descname">get_probability_right_to_left</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.get_probability_right_to_left" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the probability of the reaction running right to left. Note you can also access this as reaction.pRL</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The probablity</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Rtype p:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.get_right_compound_abundance">
+<code class="descname">get_right_compound_abundance</code><span class="sig-paren">(</span><em>cmpd</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.get_right_compound_abundance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the abundance of the compound on the right side of the equation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cmpd</strong> (<a class="reference internal" href="compound.html#PyFBA.metabolism.Compound" title="PyFBA.metabolism.Compound"><em>Compound</em></a>) &#8211; The compound to get the abundance of</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The compounds abundance</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.has">
+<code class="descname">has</code><span class="sig-paren">(</span><em>cmpd</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.has" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does this reaction have a compound? Just returns true if the compound is present somewhere in the reaction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cmpd</strong> (<a class="reference internal" href="compound.html#PyFBA.metabolism.Compound" title="PyFBA.metabolism.Compound"><em>Compound</em></a>) &#8211; The compound to test for</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.has_enzyme">
+<code class="descname">has_enzyme</code><span class="sig-paren">(</span><em>enz</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.has_enzyme" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether an enzyme is involved in this reaction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>enz</strong> (<a class="reference internal" href="enzyme.html#PyFBA.metabolism.Enzyme" title="PyFBA.metabolism.Enzyme"><em>Enzyme</em></a>) &#8211; An Enzyme object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Whether we have this enzyme</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.has_peg">
+<code class="descname">has_peg</code><span class="sig-paren">(</span><em>peg</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.has_peg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether a peg is involved in this reaction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>peg</strong> (<em>str</em>) &#8211; The peg to check for</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.is_input_reaction">
+<code class="descname">is_input_reaction</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.is_input_reaction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is this an input reaction?</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.is_output_reaction">
+<code class="descname">is_output_reaction</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.is_output_reaction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is this an output reaction?</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.number_of_compounds">
+<code class="descname">number_of_compounds</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.number_of_compounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the total number of compounds involved in this reaction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.number_of_enzymes">
+<code class="descname">number_of_enzymes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.number_of_enzymes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the number of enzymes involved in this reaction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.number_of_left_compounds">
+<code class="descname">number_of_left_compounds</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.number_of_left_compounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of compounds on the left side of the equation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.number_of_right_compounds">
+<code class="descname">number_of_right_compounds</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.number_of_right_compounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of compounds on the right side of the equation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.opposite_sides">
+<code class="descname">opposite_sides</code><span class="sig-paren">(</span><em>cmpd1</em>, <em>cmpd2</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.opposite_sides" title="Permalink to this definition">¶</a></dt>
+<dd><p>Are these two compounds on opposite sides of the reaction?</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cmpd1</strong> (<a class="reference internal" href="compound.html#PyFBA.metabolism.Compound" title="PyFBA.metabolism.Compound"><em>Compound</em></a>) &#8211; The first compound</li>
+<li><strong>cmpd2</strong> (<a class="reference internal" href="compound.html#PyFBA.metabolism.Compound" title="PyFBA.metabolism.Compound"><em>Compound</em></a>) &#8211; The second compound</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Whether the compounds are on opposite sides</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.reverse_reaction">
+<code class="descname">reverse_reaction</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.reverse_reaction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reverse the reaction - move the left compounds to the right,
+and vice versa. We also switch the abundances and the pLR and
+pRL.</p>
+<p>We also negate the deltaG, since that should be the other way
+around now.</p>
+<p>At the moment we don&#8217;t switch input/output, not sure if we
+need to do that.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.set_deltaG">
+<code class="descname">set_deltaG</code><span class="sig-paren">(</span><em>dg</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.set_deltaG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the value for delta G (Gibbs free energy) for this reaction. Recall -ve deltaG means the reaction is
+favorable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dg</strong> (<em>float</em>) &#8211; The delta G of the reaction</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.set_direction">
+<code class="descname">set_direction</code><span class="sig-paren">(</span><em>direction</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.set_direction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the direction of the reaction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>direction</strong> (<em>str</em>) &#8211; The direction of the reaction</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The current direction</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.set_left_compound_abundance">
+<code class="descname">set_left_compound_abundance</code><span class="sig-paren">(</span><em>cmpd</em>, <em>abundance</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.set_left_compound_abundance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the abundance of a compound on the left side of the equation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cmpd</strong> (<a class="reference internal" href="compound.html#PyFBA.metabolism.Compound" title="PyFBA.metabolism.Compound"><em>Compound</em></a>) &#8211; The compound to set the abundance for</li>
+<li><strong>abundance</strong> (<em>float</em>) &#8211; The amount of that abundance</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.set_probability_left_to_right">
+<code class="descname">set_probability_left_to_right</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.set_probability_left_to_right" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the probability of the reaction running left to right. Note you can also access this as reaction.pLR</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>p</strong> (<em>float</em>) &#8211; The probablity</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.set_probability_right_to_left">
+<code class="descname">set_probability_right_to_left</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.set_probability_right_to_left" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the probability of the reaction running right to left Note you can also access this as reaction.pRL</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>p</strong> (<em>float</em>) &#8211; The probablity</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.set_right_compound_abundance">
+<code class="descname">set_right_compound_abundance</code><span class="sig-paren">(</span><em>cmpd</em>, <em>abundance</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.set_right_compound_abundance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the abundance of a compound on the right side of the equation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cmpd</strong> (<a class="reference internal" href="compound.html#PyFBA.metabolism.Compound" title="PyFBA.metabolism.Compound"><em>Compound</em></a>) &#8211; The compound to set the abundance for</li>
+<li><strong>abundance</strong> (<em>float</em>) &#8211; The amount of that abundance</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.toggle_input_reaction">
+<code class="descname">toggle_input_reaction</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.toggle_input_reaction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set this reaction as an input reaction. This only applies to
+this reaction, so if it is true we set it false, else we set 
+it true</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyFBA.metabolism.Reaction.toggle_output_reaction">
+<code class="descname">toggle_output_reaction</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.metabolism.Reaction.toggle_output_reaction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set this reaction as an output reaction. This only applies to
+this reaction, so if it is true we set it false, else we set 
+it true</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="related bottom">
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="enzyme.html" title="Previous document">Metabolism : The Enzyme class</a>
+        </li>
+        <li>
+          <a href="compound.html" title="Next document">Metabolism : The Compound Class</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+  <nav id="breadcrumbs">
+    <ul>
+      <li><a href="index.html">PyFBA 0.6 documentation</a></li>
+      <li>
+        <a href="api.html">PyFBA Documentation</a>
+      </li> 
+    </ul>
+  </nav>
+  </div>
+  <footer id="pagefooter">&copy; 2015, Daniel Cuevas, Taylor O&#39;Connell and Robert Edwards.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a>
+      1.3.1
+        with the <a href="http://github.com/irskep/sphinx-better-theme">
+          better</a> theme.
+
+  </footer>
+
+  
+  </body>
+</html>

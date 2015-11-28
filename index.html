@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to PyFBA. A python interface for Flux Balance Analysis &mdash; PyFBA 0.6 documentation</title>
+    
+    <link rel="stylesheet" href="static/better.css" type="text/css" />
+    <link rel="stylesheet" href="static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="static/jquery.js"></script>
+    <script type="text/javascript" src="static/underscore.js"></script>
+    <script type="text/javascript" src="static/doctools.js"></script>
+    <link rel="top" title="PyFBA 0.6 documentation" href="#" />
+    <link rel="next" title="PyFBA Documentation" href="api.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  </head>
+  <body role="document">
+    <header id="pageheader"><h1><a href="# ">
+        PyFBA 0.6 documentation
+    </a></h1></header>
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+	<a href="#"><img src="static/PyFBA.png" border="0" alt="sampledoc"/></a>
+</div>
+
+  <div class="related top">
+  <nav id="rellinks">
+    <ul>
+        <li>
+          <a href="api.html" title="Next document">PyFBA Documentation</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+  <nav id="breadcrumbs">
+    <ul>
+      <li><a href="#">PyFBA 0.6 documentation</a></li> 
+    </ul>
+  </nav>
+  </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to PyFBA. A python interface for Flux Balance Analysis</a><ul>
+<li><a class="reference internal" href="#about-pyfba">About PyFBA</a></li>
+<li><a class="reference internal" href="#installing-pyfba">Installing PyFBA</a></li>
+<li><a class="reference internal" href="#getting-started-with-pyfba">Getting Started with PyFBA</a></li>
+<li><a class="reference internal" href="#explore-the-api">Explore the API</a></li>
+<li><a class="reference internal" href="#you-can-also-find-what-you-are-looking-for-directly">You can also find what you are looking for directly:</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="api.html"
+                        title="next chapter">PyFBA Documentation</a></p>
+<div class="sourcelink">
+  <a href="sources/index.txt" rel="nofollow">
+    Show page source
+  </a>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="welcome-to-pyfba-a-python-interface-for-flux-balance-analysis">
+<h1>Welcome to PyFBA. A python interface for Flux Balance Analysis<a class="headerlink" href="#welcome-to-pyfba-a-python-interface-for-flux-balance-analysis" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="about-pyfba">
+<h2>About PyFBA<a class="headerlink" href="#about-pyfba" title="Permalink to this headline">¶</a></h2>
+<p>PyFBA is a Python flux-balance-analysis package that allows you to build models from genomes, gapfill models, and run
+flux-balance-analysis on that model. The aim of PyFBA is to provide an extensible, Python-based platform for your
+FBA work.</p>
+<p>PyFBA is being developed by Daniel Cuevas, Taylor O&#8217;Connell, and Rob Edwards in <a class="reference external" href="http://edwards.sdsu.edu/research">Rob&#8217;s bioinformatics
+group</a> at <a class="reference external" href="http://www.sdsu.edu">San Diego State University</a> together with help from
+Janaka Edirisinghe, Chris Henry, Ross Overbeek and others at <a class="reference external" href="http://www.theseed.org/">Argonne National Labs</a>.</p>
+</div>
+<div class="section" id="installing-pyfba">
+<h2>Installing PyFBA<a class="headerlink" href="#installing-pyfba" title="Permalink to this headline">¶</a></h2>
+<p>To use PyFBA you need Python 2.7 or greater, and you need to install the GNU GLPK and a Python
+wrapper for that program, <a class="reference external" href="https://github.com/bradfordboyle/pyglpk">pyGLPK</a> available from github. See the <a class="reference external" href="installation.html">installation</a> page for more details.</p>
+<p>We also leverage the <a class="reference external" href="https://github.com/ModelSEED/ModelSEEDDatabase.git">Model SEED</a> repository to get all the latest biochemistry tables. You should install that
+somewhere on your machine, and set a <cite>ModelSEEDDatabase environment</cite> variable that points to that directory so we know
+where you have installed it.</p>
+<p>Our <a class="reference external" href="installation.html">installation</a> page has detailed instructions on installing PyFBA and getting everything running.</p>
+</div>
+<div class="section" id="getting-started-with-pyfba">
+<h2>Getting Started with PyFBA<a class="headerlink" href="#getting-started-with-pyfba" title="Permalink to this headline">¶</a></h2>
+<p>Once you have installed GLPK, PyGLPK, and PyFBA, you will most likely want to build a model from a genome, gap fill that
+model, and test it for growth on different media. We have detailed instructions on <a class="reference external" href="getting_started.html">getting started</a> to that walk you
+through the step-by-step procedures that you need to use to run flux balance analysis on your own genome.</p>
+</div>
+<div class="section" id="explore-the-api">
+<h2>Explore the API<a class="headerlink" href="#explore-the-api" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>We have developed an extensive API that is centered around two concepts:</dt>
+<dd><ul class="first last simple">
+<li>Getting your FBA up and running easily</li>
+<li>Allowing you to extend, update, and adapt the API to meet your requirements</li>
+</ul>
+</dd>
+</dl>
+<p>To explore the API, check out the details:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">PyFBA Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.html#the-metabolism-data">The metabolism data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#the-fba-modules">The FBA modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#the-parsing-modules">The parsing modules</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="you-can-also-find-what-you-are-looking-for-directly">
+<h2>You can also find what you are looking for directly:<a class="headerlink" href="#you-can-also-find-what-you-are-looking-for-directly" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span>Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span>Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span>Search Page</span></a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="related bottom">
+  <nav id="rellinks">
+    <ul>
+        <li>
+          <a href="api.html" title="Next document">PyFBA Documentation</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+  <nav id="breadcrumbs">
+    <ul>
+      <li><a href="#">PyFBA 0.6 documentation</a></li> 
+    </ul>
+  </nav>
+  </div>
+  <footer id="pagefooter">&copy; 2015, Daniel Cuevas, Taylor O&#39;Connell and Robert Edwards.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a>
+      1.3.1
+        with the <a href="http://github.com/irskep/sphinx-better-theme">
+          better</a> theme.
+
+  </footer>
+
+  
+  </body>
+</html>
