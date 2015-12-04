@@ -42,10 +42,10 @@ class TestModelSeedParsing(unittest.TestCase):
         """
 
         enz = PyFBA.parse.model_seed.template_reactions('microbial')
-        self.assertEqual(len(enz), 19110, 'The microbial template has changed. Most likely the model seed has been ' +
+        self.assertGreaterEqual(len(enz), 19000, 'The microbial template has changed. Most likely the model seed has been ' +
                          'updated and the test code is wrong!')
         allkeys = enz.keys()
-        self.assertEqual(len(allkeys), 19110)
+        self.assertGreaterEqual(len(allkeys), 19000)
 
         self.assertIn('direction', enz[allkeys[0]], "The model seed template data should contain direction")
         self.assertIn('enzymes', enz[allkeys[0]], "The model seed template data should contain enzymes")
