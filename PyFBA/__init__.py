@@ -6,4 +6,4 @@ import gapfill
 import metabolism
 import parse
 
-__version__ = 0.6
+__version__ = 0.7
