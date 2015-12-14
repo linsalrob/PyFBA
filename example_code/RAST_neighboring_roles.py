@@ -85,13 +85,13 @@ if __name__ == '__main__':
         cg = rast_closest_genomes(genera)
     else:
         # this is presumed to be a genera
-        sys.stderr.write("Checking seed for genera like " + genera)
+        sys.stderr.write("Checking seed for genera like: {}\n".format(genera))
         cg = close_genera(genera)
 
 
     num = closest_functions(cg)
     for n in num:
-        print(n + "\t" + str(num[n]))
+        print(n.decode('utf-8') + "\t" + str(num[n]))
 
 
 
