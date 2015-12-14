@@ -27,9 +27,12 @@ def suggest_from_roles(roles_file, reactions, threshold=0, verbose=False):
     role_suggestions = {}
     with open(roles_file, 'r') as rin:
         for l in rin:
-            p = l.strip().split("\t")
-            if float(p[1]) >= threshold:
-                role_suggestions[p[0]] = p[1]
+            p = l.rstrip().split("\t")
+            try:
+                if float(p[1]) >= threshold:
+                    role_suggestions[p[0]] = p[1]
+            except IndexError as e:
+                sys.stderr.write("{} does not have enough columns\n".format(l.rstrip()))
 
     if verbose:
         sys.stderr.write("Found " + str(len(role_suggestions)) + " roles to connect to reactions\n")
