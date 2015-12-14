@@ -124,11 +124,12 @@ One or two of the scripts (notably
 you have libSBML and lxml be installed to read the SBML files.
 
 ``setup.py`` will attempt to install these for you. If you wish to
-install it manually you should be able to do so with ``pip install``:
+install them manually you should be able to do so with ``pip install``:
 
 ::
 
         pip install python-libsbml-experimental
+        pip install lxml
 
 Beautiful Soup 4
 ~~~~~~~~~~~~~~~~
