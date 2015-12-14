@@ -89,16 +89,17 @@ PyFBA depends on a few different Python modules:
 As noted [above](#install_pyglpk), you should install PyGLPK from [GitHub](https://github.com/bradfordboyle/pyglpk). 
 However, `setup.py` will try and do the right thing for you.
 
-### libSBML
+### libSBML and lxml
 
-One or two of the scripts (notably [scripts/run_fba_sbml.py](scripts/run_fba_sbml.py)) requires that you have libSBML 
-installed to read the SBML files. 
+One or two of the scripts (notably [scripts/run_fba_sbml.py](scripts/run_fba_sbml.py)) require that you have libSBML 
+and lxml installed to read the SBML files. 
 
-`setup.py` will attempt to install this for you. If you wish to install it manually you should be able to do so 
+`setup.py` will attempt to install these for you. If you wish to install them manually you should be able to do so 
 with `pip install`:
 
 ```
     pip install python-libsbml-experimental
+    pip install lxml
 ````
 
 ### Beautiful Soup 4
