@@ -53,6 +53,10 @@ def template_reactions(modeltype='microbial'):
         inputfile = "Templates/GramNegative/Reactions.tsv"
     elif modeltype.lower() == 'grampositive' or modeltype.lower() == 'gram_positive':
         inputfile = "Templates/GramPositive/Reactions.tsv"
+    elif modeltype.lower() == 'mycobacteria':
+        inputfile = "Templates/Mycobacteria/Reactions.tsv"
+    elif modeltype.lower() == 'plant':
+        inputfile = "Templates/Plant/Reactions.tsv"
     else:
         raise NotImplementedError("Parsing data for " + inputfile + " has not been implemented!")
 
