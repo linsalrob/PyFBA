@@ -108,16 +108,25 @@ own gap filling designs.</p>
 <span class="target" id="module-PyFBA.gapfill.essentials"></span><dl class="function">
 <dt id="PyFBA.gapfill.essentials.suggest_essential_reactions">
 <code class="descclassname">PyFBA.gapfill.essentials.</code><code class="descname">suggest_essential_reactions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.gapfill.essentials.suggest_essential_reactions" title="Permalink to this definition">¶</a></dt>
-<dd><p>There are 110 reactions (one of which is biomass) that are in
-_every_ model produced thus far and we include them in all models.
-This is a set of those reactions just to make sure that we have
-added them!</p>
+<dd><p>Identify a set of reactions that you should add to your model for growth because they are essential reactions.</p>
+<p>There are 110 reactions (one of which is biomass) that are in _every_ model produced thus far and we include them
+in all models. This is a set of those reactions just to make sure that we have added them!</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A set of proposed reactions that should be added to your model to see if it grows</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">set</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <span class="target" id="module-PyFBA.gapfill.maps_to_proteins"></span><dl class="function">
 <dt id="PyFBA.gapfill.maps_to_proteins.suggest_reactions_with_proteins">
 <code class="descclassname">PyFBA.gapfill.maps_to_proteins.</code><code class="descname">suggest_reactions_with_proteins</code><span class="sig-paren">(</span><em>reactions</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.gapfill.maps_to_proteins.suggest_reactions_with_proteins" title="Permalink to this definition">¶</a></dt>
-<dd><p>Suggest those reactions that we don&#8217;t have but that have proteins
+<dd><p>Identify a set of reactions that you should add to your model for growth based on the reactions that have proteins
 associated with them.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -142,9 +151,9 @@ associated with them.</p>
 <dl class="function">
 <dt id="PyFBA.gapfill.maps_to_proteins.suggest_reactions_without_proteins">
 <code class="descclassname">PyFBA.gapfill.maps_to_proteins.</code><code class="descname">suggest_reactions_without_proteins</code><span class="sig-paren">(</span><em>reactions</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.gapfill.maps_to_proteins.suggest_reactions_without_proteins" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the reactions that don&#8217;t have any proteins associated with them.</p>
-<p>This is a bad idea to add all of these since there are about 30,000
-and it will break your computer if you try and solve it with FBA</p>
+<dd><p>Identify a set of reactions that don&#8217;t have any proteins associated with them.</p>
+<p>It is generally a bad idea to add all of these to your model since there are about 30,000 and they will probably
+break your computer if you try and solve it with FBA</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -155,7 +164,7 @@ and it will break your computer if you try and solve it with FBA</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a set of reactions that could be added to test for growth</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A set of proposed reactions that should be added to your model to see if it grows</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">set</p>
@@ -168,7 +177,7 @@ and it will break your computer if you try and solve it with FBA</p>
 <span class="target" id="module-PyFBA.gapfill.media"></span><dl class="function">
 <dt id="PyFBA.gapfill.media.suggest_from_media">
 <code class="descclassname">PyFBA.gapfill.media.</code><code class="descname">suggest_from_media</code><span class="sig-paren">(</span><em>compounds</em>, <em>reactions</em>, <em>reactions2run</em>, <em>media</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.gapfill.media.suggest_from_media" title="Permalink to this definition">¶</a></dt>
-<dd><p>Suggest which reactions we should add to include media compounds</p>
+<dd><p>Identify a set of reactions that you should add to your model for growth based on the media compounds</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -182,10 +191,10 @@ and it will break your computer if you try and solve it with FBA</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The suggested reactions</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A set of proposed reactions that should be added to your model to see if it grows</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">set.</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">set</p>
 </td>
 </tr>
 </tbody>
@@ -195,7 +204,7 @@ and it will break your computer if you try and solve it with FBA</p>
 <span class="target" id="module-PyFBA.gapfill.orphan_compound"></span><dl class="function">
 <dt id="PyFBA.gapfill.orphan_compound.suggest_by_compound">
 <code class="descclassname">PyFBA.gapfill.orphan_compound.</code><code class="descname">suggest_by_compound</code><span class="sig-paren">(</span><em>compounds</em>, <em>reactions</em>, <em>reactions2run</em>, <em>max_reactions</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.gapfill.orphan_compound.suggest_by_compound" title="Permalink to this definition">¶</a></dt>
-<dd><p>Suggest by compounds that are orphaned.</p>
+<dd><p>Identify a set of reactions that you should add to your model for growth because they contain orphan compounds</p>
 <p>This is a slightly different approach to suggesting by compound.
 We look for &#8220;orphan&#8221; compounds that only have a few connections to
 other reactions, and then add those to our network to see what
@@ -222,7 +231,7 @@ don&#8217;t want to consider external compounds any way</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A set of proposed reactions to add</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A set of proposed reactions that should be added to your model to see if it grows</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">set</p>
@@ -235,26 +244,12 @@ don&#8217;t want to consider external compounds any way</p>
 <span class="target" id="module-PyFBA.gapfill.probability"></span><dl class="function">
 <dt id="PyFBA.gapfill.probability.compound_probability">
 <code class="descclassname">PyFBA.gapfill.probability.</code><code class="descname">compound_probability</code><span class="sig-paren">(</span><em>reactions</em>, <em>reactions2run</em>, <em>cutoff=0</em>, <em>rxn_with_proteins=True</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.gapfill.probability.compound_probability" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate a probability for the reaction to run left to right and
-right to left.</p>
-<p>The probability is basically the fraction of compounds that are
-present, so we need to know all compounds in all our reactions!</p>
-<p>If you set cutoff to zero we will use the minimum score in our
-current reactions.</p>
-<dl class="docutils">
-<dt>Notes</dt>
-<dd><p class="first">Our test case with Citrobacter found that there are
-1490 compounds present, and the average composition
-was:</p>
-<blockquote>
-<div>Left: 0.998276852384
-Right: 1.0</div></blockquote>
-<p>If we used 0.998276852384 as a cutoff, we propose an
-additional 10,947 reactions and everything breaks!</p>
-<p class="last">If we limit it to just those reactions connected to
-pegs we add an additional 464 reactions</p>
-</dd>
-</dl>
+<dd><p>Identify a set of reactions that you should add to your model for growth based on the probability for the reaction
+to run left to right and right to left.</p>
+<p>The probability is basically the fraction of compounds that are present.</p>
+<p>If you set cutoff to zero we calculate the minimum coverage of the compounds in the reactions already in the model
+and use that to determine which other reactions should be added based on the observation that they have a similar
+proportion of compounds already in the network.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -268,7 +263,7 @@ pegs we add an additional 464 reactions</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a set of suggested reactions to add</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A set of proposed reactions that should be added to your model to see if it grows</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">set</p>
@@ -282,11 +277,8 @@ pegs we add an additional 464 reactions</p>
 <dt id="PyFBA.gapfill.roles.suggest_from_roles">
 <code class="descclassname">PyFBA.gapfill.roles.</code><code class="descname">suggest_from_roles</code><span class="sig-paren">(</span><em>roles_file</em>, <em>reactions</em>, <em>threshold=0</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.gapfill.roles.suggest_from_roles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identify a set of reactions that we should add based on a roles file.</p>
-<dl class="docutils">
-<dt>We assume that the roles file has the format:</dt>
-<dd>[role, probability]</dd>
-</dl>
-<p>separated by tabs.</p>
+<p>We assume that the roles file has the format: [role, probability] separated by tabs. We make no assumption about
+where you got that file, but you might, for example, look at the closely related organisms.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -299,10 +291,10 @@ pegs we add an additional 464 reactions</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a set of reactions that could be added to test for growth</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A set of proposed reactions that should be added to your model to see if it grows</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">set.</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">set</p>
 </td>
 </tr>
 </tbody>
@@ -312,10 +304,10 @@ pegs we add an additional 464 reactions</p>
 <span class="target" id="module-PyFBA.gapfill.subsystem"></span><dl class="function">
 <dt id="PyFBA.gapfill.subsystem.suggest_reactions_from_subsystems">
 <code class="descclassname">PyFBA.gapfill.subsystem.</code><code class="descname">suggest_reactions_from_subsystems</code><span class="sig-paren">(</span><em>reactions</em>, <em>reactions2run</em>, <em>ssfile='/data/PyFBA/PyFBA/Biochemistry/SEED/Subsystems/SS_functions_Oct_2015.txt'</em>, <em>threshold=0</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#PyFBA.gapfill.subsystem.suggest_reactions_from_subsystems" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read roles and subsystems from the subsystems file (which has
-role, subsystem, classification 1, classification 2) and make
-suggestions for missing roles based on the subsystems that only have
-partial reaction coverage.</p>
+<dd><p>Identify a set of reactions that you should add to your model for growth based on the subsystems that are present
+in your model and their coverage.</p>
+<p>Read roles and subsystems from the subsystems file (which has role, subsystem, classification 1, classification 2)
+and make suggestions for missing reactions based on the subsystems that only have partial reaction coverage.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -329,7 +321,7 @@ partial reaction coverage.</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a set of reactions that could be added to test for growth</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A set of proposed reactions that should be added to your model to see if it grows</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">set</p>

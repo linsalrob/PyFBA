@@ -66,7 +66,7 @@
 <li><a class="reference internal" href="#install-pyglpk">Install PyGLPK</a></li>
 <li><a class="reference internal" href="#install-the-modelseeddatabase">Install the ModelSEEDDatabase</a></li>
 <li><a class="reference internal" href="#python-modules">Python modules</a><ul>
-<li><a class="reference internal" href="#libsbml">libSBML</a></li>
+<li><a class="reference internal" href="#libsbml-and-lxml">libSBML and lxml</a></li>
 <li><a class="reference internal" href="#beautiful-soup-4">Beautiful Soup 4</a></li>
 </ul>
 </li>
@@ -206,14 +206,15 @@ variable</a> as explained below.</p>
 <p>As noted <a class="reference external" href="#install_pyglpk">above</a>, you should install PyGLPK from
 <a class="reference external" href="https://github.com/bradfordboyle/pyglpk">GitHub</a>. However,
 <code class="docutils literal"><span class="pre">setup.py</span></code> will try and do the right thing for you.</p>
-<div class="section" id="libsbml">
-<h3>libSBML<a class="headerlink" href="#libsbml" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="libsbml-and-lxml">
+<h3>libSBML and lxml<a class="headerlink" href="#libsbml-and-lxml" title="Permalink to this headline">¶</a></h3>
 <p>One or two of the scripts (notably
-<a class="reference external" href="scripts/run_fba_sbml.py">scripts/run_fba_sbml.py</a>) requires that
-you have libSBML installed to read the SBML files.</p>
-<p><code class="docutils literal"><span class="pre">setup.py</span></code> will attempt to install this for you. If you wish to
-install it manually you should be able to do so with <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span></code>:</p>
+<a class="reference external" href="scripts/run_fba_sbml.py">scripts/run_fba_sbml.py</a>) require that
+you have libSBML and lxml be installed to read the SBML files.</p>
+<p><code class="docutils literal"><span class="pre">setup.py</span></code> will attempt to install these for you. If you wish to
+install them manually you should be able to do so with <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span></code>:</p>
 <div class="highlight-python"><div class="highlight"><pre>pip install python-libsbml-experimental
+pip install lxml
 </pre></div>
 </div>
 </div>
