@@ -8,11 +8,16 @@ some predicted reactions
 
 
 import os
+import string
 import sys
 from servers.SAP import SAPserver
 
 server=SAPserver()
 
+
+def ascii_clean(s):
+    """Remove non-ascii characters from a string"""
+    return filter(lambda x: x in string.printable, s)
 
 def close_genera(genome_name):
     res = server.all_genomes({'-complete' : True})
@@ -91,7 +96,11 @@ if __name__ == '__main__':
 
     num = closest_functions(cg)
     for n in num:
-        print(n.decode('utf-8') + "\t" + str(num[n]))
+        if n != ascii_clean(n):
+            sys.stderr.write("Function {} has non-ascii characters\n".format(ascii_clean(n)))
+            print(ascii_clean(n) + "\t" + str(num[n]))
+        else:
+            print(n.decode('utf-8') + "\t" + str(num[n]))
 
 
 
