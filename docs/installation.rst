@@ -116,14 +116,14 @@ As noted `above <#install_pyglpk>`__, you should install PyGLPK from
 `GitHub <https://github.com/bradfordboyle/pyglpk>`__. However,
 ``setup.py`` will try and do the right thing for you.
 
-libSBML
-~~~~~~~
+libSBML and lxml
+~~~~~~~~~~~~~~~~
 
 One or two of the scripts (notably
-`scripts/run\_fba\_sbml.py <scripts/run_fba_sbml.py>`__) requires that
-you have libSBML installed to read the SBML files.
+`scripts/run\_fba\_sbml.py <scripts/run_fba_sbml.py>`__) require that
+you have libSBML and lxml be installed to read the SBML files.
 
-``setup.py`` will attempt to install this for you. If you wish to
+``setup.py`` will attempt to install these for you. If you wish to
 install it manually you should be able to do so with ``pip install``:
 
 ::

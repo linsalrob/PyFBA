@@ -1,2 +1,4 @@
 glpk
 beautifulsoup4
+libsbml
+lxml
