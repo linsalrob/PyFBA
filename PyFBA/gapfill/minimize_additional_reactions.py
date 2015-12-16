@@ -76,64 +76,59 @@ def minimize_additional_reactions(base_reactions, optional_reactions, compounds,
         # left, right = percent_split(current_rx_list, percent)
         r2r = base_reactions.union(set(left))
         status, value, lgrowth = PyFBA.fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
-        r2r = base_reactions.union(set(right))
-        status, value, rgrowth = PyFBA.fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
-        if verbose:
-            sys.stderr.write("Iteration: {} Try: {} Length: {} and {}".format(itera, tries, len(left), len(right)) +
-                             " Growth: {} and {}\n".format(lgrowth, rgrowth))
 
-        if lgrowth and rgrowth:
-            # they both grow, so we can choose one!
+        # running the fba takes all the time, so we only run the right half if the left half doesn't grow
+        if lgrowth:
             tries = 0
             current_rx_list = left
-        elif lgrowth:
-            # the left list grows
-            tries = 0
-            current_rx_list = left
-            if len(left) == 1:
-                test = False
-                right = []
-        elif rgrowth:
-            # the right list grows
-            tries = 0
-            current_rx_list = right
-            if len(right) == 1:
-                test = False
-                left = []
         else:
-            # neither grows. Can we split the list unevenly and see
-            # if we get growth
-            percent = 40
-            left, right = PyFBA.gapfill.bisections.percent_split(current_rx_list, percent)
-            uneven_test = True
-            while uneven_test and len(left) > 0 and len(right) > 0:
-                r2r = base_reactions.union(set(left))
-                status, value, lgrowth = PyFBA.fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
-                r2r = base_reactions.union(set(right))
-                status, value, rgrowth = PyFBA.fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
-                if verbose:
-                    sys.stderr.write(
-                        "Iteration: {} Try: {} Length: {} and {}".format(itera, tries, len(left), len(right)) +
-                        " Growth: {} and {}\n".format(lgrowth, rgrowth))
-                if lgrowth:
-                    tries = 0
-                    current_rx_list = left
-                    uneven_test = False
-                elif rgrowth:
-                    tries = 0
-                    current_rx_list = right
-                    uneven_test = False
-                else:
-                    percent /= 2.0
-                    left, right = PyFBA.gapfill.bisections.percent_split(current_rx_list, percent)
-            if uneven_test:
-                # we never got growth, so we can't continue
-                # we take another stab and try again
-                tries += 1
-                current_rx_list = left + right
-                shuffle(current_rx_list)
-            if tries > maxtries:
-                test = False
+            r2r = base_reactions.union(set(right))
+            status, value, rgrowth = PyFBA.fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
+            if verbose:
+                sys.stderr.write("Iteration: {} Try: {} Length: {} and {}".format(itera, tries, len(left), len(right)) +
+                                 " Growth: {} and {}\n".format(lgrowth, rgrowth))
+
+            if rgrowth:
+                # the right list grows so we can use it
+                tries = 0
+                current_rx_list = right
+                if len(right) == 1:
+                    test = False
+                    left = []
+            else:
+                # neither grows. Can we split the list unevenly and see
+                # if we get growth
+                percent = 40
+                left, right = PyFBA.gapfill.bisections.percent_split(current_rx_list, percent)
+                uneven_test = True
+                while uneven_test and len(left) > 0 and len(right) > 0:
+                    r2r = base_reactions.union(set(left))
+                    status, value, lgrowth = PyFBA.fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
+                    r2r = base_reactions.union(set(right))
+                    status, value, rgrowth = PyFBA.fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
+                    if verbose:
+                        sys.stderr.write(
+                            "Iteration: {} Try: {} Length: {} and {}".format(itera, tries, len(left), len(right)) +
+                            " Growth: {} and {}\n".format(lgrowth, rgrowth))
+                    if lgrowth:
+                        tries = 0
+                        current_rx_list = left
+                        uneven_test = False
+                    elif rgrowth:
+                        tries = 0
+                        current_rx_list = right
+                        uneven_test = False
+                    else:
+                        percent /= 2.0
+                        left, right = PyFBA.gapfill.bisections.percent_split(current_rx_list, percent)
+                if uneven_test:
+                    # we never got growth, so we can't continue
+                    # we take another stab and try again
+                    tries += 1
+                    current_rx_list = left + right
+                    shuffle(current_rx_list)
+                if tries > maxtries:
+                    test = False
 
     remaining = set(left + right)
     if verbose:
