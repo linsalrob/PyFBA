@@ -42,7 +42,7 @@ for r in rxn:
         reactions_to_run.add(r)
 
 
-# get all the compounds fromt the SBML file. This is a dict of metabolite.Compound objects
+# get all the compounds from the SBML file. This is a dict of metabolite.Compound objects
 cps = sbml.compounds
 # filter for compounds that are boundary compounds
 cpds = {}
@@ -55,31 +55,8 @@ if args.v:
 
 # read the media file
 media = PyFBA.parse.read_media_file(args.m)
-
-# correct some of the media names so that they match the compounds in the
-# SBML file. This is why we should use compound IDs and not names!
-newmedia = set()
-for m in media:
-    intracellular_m = copy.copy(m)
-    intracellular_m.location = 'c'
-    if str(intracellular_m) in cpds:
-        newmedia.add(m)
-    else:
-        testname = str(intracellular_m).replace('-', '_')
-        if testname in cpds:
-            newname = m.name.replace('-', '_')
-            newloc = m.location
-            newmedia.add(PyFBA.metabolism.Compound(newname, newloc))
-        else:
-            testname = str(intracellular_m).replace('+', '')
-            if testname in cpds:
-                newname = m.name.replace('+', '')
-                newloc = m.location
-                newmedia.add(PyFBA.metabolism.Compound(newname, newloc))
-            else:
-                newmedia.add(m)
-
-media = newmedia
+# correct the names
+media = PyFBA.parse.correct_media_names(media, cpds)
 
 
 # adjust the lower bounds of uptake secretion reactions for things that are not in the media

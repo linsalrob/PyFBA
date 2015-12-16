@@ -1,4 +1,5 @@
 import argparse
+import copy
 import os
 import sys
 from bs4 import BeautifulSoup
@@ -240,6 +241,45 @@ def parse_sbml_file(sbml_file, verbose=False):
         sbml.add_reaction(rxn)
 
     return sbml
+
+
+def correct_media_names(media, cpds):
+    """
+    Correct the names in media files so they match names in the SBML files. Basically replacing '-' with '_'
+    or '+' with ' '
+
+    :param cpds: A set of compounds that are in the model
+    :type cpds: set
+    :param media: A set of compounds that define the media
+    :type media: set
+    :return: A new media set with corrected names
+    :rtype: set
+    """
+
+    # correct some of the media names so that they match the compounds in the
+    # SBML file. This is why we should use compound IDs and not names!
+    newmedia = set()
+    for m in media:
+        intracellular_m = copy.copy(m)
+        intracellular_m.location = 'c'
+        if str(intracellular_m) in cpds:
+            newmedia.add(m)
+        else:
+            testname = str(intracellular_m).replace('-', '_')
+            if testname in cpds:
+                newname = m.name.replace('-', '_')
+                newloc = m.location
+                newmedia.add(PyFBA.metabolism.Compound(newname, newloc))
+            else:
+                testname = str(intracellular_m).replace('+', '')
+                if testname in cpds:
+                    newname = m.name.replace('+', '')
+                    newloc = m.location
+                    newmedia.add(PyFBA.metabolism.Compound(newname, newloc))
+                else:
+                    newmedia.add(m)
+    return newmedia
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Parse an SBML file")
