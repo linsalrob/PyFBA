@@ -81,6 +81,9 @@ def minimize_additional_reactions(base_reactions, optional_reactions, compounds,
         if lgrowth:
             tries = 0
             current_rx_list = left
+            if verbose:
+                sys.stderr.write("Iteration: {} Try: {} Length: {} and {}".format(itera, tries, len(left), len(right)) +
+                                 " Growth: {} and NOT TESTED\n".format(lgrowth))
         else:
             r2r = base_reactions.union(set(right))
             status, value, rgrowth = PyFBA.fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)

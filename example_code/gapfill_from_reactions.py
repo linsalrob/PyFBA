@@ -238,15 +238,15 @@ if __name__ == '__main__':
     #                                        Orphan compounds                                   #
     #############################################################################################
 
-    orphan_reactions = PyFBA.gapfill.suggest_by_compound(compounds, reactions, reactions2run, 1)
-    added_reactions.append(("orphans", orphan_reactions))
-    reactions2run.update(orphan_reactions)
+    orphan_compounds = PyFBA.gapfill.suggest_by_compound(compounds, reactions, reactions2run, 1)
+    added_reactions.append(("orphans", orphan_compounds))
+    reactions2run.update(orphan_compounds)
     status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
-    sys.stderr.write("After adding {} ORPHAN reactions we get {} (growth is {})\n\n".format(len(orphan_reactions),
+    sys.stderr.write("After adding {} ORPHAN compounds we get {} (growth is {})\n\n".format(len(orphan_compounds),
                                                                                             value, growth))
-    for r in orphan_reactions:
+    for r in orphan_compounds:
         if r not in reactionsource:
-            reactionsource[r] = 'orphan_reactions'
+            reactionsource[r] = 'orphan_compounds'
 
     if growth:
         additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,

@@ -11,4 +11,6 @@ args = parser.parse_args()
 compounds, reactions, enzymes = PyFBA.parse.compounds_reactions_enzymes('gramnegative')
 
 for r in args.r:
-    print("{}: {}".format(r, reactions[r].equation))
+    roles = PyFBA.filters.reactions_to_roles(r)
+    rolestr = "; ".join(roles[r])
+    print("{}\t{}\t{}".format(r, reactions[r].equation, rolestr))

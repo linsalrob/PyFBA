@@ -26,7 +26,7 @@ def roles_of_function(role):
     # remove comments from functions and split multiple functions
     # TODO add this to roles_to_reactions
     func = re.sub('\s+[#!]\s.*$', '', role)
-    return set(re.split('\s+[;/@]\s+', func))
+    return set(re.split('\s*;\s+|\s+[;/@]\s+', func))
 
 
 def read_downloaded_data(spreadsheet_file):
