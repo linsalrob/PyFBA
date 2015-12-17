@@ -12,5 +12,8 @@ compounds, reactions, enzymes = PyFBA.parse.compounds_reactions_enzymes('gramneg
 
 for r in args.r:
     roles = PyFBA.filters.reactions_to_roles(r)
-    rolestr = "; ".join(roles[r])
+    if roles:
+        rolestr = "; ".join(roles[r])
+    else:
+        rolestr = 'No roles for this reaction'
     print("{}\t{}\t{}".format(r, reactions[r].equation, rolestr))
