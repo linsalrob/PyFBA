@@ -1,7 +1,32 @@
 import os
 import sys
 
+import re
+
 __author__ = 'Rob Edwards'
+
+
+def roles_of_function(role):
+    """
+    Separate a function into a set of roles.
+
+    In the SEED a function associated with a PEG can have more than one role. This is denoted by joining roles
+    with either ' / ' (a multi-domain, multifunctional gene), ' ; ' (an ambiguous function), or ' @ '
+    (a Single domain playing multiple roles). For more information see
+    http://www.nmpdr.org/FIG/Html/SEED_functions.html
+
+    This method just takes a function and returns a set of the role(s). If there is a single role, it is still a set.
+
+    :param role: The functional role
+    :type role: str
+    :return: A set of the roles
+    :rtype: set
+    """
+
+    # remove comments from functions and split multiple functions
+    # TODO add this to roles_to_reactions
+    func = re.sub('\s+[#!]\s.*$', '', role)
+    return set(re.split('\s+[;/@]\s+', func))
 
 
 def read_downloaded_data(spreadsheet_file):
@@ -26,12 +51,13 @@ def read_downloaded_data(spreadsheet_file):
 
 def read_assigned_functions(assigned_functions_file):
     """
-    Read the assigned functions file from RAST and return a data structure
+    Read the assigned functions file from RAST and return a data structure. Note that a peg can be associated with >1
+    function (e.g. a bifunctional protein).
 
     :param assigned_functions_file: The assigned functions file downloaded from RAST
     :type assigned_functions_file: str
-    :return: A hash of peg and function
-    :rtype: dict
+    :return: A hash of peg and a set of the function(s) associated with that peg
+    :rtype: dict of sets
 
     """
 
@@ -42,5 +68,5 @@ def read_assigned_functions(assigned_functions_file):
     with open(assigned_functions_file, 'r') as f:
         for l in f:
             p = l.strip().split("\t")
-            function[p[0]] = p[1]
+            function[p[0]] = roles_of_function(p[1])
     return function

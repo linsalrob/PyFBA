@@ -14,12 +14,14 @@ args = parser.parse_args()
 
 if args.a:
     af = PyFBA.parse.read_assigned_functions(args.a)
-    roles = set(af.values())
+    # roles = set(af.values())
+    roles = set()
+    [roles.update(i) for i in af.values()]
 elif args.r:
     roles = set()
     with open(args.r, 'r') as f:
         for l in f:
-            roles.add(l.strip())
+            roles.update(PyFBA.parse.roles_of_function(l.strip()))
 else:
     sys.exit('Either -a or -r must be specified')
 

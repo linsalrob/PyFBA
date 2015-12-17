@@ -15,7 +15,9 @@ if args.a.endswith('xls'):
     sys.exit("Please download the RAST spreadsheet file as a text file, not as an excel file.")
 
 af = PyFBA.parse.read_assigned_functions(args.a)
-rc = PyFBA.filters.roles_to_reactions(set(af.values()))
+roles = set()
+[roles.update(i) for i in af.values()]
+rc = PyFBA.filters.roles_to_reactions(roles)
 reactions = set()
 for r in rc:
     reactions.update(rc[r])
