@@ -148,53 +148,6 @@ if __name__ == '__main__':
                 reactionsource[r] = "UNKNOWN??"
             print("{}\t{}".format(r, reactionsource[r]))
         sys.exit(0)
-    #############################################################################################
-    #                                        Subsystems                                         #
-    #############################################################################################
-
-    subsystem_reactions = PyFBA.gapfill.suggest_reactions_from_subsystems(reactions, reactions2run, threshold=0.5)
-    added_reactions.append(("subsystems", subsystem_reactions))
-    reactions2run.update(subsystem_reactions)
-    status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
-    sys.stderr.write("After adding {} SUBSYSTEM reactions we get {} (growth is {})\n\n".format(len(subsystem_reactions),
-                                                                                               value, growth))
-    for r in subsystem_reactions:
-        if r not in reactionsource:
-            reactionsource[r] = 'subsystem_reactions'
-
-    if growth:
-        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 media, biomass_eqtn)
-        # print('reactions' + " : " + str(original_reactions.union(additions)))
-        for r in original_reactions.union(additions):
-            if r not in reactionsource:
-                reactionsource[r] = "UNKNOWN??"
-            print("{}\t{}".format(r, reactionsource[r]))
-        sys.exit(0)
-
-    #############################################################################################
-    #                                        Orphan compounds                                   #
-    #############################################################################################
-
-    orphan_reactions = PyFBA.gapfill.suggest_by_compound(compounds, reactions, reactions2run, 1)
-    added_reactions.append(("orphans", orphan_reactions))
-    reactions2run.update(orphan_reactions)
-    status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
-    sys.stderr.write("After adding {} ORPHAN reactions we get {} (growth is {})\n\n".format(len(orphan_reactions),
-                                                                                            value, growth))
-    for r in orphan_reactions:
-        if r not in reactionsource:
-            reactionsource[r] = 'orphan_reactions'
-
-    if growth:
-        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 media, biomass_eqtn)
-        # print('reactions' + " : " + str(original_reactions.union(additions)))
-        for r in original_reactions.union(additions):
-            if r not in reactionsource:
-                reactionsource[r] = "UNKNOWN??"
-            print("{}\t{}".format(r, reactionsource[r]))
-        sys.exit(0)
 
     #############################################################################################
     #                                        Other genomes and organisms                        #
@@ -256,6 +209,55 @@ if __name__ == '__main__':
                     reactionsource[r] = "UNKNOWN??"
                 print("{}\t{}".format(r, reactionsource[r]))
             sys.exit(0)
+
+    #############################################################################################
+    #                                        Subsystems                                         #
+    #############################################################################################
+
+    subsystem_reactions = PyFBA.gapfill.suggest_reactions_from_subsystems(reactions, reactions2run, threshold=0.5)
+    added_reactions.append(("subsystems", subsystem_reactions))
+    reactions2run.update(subsystem_reactions)
+    status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
+    sys.stderr.write("After adding {} SUBSYSTEM reactions we get {} (growth is {})\n\n".format(len(subsystem_reactions),
+                                                                                               value, growth))
+    for r in subsystem_reactions:
+        if r not in reactionsource:
+            reactionsource[r] = 'subsystem_reactions'
+
+    if growth:
+        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
+                                                 media, biomass_eqtn)
+        # print('reactions' + " : " + str(original_reactions.union(additions)))
+        for r in original_reactions.union(additions):
+            if r not in reactionsource:
+                reactionsource[r] = "UNKNOWN??"
+            print("{}\t{}".format(r, reactionsource[r]))
+        sys.exit(0)
+
+    #############################################################################################
+    #                                        Orphan compounds                                   #
+    #############################################################################################
+
+    orphan_reactions = PyFBA.gapfill.suggest_by_compound(compounds, reactions, reactions2run, 1)
+    added_reactions.append(("orphans", orphan_reactions))
+    reactions2run.update(orphan_reactions)
+    status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
+    sys.stderr.write("After adding {} ORPHAN reactions we get {} (growth is {})\n\n".format(len(orphan_reactions),
+                                                                                            value, growth))
+    for r in orphan_reactions:
+        if r not in reactionsource:
+            reactionsource[r] = 'orphan_reactions'
+
+    if growth:
+        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
+                                                 media, biomass_eqtn)
+        # print('reactions' + " : " + str(original_reactions.union(additions)))
+        for r in original_reactions.union(additions):
+            if r not in reactionsource:
+                reactionsource[r] = "UNKNOWN??"
+            print("{}\t{}".format(r, reactionsource[r]))
+        sys.exit(0)
+
 
     #############################################################################################
     #                                        Probability of inclusion                           #
