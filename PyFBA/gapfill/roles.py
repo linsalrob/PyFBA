@@ -30,7 +30,8 @@ def suggest_from_roles(roles_file, reactions, threshold=0, verbose=False):
             p = l.rstrip().split("\t")
             try:
                 if float(p[1]) >= threshold:
-                    role_suggestions[p[0]] = p[1]
+                    for role in PyFBA.parse.rast.roles_of_function(p[0]):
+                        role_suggestions[role] = p[1]
             except IndexError as e:
                 sys.stderr.write("{} does not have enough columns\n".format(l.rstrip()))
 

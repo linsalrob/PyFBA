@@ -81,6 +81,9 @@ def minimize_additional_reactions(base_reactions, optional_reactions, compounds,
         if lgrowth:
             tries = 0
             current_rx_list = left
+            if len(left) == 1:
+                test = False
+                right = []
             if verbose:
                 sys.stderr.write("Iteration: {} Try: {} Length: {} and {}".format(itera, tries, len(left), len(right)) +
                                  " Growth: {} and NOT TESTED\n".format(lgrowth))

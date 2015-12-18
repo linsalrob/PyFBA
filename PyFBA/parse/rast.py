@@ -45,7 +45,7 @@ def read_downloaded_data(spreadsheet_file):
     with open(spreadsheet_file, 'r') as f:
         for l in f:
             p = l.strip().split("\t")
-            function[p[1]] = p[7]
+            function[p[1]] = roles_of_function(p[7])
     return function
 
 

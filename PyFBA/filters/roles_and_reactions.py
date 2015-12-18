@@ -87,6 +87,9 @@ def roles_to_reactions(roles, verbose=False):
 
     rcts = {}
     for r in roles:
+        # check to see if it is a multifunctional role
+        if '; ' in r or ' / ' in r or ' @ ' in r:
+            sys.stderr.write("It seems that {} is a multifunctional role. You should separate the roles\n".format(r))
         if r not in seedroles:
             if verbose:
                 sys.stderr.write(r + " is not a role we understand. Skipped\n")
