@@ -24,7 +24,6 @@ def roles_of_function(role):
     """
 
     # remove comments from functions and split multiple functions
-    # TODO add this to roles_to_reactions
     func = re.sub('\s+[#!]\s.*$', '', role)
     return set(re.split('\s*;\s+|\s+[;/@]\s+', func))
 
@@ -45,7 +44,7 @@ def read_downloaded_data(spreadsheet_file):
     with open(spreadsheet_file, 'r') as f:
         for l in f:
             p = l.strip().split("\t")
-            function[p[1]] = p[7]
+            function[p[1]] = roles_of_function(p[7])
     return function
 
 

@@ -168,6 +168,8 @@ if __name__ == '__main__':
             if r not in reactionsource:
                 reactionsource[r] = 'close_reactions'
 
+        if args.v:
+            sys.stderr.write("REACTIONS FROM CLOSE GENOMES: {}\n".format(close_reactions))
         # if this grows then we want to find the minimal set of reactions
         # that we need to add for growth and call it good.
         if growth:
@@ -192,7 +194,8 @@ if __name__ == '__main__':
         status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
         sys.stderr.write("After adding {} reactions in {} we get {} (growth is {})\n\n".format(len(genus_reactions),
                                                                                                args.g, value, growth))
-
+        if args.v:
+            sys.stderr.write("REACTIONS FROM GENUS GENOMES: {}\n".format(genus_reactions))
         for r in genus_reactions:
             if r not in reactionsource:
                 reactionsource[r] = 'genus_reactions'
