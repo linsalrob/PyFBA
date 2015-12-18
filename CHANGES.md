@@ -1,5 +1,12 @@
+# Version 0.9
+Refactored separating roles to functions. SEED has a concept of [multifunctional roles](http://www.nmpdr.org/FIG/Html/SEED_functions.html) and this separates out our roles before we search for them. 
 
-# Version 0.5.1
+# Version 0.8
+
+# Version 0.7
+
+
+# Version 0.6
 * Removed installation dependencies from setup.py because they break installation! You need to install the dependencies manually
 * Refactored the code to remove the os.environ dependencies
 
