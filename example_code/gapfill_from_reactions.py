@@ -168,8 +168,6 @@ if __name__ == '__main__':
             if r not in reactionsource:
                 reactionsource[r] = 'close_reactions'
 
-        if args.v:
-            sys.stderr.write("REACTIONS FROM CLOSE GENOMES: {}\n".format(close_reactions))
         # if this grows then we want to find the minimal set of reactions
         # that we need to add for growth and call it good.
         if growth:
