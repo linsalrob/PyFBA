@@ -33,6 +33,8 @@ def suggest_reactions_from_subsystems(reactions, reactions2run, ssfile=SS_FILE_P
     :rtype: set
     """
 
+    # TODO Convert functions to roles
+
     if not os.path.exists(ssfile):
         sys.stderr.write("FATAL: The subsystems file {} does not exist from working directory {}.".format(ssfile, os.getcwd()) +
                          " Please provide a path to that file\n")
