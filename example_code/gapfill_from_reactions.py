@@ -114,6 +114,7 @@ if __name__ == '__main__':
     #                                       Media import reactions                              #
     #############################################################################################
 
+    sys.stderr.write("Gap filling from MEDIA\n")
     media_reactions = PyFBA.gapfill.suggest_from_media(compounds, reactions, reactions2run, media, verbose=args.v)
     added_reactions.append(("media", media_reactions))
     reactions2run.update(media_reactions)
@@ -138,6 +139,7 @@ if __name__ == '__main__':
     #                                        Other genomes and organisms                        #
     #############################################################################################
 
+    sys.stderr.write("Gap filling from CLOSE GENOMES\n")
     close_reactions = set()
     if args.c:
         # add reactions from roles in close genomes
@@ -200,6 +202,7 @@ if __name__ == '__main__':
     #                                       ESSENTIAL PROTEINS                                  #
     #############################################################################################
 
+    sys.stderr.write("Gap filling from ESSENTIAL PROTEINS\n")
     essential_reactions = PyFBA.gapfill.suggest_essential_reactions()
     # find only the new reactions
     essential_reactions.difference_update(reactions2run)
@@ -229,6 +232,7 @@ if __name__ == '__main__':
     #                                        Subsystems                                         #
     #############################################################################################
 
+    sys.stderr.write("Gap filling from SUBSYSTEMS\n")
     subsystem_reactions = PyFBA.gapfill.suggest_reactions_from_subsystems(reactions, reactions2run, threshold=0.5)
     added_reactions.append(("subsystems", subsystem_reactions))
     reactions2run.update(subsystem_reactions)
@@ -253,6 +257,7 @@ if __name__ == '__main__':
     #                                        Orphan compounds                                   #
     #############################################################################################
 
+    sys.stderr.write("Gap filling from ORPHAN COMPOUNDS\n")
     orphan_compounds = PyFBA.gapfill.suggest_by_compound(compounds, reactions, reactions2run, 1)
     added_reactions.append(("orphans", orphan_compounds))
     reactions2run.update(orphan_compounds)
@@ -278,6 +283,7 @@ if __name__ == '__main__':
     #                                        Probability of inclusion                           #
     #############################################################################################
 
+    sys.stderr.write("Gap filling from PROBABILITY\n")
     # use reactions wtih pLR or pRL > cutoff
     prob_reactions = PyFBA.gapfill.compound_probability(reactions, reactions2run, 0, True, True)
     prob_reactions.difference_update(reactions2run)
@@ -308,6 +314,7 @@ if __name__ == '__main__':
     #                       Reactions that [do or do not] map to proteins                       #
     #############################################################################################
 
+    sys.stderr.write("Gap filling from ALL OTHER REACTIONS WITH PROTEINS\n")
     # propose other reactions that we have proteins for
     with_p_reactions = PyFBA.gapfill.suggest_reactions_with_proteins(reactions, True)
     # find the new reactions
@@ -321,6 +328,52 @@ if __name__ == '__main__':
     for r in with_p_reactions:
         if r not in reactionsource:
             reactionsource[r] = 'reactions_with_proteins'
+
+    # if this grows then we want to find the minimal set of reactions
+    # that we need to add for growth and call it good.
+    if growth:
+        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
+                                                 media, biomass_eqtn)
+        # print("Additional reactions required: " + str(additions) + "\n")
+        # print("'reactions': {}".format(original_reactions.union(additions)))
+        for r in original_reactions.union(additions):
+            if r not in reactionsource:
+                reactionsource[r] = "UNKNOWN??"
+            print("{}\t{}".format(r, reactionsource[r]))
+        sys.exit(0)
+
+    #############################################################################################
+    #                       Reactions that do not map to proteins                               #
+    #                                                                                           #
+    #    This is all other reactions, and should really be avoided, but we include this         #
+    #    in case the model does not grow by the time we get this far. If this doesn't work      #
+    #    your model probably can not grow on the media that you have given it!                  #
+    #                                                                                           #
+    #############################################################################################
+
+    sys.stderr.write("Gap filling from ALL OTHER REACTIONS WITHOUT PROTEINS\n")
+    # propose other reactions that we have proteins for
+    without_p_reactions = PyFBA.gapfill.suggest_reactions_without_proteins(reactions, True)
+    # we have to limit this to things we have compounds in our reaction list, or we will not be able to solve the
+    # FBA (We may not be able to anyway)
+    without_p_reactions = PyFBA.gapfill.limit_reactions_by_compound(reactions, reactions2run, without_p_reactions)
+    # find the new reactions
+    without_p_reactions.difference_update(reactions2run)
+    added_reactions.append(("Without proteins", without_p_reactions))
+    reactions2run.update(without_p_reactions)
+    status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
+    sys.stderr.write("After adding {} reactions without proteins ... last ditch ".format(len(without_p_reactions)) +
+                     " we get {} (growth is {})\n\n".format(value, growth))
+    if growth:
+        sys.stderr.write("Congratulations, your model grew. You need to figure out which reactions we needed to add\n")
+    else:
+        sys.stderr.write("Your model does not grow regardless of how many reactions we add to it.\n")
+        sys.stderr.write("Your media composition is probably lacking something essential (like C, N, S, P).\n")
+        sys.stderr.write("Check that first\n")
+
+    for r in without_p_reactions:
+        if r not in reactionsource:
+            reactionsource[r] = 'reactions_without_proteins'
 
     # if this grows then we want to find the minimal set of reactions
     # that we need to add for growth and call it good.
