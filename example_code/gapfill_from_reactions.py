@@ -54,17 +54,23 @@ def resolve_additional_reactions(ori_reactions, adnl_reactions, cpds, rcts, medi
 
 
 if __name__ == '__main__':
+    orgtypes = ['gramnegative', 'grampositive', 'microbial', 'mycobacteria', 'plant']
     parser = argparse.ArgumentParser(description='Import a list of reactions and then iterate through our gapfilling'
                                                  ' steps to see when we get growth')
     parser.add_argument('-r', help='reactions file', required=True)
     parser.add_argument('-m', help='media file', required=True)
     parser.add_argument('-c', help='close genomes reactions file')
     parser.add_argument('-g', help='other genera reactions file')
+    parser.add_argument('-t', help='organism type for the model (currently allowed are {}). Default=gramnegative'.format(
+        orgtypes), default='gramnegative')
     parser.add_argument('-v', help='verbose output', action='store_true')
     args = parser.parse_args()
 
+    if args.t not in orgtypes:
+        sys.exit("Sorry, {} is not a valid organism type".format(args.t))
+
     # read the enzyme data
-    compounds, reactions, enzymes = PyFBA.parse.model_seed.compounds_reactions_enzymes('gramnegative')
+    compounds, reactions, enzymes = PyFBA.parse.model_seed.compounds_reactions_enzymes(args.t)
 
     reactionsource = {}
 
