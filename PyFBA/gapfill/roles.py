@@ -35,8 +35,6 @@ def suggest_from_roles(roles_file, reactions, threshold=0, verbose=False):
             except IndexError as e:
                 sys.stderr.write("{} does not have enough columns\n".format(l.rstrip()))
 
-    if verbose:
-        sys.stderr.write("Found " + str(len(role_suggestions)) + " roles to connect to reactions\n")
 
     reaction_suggestions = set()
     ro2rx = PyFBA.filters.roles_to_reactions(set(role_suggestions.keys()))
@@ -48,6 +46,7 @@ def suggest_from_roles(roles_file, reactions, threshold=0, verbose=False):
     reaction_suggestions = {x for x in reaction_suggestions if x in reactions}
 
     if verbose:
-        sys.stderr.write("Suggesting an additional " + str(len(reaction_suggestions)) + " reactions\n")
+        sys.stderr.write("From {} we found {} role suggestions\n".format(roles_file, len(role_suggestions)))
+        sys.stderr.write("Those roles converted to {} reactions\n".format(len(reaction_suggestions)))
 
     return reaction_suggestions
