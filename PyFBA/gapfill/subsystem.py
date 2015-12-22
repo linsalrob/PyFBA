@@ -33,8 +33,6 @@ def suggest_reactions_from_subsystems(reactions, reactions2run, ssfile=SS_FILE_P
     :rtype: set
     """
 
-    # TODO Convert functions to roles
-
     if not os.path.exists(ssfile):
         sys.stderr.write("FATAL: The subsystems file {} does not exist from working directory {}.".format(ssfile, os.getcwd()) +
                          " Please provide a path to that file\n")
@@ -50,16 +48,19 @@ def suggest_reactions_from_subsystems(reactions, reactions2run, ssfile=SS_FILE_P
             p = l.strip().split("\t")
             if p[1] not in subsys_to_roles:
                 subsys_to_roles[p[1]] = set()
-            if p[0] not in roles_to_subsys:
-                roles_to_subsys[p[0]] = set()
-            subsys_to_roles[p[1]].add(p[0])
-            roles_to_subsys[p[0]].add(p[1])
+            for role in PyFBA.parse.roles_of_function(p[0]):
+                if role not in roles_to_subsys:
+                    roles_to_subsys[role] = set()
+                subsys_to_roles[p[1]].add(role)
+                roles_to_subsys[role].add(p[1])
 
     # now convert our reaction ids in reactions2run into roles
     # we have a hash with keys = reactions and values = set of roles
     reacts = PyFBA.filters.reactions_to_roles(reactions2run)
 
     # foreach subsystem we need to know the fraction of roles that are present
+    # this is complicated by multifunctional enzymes, as if one function is present they all should be
+    # but for the moment (??) we are going to assume that each peg has the multi-functional annotation
     ss_present = {}
     ss_roles = {}
     for r in reacts:
