@@ -268,14 +268,14 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.master.tsv', verbos
                     # appropriate location
 
                     if cmpd in cpds_by_id:
-                        nc = copy.copy(cpds_by_id[cmpd])
-                        nc.location = loc
+                        nc = PyFBA.metabolism.Compound(cpds_by_id[cmpd].name, loc)
                     else:
                         if verbose:
                             sys.stderr.write("ERROR: Did not find " + cmpd + " in the compounds file.\n")
                         nc = PyFBA.metabolism.Compound(cmpd, loc)
 
                     ncstr = str(nc)
+
                     if ncstr in cpds:
                         nc = copy.copy(cpds[ncstr])
                     nc.add_reactions({rid})
@@ -307,8 +307,7 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.master.tsv', verbos
                     # appropriate location
 
                     if cmpd in cpds_by_id:
-                        nc = copy.copy(cpds_by_id[cmpd])
-                        nc.location = loc
+                        nc = PyFBA.metabolism.Compound(cpds_by_id[cmpd].name, loc)
                     else:
                         if verbose:
                             sys.stderr.write("ERROR: Did not find " + cmpd + " in the compounds file.\n")
