@@ -8,7 +8,7 @@ __author__ = 'Rob Edwards'
 # We want to find the path to the Biochemistry/SEED/ files. This is a relative path and is two levels above us
 pyfbadir, tail = os.path.split(__file__)
 pyfbadir, tail = os.path.split(pyfbadir)
-SS_FILE_PATH = os.path.join(pyfbadir, "Biochemistry/SEED/Subsystems/SS_functions_Oct_2015.txt")
+SS_FILE_PATH = os.path.join(pyfbadir, "Biochemistry/SEED/Subsystems/SS_functions.txt")
 
 
 def suggest_reactions_from_subsystems(reactions, reactions2run, ssfile=SS_FILE_PATH, threshold=0, verbose=False):
