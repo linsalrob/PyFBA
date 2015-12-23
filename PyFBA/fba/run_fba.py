@@ -32,7 +32,7 @@ def run_fba(compounds, reactions, reactions_to_run, media, biomass_equation, upt
     cp, rc, reactions = PyFBA.fba.create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, biomass_equation,
                                                      uptake_secretion, verbose=False)
 
-    rbvals = PyFBA.fba.reaction_bounds(reactions, rc, media, verbose=verbose)
+    rbvals = PyFBA.fba.reaction_bounds(reactions, rc, media)
     PyFBA.fba.compound_bounds(cp)
 
     if verbose:

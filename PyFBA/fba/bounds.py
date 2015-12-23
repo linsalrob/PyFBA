@@ -43,11 +43,20 @@ def reaction_bounds(reactions, reactions_to_run, media, lower=-1000.0, mid=0.0, 
             direction = "="
 
         # this is where we define whether our media has the components
-        if r != 'BIOMASS_EQN' and reactions[r].is_uptake_secretion:
+        if r != 'BIOMASS_EQN' and (reactions[r].is_uptake_secretion or reactions[r].is_transport):
             in_media = False
+            override = False # if we have external compounds that are not in the media, we don't want to run this as a media reaction
             for c in reactions[r].left_compounds:
-                if c in media:
-                    in_media = True
+                if c.location == 'e':
+                    if c in media:
+                        in_media = True
+                    else:
+                        override = True
+            # in this case, we have some external compounds that we should not import.
+            # for example,
+            if override:
+                in_media = False
+
             if in_media:
                 rbvals[r] = (lower, upper)
                 media_uptake_secretion_count += 1
