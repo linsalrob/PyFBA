@@ -1,5 +1,7 @@
 import os
 
+import sys
+
 import PyFBA
 
 
@@ -30,6 +32,9 @@ def read_media_file(mediaf):
             if li == 0:
                 continue
             p = l.strip().split("\t")
+            if len(p) < 2:
+                sys.stderr.write("Skipped line {} as it does not have enough columns\n".format(l.strip()))
+                continue
             c = PyFBA.metabolism.Compound(p[1], 'e')
             media.add(c)
     
