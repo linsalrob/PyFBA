@@ -49,7 +49,7 @@ def suggest_reactions_from_subsystems(reactions, reactions2run, ssfile=SS_FILE_P
             if len(p) < 2:
                 if verbose:
                     sys.stderr.write("Too few columns in subsystem file at line: {}".format(l.strip()))
-                    continue
+                continue
             if p[1] not in subsys_to_roles:
                 subsys_to_roles[p[1]] = set()
             for role in PyFBA.parse.roles_of_function(p[0]):
