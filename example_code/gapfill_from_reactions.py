@@ -239,7 +239,7 @@ if __name__ == '__main__':
     #############################################################################################
 
     sys.stderr.write("Gap filling from SUBSYSTEMS\n")
-    subsystem_reactions = PyFBA.gapfill.suggest_reactions_from_subsystems(reactions, reactions2run, threshold=0.5)
+    subsystem_reactions = PyFBA.gapfill.suggest_reactions_from_subsystems(reactions, reactions2run, threshold=0.5, verbose=args.v)
     added_reactions.append(("subsystems", subsystem_reactions))
     reactions2run.update(subsystem_reactions)
     status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
