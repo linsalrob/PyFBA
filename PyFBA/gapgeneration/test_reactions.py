@@ -1,10 +1,9 @@
 """
 Test which reactions are essential for growth on a media.
 """
-import copy
-import os
-import sys
 import argparse
+import copy
+import sys
 
 import PyFBA
 
@@ -35,7 +34,7 @@ def test_growth(reactions_to_delete, reactions_to_run, compounds, reactions, med
     if verbose:
         sys.stderr.write("Reactions to run has {}, reactions to delete has {}, and we are using {} elements".format(len(reactions_to_run), len(reactions_to_delete), len(new_r2r)))
 
-    status, value, growth = PyFBA.fba.run_fba(compounds, reactions, new_r2r, media, biomass_eqn)
+    status, value, growth = PyFBA.fba.run_fba(compounds, reactions, new_r2r, media, biomass_eqn, verbose=verbose)
     return growth
 
 
@@ -148,7 +147,7 @@ if __name__ == '__main__':
     media = PyFBA.parse.read_media_file(args.m)
     biomass_eqn = PyFBA.metabolism.biomass_equation('gramnegative')
 
-    status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions_to_run, media, biomass_eqn, args.v)
+    status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions_to_run, media, biomass_eqn, verbose=args.v)
     print("Before we test components, FBA has " + str(value) + " --> Growth: " + str(growth))
     if not growth:
         sys.exit("Since the complete model does not grow, we can't parse out the important parts!")
