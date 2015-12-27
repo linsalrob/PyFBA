@@ -35,8 +35,8 @@ def iterate_reactions_to_run(base_reactions, optional_reactions, compounds, reac
     :type biomass_eqn: network.reaction.Reaction
     :param verbose: Print more information
     :type verbose: bool
-    :return: The set of reactions that need to be added to base_reactions to get growth
-    :rtype: set
+    :return: The list of reactions that need to be added to base_reactions to get growth
+    :rtype: list
     """
 
     num_elements = len(optional_reactions)
@@ -49,7 +49,7 @@ def iterate_reactions_to_run(base_reactions, optional_reactions, compounds, reac
         if not growth:
             required_optionals.add(removed_reaction)
 
-    return required_optionals
+    return list(required_optionals)
 
 
 def minimize_additional_reactions(base_reactions, optional_reactions, compounds, reactions, media,
