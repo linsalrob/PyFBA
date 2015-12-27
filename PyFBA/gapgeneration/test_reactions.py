@@ -82,13 +82,13 @@ def not_essential_reactions(reactions_to_delete, reactions_to_run, compounds, re
         )
 
     # now test the right half
-    if test_growth(left, reactions_to_run, compounds, reactions, media, biomass_eqn, verbose):
+    if test_growth(right, reactions_to_run, compounds, reactions, media, biomass_eqn, verbose):
         # we get growth
-        redundant_elements.update(left)
+        redundant_elements.update(right)
     else:
-        # test the left half again
+        # test the right half again
         redundant_elements.update(
-            not_essential_reactions(left, reactions_to_run, compounds, reactions, media, biomass_eqn, verbose)
+            not_essential_reactions(right, reactions_to_run, compounds, reactions, media, biomass_eqn, verbose)
         )
     return redundant_elements
 
