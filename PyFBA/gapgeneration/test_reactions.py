@@ -69,6 +69,14 @@ def not_essential_reactions(reactions_to_delete, reactions_to_run, compounds, re
     :rtype: bool
     """
 
+    # if we have a one element list, we need to test it, and either return it if there is growth or return an empty
+    # set if there is not growth
+    if len(reactions_to_delete) == 1:
+        if test_growth(reactions_to_delete, reactions_to_run, compounds, reactions, media, biomass_eqn, verbose):
+            return set(reactions_to_delete)
+        else:
+            return set()
+
     left, right = PyFBA.gapfill.bisect(list(reactions_to_delete))
     # test left to see if every element is redundant
     redundant_elements = set()
