@@ -159,7 +159,7 @@ if __name__ == '__main__':
     biomass_eqn = PyFBA.metabolism.biomass_equation('gramnegative')
 
     status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions_to_run, media, biomass_eqn, verbose=args.v)
-    print("Before we test components, FBA has " + str(value) + " --> Growth: " + str(growth))
+    sys.stderr.write("Before we test components, FBA has " + str(value) + " --> Growth: " + str(growth))
     if not growth:
         sys.exit("Since the complete model does not grow, we can't parse out the important parts!")
 
