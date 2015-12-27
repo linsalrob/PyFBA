@@ -1,0 +1,156 @@
+"""
+Test which reactions are essential for growth on a media.
+"""
+import copy
+import os
+import sys
+import argparse
+
+import PyFBA
+
+
+def test_growth(reactions_to_delete, reactions_to_run, compounds, reactions, media, biomass_eqn, verbose):
+    """
+    Test growth of reactions_to_run after we have deleted reactions_to_delete. Returns True on growth, False on no growth
+
+    :param reactions_to_delete: reactions to delete from reactions to run
+    :type reactions_to_delete: set
+    :param reactions_to_run: Reactions to run for the model
+    :type reactions_to_run: set
+    :param compounds: all compounds in all reactions
+    :type compounds: dict
+    :param reactions: All reactions in the models
+    :type reactions: dict
+    :param media: The media object
+    :type media: set
+    :param biomass_eqn: The biomass equation
+    :type biomass_eqn: PyFBA.metabolism.reaction.Reaction
+    :param verbose: Print more output
+    :type verbose: bool
+    :return: Whether the remaining reactions result in growth
+    :rtype: bool
+    """
+
+    new_r2r = set([x for x in reactions_to_run if x not in reactions_to_delete])
+    if verbose:
+        sys.stderr.write("Reactions to run has {}, reactions to delete has {}, and we are using {} elements".format(len(reactions_to_run), len(reactions_to_delete), len(new_r2r)))
+
+    status, value, growth = PyFBA.fba.run_fba(compounds, reactions, new_r2r, media, biomass_eqn)
+    return growth
+
+
+def not_essential_reactions(reactions_to_delete, reactions_to_run, compounds, reactions, media, biomass_eqn, verbose):
+    """
+    Iterate through the reactions and return the minimal set that are/are  not essential
+
+    We split reactions_to_delete in half, and test. While we don't get growth, we keep splitting. If we get to a single
+    element and we don't get growth we don't return it.
+
+    It is most likely that when we split a model in half, we won't get growth. Therefore, looking for the halves that
+    give us growth.
+
+    :param reactions_to_delete: reactions to delete from reactions to run
+    :type reactions_to_delete: set
+    :param reactions_to_run: Reactions to run for the model
+    :type reactions_to_run: set
+    :param compounds: all compounds in all reactions
+    :type compounds: dict
+    :param reactions: All reactions in the models
+    :type reactions: dict
+    :param media: The media object
+    :type media: set
+    :param biomass_eqn: The biomass equation
+    :type biomass_eqn: PyFBA.metabolism.reaction.Reaction
+    :param verbose: Print more output
+    :type verbose: bool
+    :return: Whether the remaining reactions result in growth
+    :rtype: bool
+    """
+
+    left, right = PyFBA.gapfill.bisect(list(reactions_to_delete))
+    # test left to see if every element is redundant
+    redundant_elements = set()
+    if test_growth(left, reactions_to_run, compounds, reactions, media, biomass_eqn, verbose):
+        # we get growth
+        redundant_elements.update(left)
+    else:
+        # test the left half again
+        redundant_elements.update(
+            not_essential_reactions(left, reactions_to_run, compounds, reactions, media, biomass_eqn, verbose)
+        )
+
+    # now test the right half
+    if test_growth(left, reactions_to_run, compounds, reactions, media, biomass_eqn, verbose):
+        # we get growth
+        redundant_elements.update(left)
+    else:
+        # test the left half again
+        redundant_elements.update(
+            not_essential_reactions(left, reactions_to_run, compounds, reactions, media, biomass_eqn, verbose)
+        )
+    return redundant_elements
+
+
+def test_all_reactions(reactions_to_run, compounds, reactions, media, biomass_eqn, verbose):
+    """
+    Test all the reactions and print out which are required and which are redundant
+
+    :param reactions_to_run: Reactions to run for the model
+    :type reactions_to_run: set
+    :param compounds: all compounds in all reactions
+    :type compounds: dict
+    :param reactions: All reactions in the models
+    :type reactions: dict
+    :param media: The media object
+    :type media: set
+    :param biomass_eqn: The biomass equation
+    :type biomass_eqn: PyFBA.metabolism.reaction.Reaction
+    :param verbose: Print more output
+    :type verbose: bool
+    :return: Whether the remaining reactions result in growth
+    :rtype: bool
+    """
+
+    todelete = copy.copy(reactions_to_run)
+    # prevent inadvertent edits to reactions_to_run
+    reactions_to_run = frozenset(reactions_to_run)
+    redundant = not_essential_reactions(todelete, reactions_to_run, compounds, reactions, media, biomass_eqn, verbose)
+
+    for r in reactions_to_run:
+        if r in redundant:
+            print("{}\tREDUNDANT".format(r))
+        else:
+            print("{}\tESSENTIAL".format(r))
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Test all reactions in a model")
+    parser.add_argument('-r', help='reactions file', required=True)
+    parser.add_argument('-m', help='media file', required=True)
+    parser.add_argument('-v', help='verbose output', action='store_true')
+    args = parser.parse_args()
+
+    # read the enzyme data
+    compounds, reactions, enzymes = PyFBA.parse.model_seed.compounds_reactions_enzymes('gramnegative')
+    reactions_to_run = set()
+    with open(args.r, 'r') as f:
+        for l in f:
+            if l.startswith('#'):
+                continue
+            if "biomass_equation" in l:
+                if args.v:
+                    sys.stderr.write("Biomass reaction was skipped from the list as it is imported\n")
+                continue
+            r = l.strip()
+            if r in reactions:
+                reactions_to_run.add(r)
+
+    media = PyFBA.parse.read_media_file(args.m)
+    biomass_eqn = PyFBA.metabolism.biomass_equation('gramnegative')
+
+    status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions_to_run, media, biomass_eqn, args.v)
+    print("Before we test components, FBA has " + str(value) + " --> Growth: " + str(growth))
+    if not growth:
+        sys.exit("Since the complete model does not grow, we can't parse out the important parts!")
+
+    test_all_reactions(reactions_to_run, compounds, reactions, media, biomass_eqn, args.v)
