@@ -31,10 +31,13 @@ def test_growth(reactions_to_delete, reactions_to_run, compounds, reactions, med
     """
 
     new_r2r = set([x for x in reactions_to_run if x not in reactions_to_delete])
-    if verbose:
-        sys.stderr.write("Reactions to run has {}, reactions to delete has {}, and we are using {} elements\n".format(len(reactions_to_run), len(reactions_to_delete), len(new_r2r)))
+    reactions = PyFBA.fba.remove_uptake_and_secretion_reactions(reactions)
 
     status, value, growth = PyFBA.fba.run_fba(compounds, reactions, new_r2r, media, biomass_eqn)
+
+    if verbose:
+        sys.stderr.write("Deleted {} rxns. Use {}. Growth: {}\n".format(len(reactions_to_delete), len(new_r2r), growth))
+
     return growth
 
 
