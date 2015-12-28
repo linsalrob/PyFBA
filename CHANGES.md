@@ -1,3 +1,70 @@
+# Version 0.95
+
+Several changes to files:
+
+### Updated the subsystem functions and changed the name to a generic name. The date is handled by versioning!
+
+* PyFBA/Biochemistry/SEED/Subsystems/SS_functions.txt
+* PyFBA/Biochemistry/SEED/Subsystems/SS_functions_Oct_2015.txt
+
+### Changing the version number
+
+* PyFBA/__init__.py
+
+### Adding reaction flux information that can be pulled after the sm has been solved
+
+* PyFBA/fba/__init__.py
+* PyFBA/fba/fluxes.py
+
+### External reactions
+
+Fixed an issue where we were over-incorporating reactions based on things in the media
+
+* PyFBA/fba/bounds.py
+* PyFBA/parse/model_seed.py
+
+### Adding verboseness
+
+* PyFBA/fba/run_fba.py
+* PyFBA/gapfill/roles.py
+* PyFBA/parse/read_media.py
+
+### Reduced complexity
+
+We only test the right half of the reactions if the left half do not grow, and once we have <10 reactions
+to search through we just iterate and knock out each reaction sequentially. It is faster than the shuffle 
+approach.
+
+* PyFBA/gapfill/minimize_additional_reactions.py
+
+### Changed the way we read roles
+
+SEED has a notion of multifunctional roles, and we added splitting those functions into roles
+
+* PyFBA/gapfill/subsystem.py
+
+### Gap generation code
+
+Testing each of the individual reactions in a model
+
+* PyFBA/gapgeneration/test_reactions.py
+* example_code/test_individual_reactions.py
+
+### Shifted the order of gapfilling
+
+This order makes more logical sense!
+
+* example_code/gapfill_from_reactions.py
+
+### Updated the tests
+
+With all these changes, the tests were not right
+
+* PyFBA/tests/reaction_list.txt
+* PyFBA/tests/test_fba.py
+* PyFBA/tests/test_suggestions.py
+
+
 # Version 0.9
 Refactored separating roles to functions. SEED has a concept of [multifunctional roles](http://www.nmpdr.org/FIG/Html/SEED_functions.html) and this separates out our roles before we search for them. 
 
