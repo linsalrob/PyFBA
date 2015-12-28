@@ -188,7 +188,7 @@ if __name__ == '__main__':
                                                       biomass_eqtn)
         acc = PyFBA.gapfill.reaction_minimization.accuracy(pr)
 
-        sys.stderr.write("After adding media we get: ")
+        sys.stderr.write("After adding reactions from {} we get: ".format(args.c))
         for t in ['tp', 'fp', 'tn', 'fn']:
             sys.stderr.write("{}: {} ".format(t, pr[t]))
         sys.stderr.write("Accuracy: {}\n".format(acc))
@@ -217,7 +217,7 @@ if __name__ == '__main__':
                                                       biomass_eqtn)
         acc = PyFBA.gapfill.reaction_minimization.accuracy(pr)
 
-        sys.stderr.write("After adding media we get: ")
+        sys.stderr.write("After adding reactions from {} we get: ".format(args.g))
         for t in ['tp', 'fp', 'tn', 'fn']:
             sys.stderr.write("{}: {} ".format(t, pr[t]))
         sys.stderr.write("Accuracy: {}\n".format(acc))
@@ -251,7 +251,7 @@ if __name__ == '__main__':
                                                   biomass_eqtn)
     acc = PyFBA.gapfill.reaction_minimization.accuracy(pr)
 
-    sys.stderr.write("After adding media we get: ")
+    sys.stderr.write("After adding essential reactions we get: ")
     for t in ['tp', 'fp', 'tn', 'fn']:
         sys.stderr.write("{}: {} ".format(t, pr[t]))
     sys.stderr.write("Accuracy: {}\n".format(acc))
@@ -282,7 +282,7 @@ if __name__ == '__main__':
                                                   biomass_eqtn)
     acc = PyFBA.gapfill.reaction_minimization.accuracy(pr)
 
-    sys.stderr.write("After adding media we get: ")
+    sys.stderr.write("After adding subystems we get: ")
     for t in ['tp', 'fp', 'tn', 'fn']:
         sys.stderr.write("{}: {} ".format(t, pr[t]))
     sys.stderr.write("Accuracy: {}\n".format(acc))
@@ -313,7 +313,7 @@ if __name__ == '__main__':
                                                   biomass_eqtn)
     acc = PyFBA.gapfill.reaction_minimization.accuracy(pr)
 
-    sys.stderr.write("After adding media we get: ")
+    sys.stderr.write("After adding orphans we get: ")
     for t in ['tp', 'fp', 'tn', 'fn']:
         sys.stderr.write("{}: {} ".format(t, pr[t]))
     sys.stderr.write("Accuracy: {}\n".format(acc))
@@ -348,7 +348,7 @@ if __name__ == '__main__':
                                                   biomass_eqtn)
     acc = PyFBA.gapfill.reaction_minimization.accuracy(pr)
 
-    sys.stderr.write("After adding media we get: ")
+    sys.stderr.write("After adding probability we get: ")
     for t in ['tp', 'fp', 'tn', 'fn']:
         sys.stderr.write("{}: {} ".format(t, pr[t]))
     sys.stderr.write("Accuracy: {}\n".format(acc))
@@ -363,7 +363,7 @@ if __name__ == '__main__':
         sys.exit(0)
 
     #############################################################################################
-    #                       Reactions that [do or do not] map to proteins                       #
+    #                       Reactions that map to proteins                       #
     #############################################################################################
 
     sys.stderr.write("Gap filling from ALL OTHER REACTIONS WITH PROTEINS\n")
@@ -382,7 +382,7 @@ if __name__ == '__main__':
                                                   biomass_eqtn)
     acc = PyFBA.gapfill.reaction_minimization.accuracy(pr)
 
-    sys.stderr.write("After adding media we get: ")
+    sys.stderr.write("After adding reactions with proteins we get: ")
     for t in ['tp', 'fp', 'tn', 'fn']:
         sys.stderr.write("{}: {} ".format(t, pr[t]))
     sys.stderr.write("Accuracy: {}\n".format(acc))
@@ -425,7 +425,7 @@ if __name__ == '__main__':
                                                   biomass_eqtn)
     acc = PyFBA.gapfill.reaction_minimization.accuracy(pr)
 
-    sys.stderr.write("After adding media we get: ")
+    sys.stderr.write("After adding all reactions we get: ")
     for t in ['tp', 'fp', 'tn', 'fn']:
         sys.stderr.write("{}: {} ".format(t, pr[t]))
     sys.stderr.write("Accuracy: {}\n".format(acc))
