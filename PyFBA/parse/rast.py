@@ -3,8 +3,6 @@ import sys
 
 import re
 
-__author__ = 'Rob Edwards'
-
 
 def roles_of_function(role):
     """

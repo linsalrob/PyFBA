@@ -6,8 +6,6 @@ from bs4 import BeautifulSoup
 
 import PyFBA
 
-__author__ = 'Rob Edwards'
-
 
 class SBML:
     """A SBML object representing the model data.

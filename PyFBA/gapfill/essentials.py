@@ -1,4 +1,3 @@
-__author__ = 'Rob Edwards'
 
 
 def suggest_essential_reactions():

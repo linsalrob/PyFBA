@@ -1,7 +1,5 @@
 import sys
 
-__author__ = "Rob Edwards"
-
 
 def suggest_from_media(compounds, reactions, reactions2run, media, verbose=False):
     """

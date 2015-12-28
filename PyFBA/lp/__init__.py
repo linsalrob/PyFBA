@@ -1,5 +1,3 @@
-__author__ = 'Rob Edwards'
-
 from glpk_solver import load, row_bounds, col_bounds, objective_coefficients, solve
 from glpk_solver import col_primal_hash, col_primals, row_primal_hash, row_primals
 

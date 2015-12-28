@@ -1,7 +1,5 @@
 import PyFBA
 
-__author__ = 'Rob Edwards'
-
 import argparse
 import os
 import sys

@@ -19,8 +19,6 @@ That means this code is limited to python2.7.
 
 solver = glpk.LPX()
 
-__author__ = 'Rob Edwards'
-
 
 def load(matrix, rowheaders=None, colheaders=None, verbose=0):
     """

@@ -1,3 +1,8 @@
+# Version 0.951
+
+### Removed the author tag
+It is superflous, that is what versioning is for.
+
 # Version 0.95
 
 Several changes to files:

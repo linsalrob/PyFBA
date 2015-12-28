@@ -2,8 +2,6 @@ import sys
 
 import PyFBA
 
-__author__ = 'Rob Edwards'
-
 
 def suggest_from_roles(roles_file, reactions, threshold=0, verbose=False):
     """

@@ -4,8 +4,6 @@ import sys
 import PyFBA
 
 
-__author__ = 'Rob Edwards'
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Import a list of reactions and run the FBA')
     parser.add_argument('-r', help='reactions file (required)', required=True)

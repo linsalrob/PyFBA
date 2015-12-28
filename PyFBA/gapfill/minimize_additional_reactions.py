@@ -4,8 +4,6 @@ from random import shuffle
 
 import PyFBA
 
-__author__ = 'Rob Edwards'
-
 
 def iterate_reactions_to_run(base_reactions, optional_reactions, compounds, reactions, media,
                              biomass_eqn, verbose=False):

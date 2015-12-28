@@ -3,8 +3,6 @@ import sys
 from PyFBA import lp
 import PyFBA
 
-__author__ = 'Rob Edwards'
-
 
 def reaction_fluxes(verbose=False):
     """

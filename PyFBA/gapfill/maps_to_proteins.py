@@ -2,8 +2,6 @@ import sys
 
 import PyFBA
 
-__author__ = "Rob Edwards"
-
 
 def suggest_reactions_without_proteins(reactions, verbose=False):
     """
