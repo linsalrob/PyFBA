@@ -84,4 +84,4 @@ class TestFBA(unittest.TestCase):
         status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass, verbose=False)
         self.assertTrue(growth)
         value = float('%0.3f' % value)
-        self.assertEqual(value, 282.674)
+        self.assertEqual(value, 356.294)

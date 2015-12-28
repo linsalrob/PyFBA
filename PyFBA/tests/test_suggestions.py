@@ -21,7 +21,7 @@ class SuggestionTest(unittest.TestCase):
         """Test limiting adding reactions by the compounds that are present"""
         suggested = PyFBA.gapfill.suggest_by_compound(self.__class__.compounds, self.__class__.reactions,
                                                       {'rxn00001'}, 2)
-        self.assertGreaterEqual(len(suggested), 22729)
+        self.assertGreaterEqual(len(suggested), 22712)
         limited = PyFBA.gapfill.limit_reactions_by_compound(self.__class__.reactions, {'rxn00001'}, suggested, 5)
         self.assertGreaterEqual(len(limited), 22712)
 
@@ -39,13 +39,13 @@ class SuggestionTest(unittest.TestCase):
         """Test suggestions based on a media"""
         toy_media = {PyFBA.metabolism.Compound('NH3', 'e')}
         suggested = PyFBA.gapfill.suggest_from_media(self.__class__.compounds, self.__class__.reactions, {}, toy_media)
-        self.assertEqual(len(suggested), 758)
+        self.assertEqual(len(suggested), 13)
 
     def test_orphan_compound(self):
         """Test suggestions based on orphan compounds"""
         suggested = PyFBA.gapfill.suggest_by_compound(self.__class__.compounds, self.__class__.reactions,
                                                       {'rxn00001'}, 2)
-        self.assertGreaterEqual(len(suggested), 22729)
+        self.assertGreaterEqual(len(suggested), 22712)
 
     def test_probability(self):
         """Test suggestions based on probability of the reactions occurring"""
@@ -61,7 +61,7 @@ class SuggestionTest(unittest.TestCase):
                 if r in self.__class__.reactions:
                     reactions2run.add(r)
         suggested = PyFBA.gapfill.compound_probability(self.__class__.reactions, reactions2run)
-        self.assertEqual(len(suggested), 727)
+        self.assertEqual(len(suggested), 674)
 
     def test_roles_from_file(self):
         """Test suggestions based on roles in a file"""
