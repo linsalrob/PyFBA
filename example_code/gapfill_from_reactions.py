@@ -1,16 +1,16 @@
-import argparse
-import copy
-import sys
-import PyFBA
-
-__author__ = 'Rob Edwards'
-
 """
 This code is designed to exemplify some of the gap-filling approaches. If you start with an ungapfilled set of
 reactions, we iteratively try to build on the model until it is complete, and then we use the bisection code
 to trim out reactions that are not necessary, to end up with the smallest set of reactions.
 
 """
+
+import argparse
+import copy
+import sys
+import PyFBA
+
+
 
 
 def resolve_additional_reactions(ori_reactions, adnl_reactions, cpds, rcts, mediaset, biomass_eqn):

@@ -1,8 +1,6 @@
 from unittest import TestCase
 import PyFBA
 
-__author__ = 'Rob Edwards'
-
 
 class TestBiomass_equation(TestCase):
     """

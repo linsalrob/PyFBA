@@ -5,7 +5,6 @@ import sys
 import PyFBA
 
 import argparse
-__author__ = 'Rob Edwards'
 
 parser = argparse.ArgumentParser(description='Find reactions associated with a compound')
 parser.add_argument('-c', help='compound name', required=True)

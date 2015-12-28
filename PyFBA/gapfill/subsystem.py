@@ -3,8 +3,6 @@ import sys
 
 import PyFBA
 
-__author__ = 'Rob Edwards'
-
 # We want to find the path to the Biochemistry/SEED/ files. This is a relative path and is two levels above us
 pyfbadir, tail = os.path.split(__file__)
 pyfbadir, tail = os.path.split(pyfbadir)

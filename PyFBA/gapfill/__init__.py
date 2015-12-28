@@ -1,4 +1,3 @@
-__author__ = 'redwards'
 
 from media import suggest_from_media
 from limit_reactions import limit_reactions_by_compound

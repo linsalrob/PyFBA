@@ -5,8 +5,6 @@ import sys
 
 import PyFBA
 
-__author__ = 'Rob Edwards'
-
 parser = argparse.ArgumentParser(description="Print the equations of reactions in an sbml file")
 parser.add_argument('-s', help='sbml file', required=True)
 parser.add_argument('-m', help='media file', required=True)

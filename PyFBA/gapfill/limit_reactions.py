@@ -1,4 +1,3 @@
-__author__ = 'Rob Edwards'
 
 
 def limit_reactions_by_compound(reactions, reactions2run, suggestions, max_rcts=50):

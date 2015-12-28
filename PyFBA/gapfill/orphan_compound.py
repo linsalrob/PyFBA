@@ -1,7 +1,5 @@
 import sys
 
-__author__ = "Rob Edwards"
-
 
 def suggest_by_compound(compounds, reactions, reactions2run, max_reactions, verbose=False):
     """
