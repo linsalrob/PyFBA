@@ -14,7 +14,8 @@ We will handle multiple positive files and negative files and try and resolve in
 """
 
 
-def resolve_additional_reactions(ori_reactions, adnl_reactions, cpds, rcts, growth_media, no_growth_media, biomass_eqn):
+def resolve_additional_reactions(ori_reactions, adnl_reactions, cpds, rcts, growth_media, no_growth_media, biomass_eqn,
+                                 verbose=False):
     """
     Iteratively resolve additional reactions that are required.
 
@@ -47,7 +48,7 @@ def resolve_additional_reactions(ori_reactions, adnl_reactions, cpds, rcts, grow
         for tple in adnl_reactions:
             ori.update(tple[1])
         new_essential = PyFBA.gapfill.minimize_by_accuracy(ori, new, cpds, rcts, growth_media, no_growth_media,
-                                                           biomass_eqn, verbose=True)
+                                                           biomass_eqn, verbose)
         for new_r in new_essential:
             reactions[new_r].is_gapfilled = True
             reactions[new_r].gapfill_method = how
@@ -160,7 +161,8 @@ if __name__ == '__main__':
     sys.stderr.write("Accuracy: {}\n".format(acc))
 
     if pr['tp'] > min_growth_conditions:
-        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions, growth_media, no_growth_media, biomass_eqtn)
+        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
+                                                 growth_media, no_growth_media, biomass_eqtn, verbose=args.v)
         for r in original_reactions.union(additions):
             if r not in reactionsource:
                 reactionsource[r] = "UNKNOWN??"
@@ -194,7 +196,8 @@ if __name__ == '__main__':
         sys.stderr.write("Accuracy: {}\n".format(acc))
 
         if pr['tp'] > min_growth_conditions:
-            additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions, growth_media, no_growth_media, biomass_eqtn)
+            additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
+                                                     growth_media, no_growth_media, biomass_eqtn, verbose=args.v)
             for r in original_reactions.union(additions):
                 if r not in reactionsource:
                     reactionsource[r] = "UNKNOWN??"
@@ -224,7 +227,7 @@ if __name__ == '__main__':
 
         if pr['tp'] > min_growth_conditions:
             additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                     growth_media, no_growth_media, biomass_eqtn)
+                                                     growth_media, no_growth_media, biomass_eqtn, verbose=args.v)
             for r in original_reactions.union(additions):
                 if r not in reactionsource:
                     reactionsource[r] = "UNKNOWN??"
@@ -258,7 +261,7 @@ if __name__ == '__main__':
 
     if pr['tp'] > min_growth_conditions:
         additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 growth_media, no_growth_media, biomass_eqtn)
+                                                 growth_media, no_growth_media, biomass_eqtn, verbose=args.v)
         for r in original_reactions.union(additions):
             if r not in reactionsource:
                 reactionsource[r] = "UNKNOWN??"
@@ -289,7 +292,7 @@ if __name__ == '__main__':
 
     if pr['tp'] > min_growth_conditions:
         additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 growth_media, no_growth_media, biomass_eqtn)
+                                                 growth_media, no_growth_media, biomass_eqtn, verbose=args.v)
         for r in original_reactions.union(additions):
             if r not in reactionsource:
                 reactionsource[r] = "UNKNOWN??"
@@ -320,7 +323,7 @@ if __name__ == '__main__':
 
     if pr['tp'] > min_growth_conditions:
         additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 growth_media, no_growth_media, biomass_eqtn)
+                                                 growth_media, no_growth_media, biomass_eqtn, verbose=args.v)
         for r in original_reactions.union(additions):
             if r not in reactionsource:
                 reactionsource[r] = "UNKNOWN??"
@@ -355,7 +358,7 @@ if __name__ == '__main__':
 
     if pr['tp'] > min_growth_conditions:
         additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 growth_media, no_growth_media, biomass_eqtn)
+                                                 growth_media, no_growth_media, biomass_eqtn, verbose=args.v)
         for r in original_reactions.union(additions):
             if r not in reactionsource:
                 reactionsource[r] = "UNKNOWN??"
@@ -389,7 +392,7 @@ if __name__ == '__main__':
 
     if pr['tp'] > min_growth_conditions:
         additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 growth_media, no_growth_media, biomass_eqtn)
+                                                 growth_media, no_growth_media, biomass_eqtn, verbose=args.v)
         for r in original_reactions.union(additions):
             if r not in reactionsource:
                 reactionsource[r] = "UNKNOWN??"
@@ -421,8 +424,7 @@ if __name__ == '__main__':
             reactionsource[r] = 'reactions_without_proteins'
 
     pr = PyFBA.gapfill.calculate_precision_recall(growth_media, no_growth_media, compounds, reactions,
-                                                  reactions2run,
-                                                  biomass_eqtn)
+                                                  reactions2run, biomass_eqtn)
     acc = PyFBA.gapfill.reaction_minimization.accuracy(pr)
 
     sys.stderr.write("After adding all reactions we get: ")
@@ -432,7 +434,7 @@ if __name__ == '__main__':
 
     if pr['tp'] > min_growth_conditions:
         additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 growth_media, no_growth_media, biomass_eqtn)
+                                                 growth_media, no_growth_media, biomass_eqtn, verbose=args.v)
         for r in original_reactions.union(additions):
             if r not in reactionsource:
                 reactionsource[r] = "UNKNOWN??"

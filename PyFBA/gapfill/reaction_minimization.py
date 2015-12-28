@@ -334,6 +334,8 @@ def minimize_by_accuracy(base_reactions, optional_reactions, compounds, reaction
     while test:
         itera += 1
         left, right = PyFBA.gapfill.bisections.bisect(current_rx_list)
+        if verbose:
+            sys.stderr.write("Lengths: left {} right {}\n".format(len(left), len(right)))
         # left, right = percent_split(current_rx_list, percent)
         r2r = base_reactions.union(set(left))
         l_precision = calculate_precision_recall(growth_media, no_growth_media, compounds, reactions, r2r, biomass_eqn)
@@ -344,6 +346,9 @@ def minimize_by_accuracy(base_reactions, optional_reactions, compounds, reaction
         r_accuracy = accuracy(r_precision)
 
         if l_precision['tp'] > minimum_tp and r_precision['tp'] > minimum_tp:
+            if verbose:
+                sys.stderr.write("Both left {} and right {} are above {}\n".format(l_precision['tp'],
+                                                                                   r_precision['tp'], minimum_tp))
             # now we want to use the one that increases the accuracy the most
             if l_accuracy > r_accuracy:
                 current_rx_list = left
@@ -351,23 +356,32 @@ def minimize_by_accuracy(base_reactions, optional_reactions, compounds, reaction
                 current_rx_list = right
             tries = 0
         elif l_precision['tp'] > minimum_tp:
+            if verbose:
+                sys.stderr.write("Left {} is above {}\n".format(l_precision['tp'], minimum_tp))
             current_rx_list = left
             tries = 0
         elif r_precision['tp'] > minimum_tp:
+            if verbose:
+                sys.stderr.write("Right {} is above {}\n".format(r_precision['tp'], minimum_tp))
             current_rx_list = right
             tries = 0
         else:
+            if verbose:
+                sys.stderr.write("Neither left {} nor right {} are above {}\n".format(l_precision['tp'],
+                                                                                      r_precision['tp'], minimum_tp))
             # neither has increased the tp above minimum_tp, so we have split the list too far
             uneven_test = True
             percent = 40
             left, right = PyFBA.gapfill.bisections.percent_split(current_rx_list, percent)
             while uneven_test and len(left) > 0 and len(right) > 0:
                 r2r = base_reactions.union(set(left))
-                l_precision = calculate_precision_recall(growth_media, no_growth_media, compounds, reactions, r2r, biomass_eqn)
+                l_precision = calculate_precision_recall(growth_media, no_growth_media, compounds, reactions,
+                                                         r2r, biomass_eqn)
                 l_accuracy = accuracy(l_precision)
 
                 r2r = base_reactions.union(set(right))
-                r_precision = calculate_precision_recall(growth_media, no_growth_media, compounds, reactions, r2r, biomass_eqn)
+                r_precision = calculate_precision_recall(growth_media, no_growth_media, compounds, reactions,
+                                                         r2r, biomass_eqn)
                 r_accuracy = accuracy(r_precision)
                 if verbose:
                     sys.stderr.write(
