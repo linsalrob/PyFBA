@@ -15,7 +15,7 @@ We will handle multiple positive files and negative files and try and resolve in
 
 
 def resolve_additional_reactions(ori_reactions, adnl_reactions, cpds, rcts, growth_media, no_growth_media, biomass_eqn,
-                                 verbose=False):
+                                 minimum_tp=0, minimum_accuracy=0.5, verbose=False):
     """
     Iteratively resolve additional reactions that are required.
 
@@ -48,7 +48,7 @@ def resolve_additional_reactions(ori_reactions, adnl_reactions, cpds, rcts, grow
         for tple in adnl_reactions:
             ori.update(tple[1])
         new_essential = PyFBA.gapfill.minimize_by_accuracy(ori, new, cpds, rcts, growth_media, no_growth_media,
-                                                           biomass_eqn, verbose)
+                                                           biomass_eqn, minimum_tp, minimum_accuracy, verbose=verbose)
         for new_r in new_essential:
             reactions[new_r].is_gapfilled = True
             reactions[new_r].gapfill_method = how
@@ -162,7 +162,8 @@ if __name__ == '__main__':
 
     if pr['tp'] > min_growth_conditions:
         additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 growth_media, no_growth_media, biomass_eqtn, verbose=args.v)
+                                                 growth_media, no_growth_media, biomass_eqtn,
+                                                 minimum_tp=min_growth_conditions, verbose=args.v)
         for r in original_reactions.union(additions):
             if r not in reactionsource:
                 reactionsource[r] = "UNKNOWN??"
@@ -197,7 +198,8 @@ if __name__ == '__main__':
 
         if pr['tp'] > min_growth_conditions:
             additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                     growth_media, no_growth_media, biomass_eqtn, verbose=args.v)
+                                                     growth_media, no_growth_media, biomass_eqtn,
+                                                     minimum_tp=min_growth_conditions, verbose=args.v)
             for r in original_reactions.union(additions):
                 if r not in reactionsource:
                     reactionsource[r] = "UNKNOWN??"
@@ -227,7 +229,8 @@ if __name__ == '__main__':
 
         if pr['tp'] > min_growth_conditions:
             additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                     growth_media, no_growth_media, biomass_eqtn, verbose=args.v)
+                                                     growth_media, no_growth_media, biomass_eqtn,
+                                                     minimum_tp=min_growth_conditions, verbose=args.v)
             for r in original_reactions.union(additions):
                 if r not in reactionsource:
                     reactionsource[r] = "UNKNOWN??"
@@ -261,7 +264,8 @@ if __name__ == '__main__':
 
     if pr['tp'] > min_growth_conditions:
         additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 growth_media, no_growth_media, biomass_eqtn, verbose=args.v)
+                                                 growth_media, no_growth_media, biomass_eqtn,
+                                                 minimum_tp=min_growth_conditions, verbose=args.v)
         for r in original_reactions.union(additions):
             if r not in reactionsource:
                 reactionsource[r] = "UNKNOWN??"
@@ -292,7 +296,8 @@ if __name__ == '__main__':
 
     if pr['tp'] > min_growth_conditions:
         additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 growth_media, no_growth_media, biomass_eqtn, verbose=args.v)
+                                                 growth_media, no_growth_media, biomass_eqtn,
+                                                 minimum_tp=min_growth_conditions, verbose=args.v)
         for r in original_reactions.union(additions):
             if r not in reactionsource:
                 reactionsource[r] = "UNKNOWN??"
@@ -323,7 +328,8 @@ if __name__ == '__main__':
 
     if pr['tp'] > min_growth_conditions:
         additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 growth_media, no_growth_media, biomass_eqtn, verbose=args.v)
+                                                 growth_media, no_growth_media, biomass_eqtn,
+                                                 minimum_tp=min_growth_conditions, verbose=args.v)
         for r in original_reactions.union(additions):
             if r not in reactionsource:
                 reactionsource[r] = "UNKNOWN??"
@@ -358,7 +364,8 @@ if __name__ == '__main__':
 
     if pr['tp'] > min_growth_conditions:
         additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 growth_media, no_growth_media, biomass_eqtn, verbose=args.v)
+                                                 growth_media, no_growth_media, biomass_eqtn,
+                                                 minimum_tp=min_growth_conditions, verbose=args.v)
         for r in original_reactions.union(additions):
             if r not in reactionsource:
                 reactionsource[r] = "UNKNOWN??"
@@ -392,7 +399,8 @@ if __name__ == '__main__':
 
     if pr['tp'] > min_growth_conditions:
         additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 growth_media, no_growth_media, biomass_eqtn, verbose=args.v)
+                                                 growth_media, no_growth_media, biomass_eqtn,
+                                                 minimum_tp=min_growth_conditions, verbose=args.v)
         for r in original_reactions.union(additions):
             if r not in reactionsource:
                 reactionsource[r] = "UNKNOWN??"
@@ -434,7 +442,8 @@ if __name__ == '__main__':
 
     if pr['tp'] > min_growth_conditions:
         additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 growth_media, no_growth_media, biomass_eqtn, verbose=args.v)
+                                                 growth_media, no_growth_media, biomass_eqtn,
+                                                 minimum_tp=min_growth_conditions, verbose=args.v)
         for r in original_reactions.union(additions):
             if r not in reactionsource:
                 reactionsource[r] = "UNKNOWN??"
