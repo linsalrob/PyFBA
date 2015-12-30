@@ -8,9 +8,8 @@ to trim out reactions that are not necessary, to end up with the smallest set of
 import argparse
 import copy
 import sys
+
 import PyFBA
-
-
 
 
 def resolve_additional_reactions(ori_reactions, adnl_reactions, cpds, rcts, mediaset, biomass_eqn):
@@ -91,7 +90,10 @@ if __name__ == '__main__':
         reactionsource[r] = args.r
 
     media = PyFBA.parse.read_media_file(args.m)
-    biomass_eqtn = PyFBA.metabolism.biomass.biomass_equation('gramnegative')
+    if args.t == 'gramnegative':
+        biomass_eqtn = PyFBA.metabolism.biomass.biomass_equation('gramnegative')
+    else:
+        biomass_eqtn = PyFBA.metabolism.biomass.biomass_equation('standard')
 
     status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn, verbose=args.v)
     sys.stderr.write("For the initial run we get growth of {} which is {}\n".format(value, growth))
