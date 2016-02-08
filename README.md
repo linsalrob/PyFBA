@@ -1,5 +1,5 @@
 # PyFBA
-A python implementation of flux balance analysis to model microbial metabolism
+A python implementation of flux balance analysis to model microbial metabolism. [Read more ...](http://linsalrob.github.io/PyFBA/)
 
 ## About PyFBA
 
@@ -10,6 +10,8 @@ FBA work.
 PyFBA is being developed by Daniel Cuevas, Taylor O'Connell, and Rob Edwards in [Rob's bioinformatics
 group](http://edwards.sdsu.edu/research) at [San Diego State University](http://www.sdsu.edu/) together with help from
 Janaka Edirisinghe, Chris Henry, Ross Overbeek and others at [Argonne National Labs](http://www.theseed.org/).
+
+You can [read more about PyFBA](http://linsalrob.github.io/PyFBA/) on our github.io pages.
 
 ## Installing PyFBA
 

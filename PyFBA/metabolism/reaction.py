@@ -441,7 +441,7 @@ class Reaction:
         if isinstance(pegs, set):
             self.pegs.update(pegs)
         else:
-            raise TypeError("Compounds must be a set")
+            raise TypeError("pegs must be a set")
 
     def has_peg(self, peg):
         """

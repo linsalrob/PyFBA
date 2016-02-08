@@ -1,27 +1,58 @@
-Version 0.951
-=============
+
+
+VERSION 1.0
+
+
+Added the iPython Notebook directory
+
+Example code showing:
+
+importing an SBML file and running FBA
+
+-   iPythonNotebooks/Using_an_SBML_model.ipynb
+
+how to build your model from functional roles and how to gap-fill that
+model on a media
+
+-   iPythonNotebook/From_functional_roles_to_gap-filling.ipynb
+
+Added minimization by accuracy
+
+Removed PyFBA/gapfill/minimize_additional_reactions.py and created
+reaction_minimization.py
+
+Example gap-fill pipeline
+
+-   example_code/gapfill_from_reactions_multiple_conditions.py
+
+
+
+VERSION 0.951
+
 
 Removed the author tag
 
 It is superflous, that is what versioning is for.
 
-Version 0.95
-============
+
+
+VERSION 0.95
+
 
 Several changes to files:
 
 Updated the subsystem functions and changed the name to a generic name. The date is handled by versioning!
 
--   PyFBA/Biochemistry/SEED/Subsystems/SS_functions.txt  
+-   PyFBA/Biochemistry/SEED/Subsystems/SS_functions.txt
 -   PyFBA/Biochemistry/SEED/Subsystems/SS_functions_Oct_2015.txt
 
 Changing the version number
 
--   PyFBA/init.py
+-   PyFBA/INIT.py
 
 Adding reaction flux information that can be pulled after the sm has been solved
 
--   PyFBA/fba/init.py  
+-   PyFBA/fba/INIT.py
 -   PyFBA/fba/fluxes.py
 
 External reactions
@@ -29,21 +60,21 @@ External reactions
 Fixed an issue where we were over-incorporating reactions based on
 things in the media
 
--   PyFBA/fba/bounds.py  
+-   PyFBA/fba/bounds.py
 -   PyFBA/parse/model_seed.py
 
 Adding verboseness
 
--   PyFBA/fba/run_fba.py  
--   PyFBA/gapfill/roles.py  
+-   PyFBA/fba/run_fba.py
+-   PyFBA/gapfill/roles.py
 -   PyFBA/parse/read_media.py
 
 Reduced complexity
 
 We only test the right half of the reactions if the left half do not
-grow, and once we have <10 reactions  
+grow, and once we have <10 reactions
 to search through we just iterate and knock out each reaction
-sequentially. It is faster than the shuffle  
+sequentially. It is faster than the shuffle
 approach.
 
 -   PyFBA/gapfill/minimize_additional_reactions.py
@@ -59,7 +90,7 @@ Gap generation code
 
 Testing each of the individual reactions in a model
 
--   PyFBA/gapgeneration/test_reactions.py  
+-   PyFBA/gapgeneration/test_reactions.py
 -   example_code/test_individual_reactions.py
 
 Shifted the order of gapfilling
@@ -72,32 +103,40 @@ Updated the tests
 
 With all these changes, the tests were not right
 
--   PyFBA/tests/reaction_list.txt  
--   PyFBA/tests/test_fba.py  
+-   PyFBA/tests/reaction_list.txt
+-   PyFBA/tests/test_fba.py
 -   PyFBA/tests/test_suggestions.py
 
-Version 0.9
-===========
+
+
+VERSION 0.9
+
 
 Refactored separating roles to functions. SEED has a concept of
 multifunctional roles and this separates out our roles before we search
 for them.
 
-Version 0.8
-===========
 
-Version 0.7
-===========
 
-Version 0.6
-===========
+VERSION 0.8
+
+
+
+VERSION 0.7
+
+
+
+VERSION 0.6
+
 
 -   Removed installation dependencies from setup.py because they break
-    installation! You need to install the dependencies manually  
+    installation! You need to install the dependencies manually
 -   Refactored the code to remove the os.environ dependencies
 
-Version 0.5
-===========
+
+
+VERSION 0.5
+
 
 -   Initial release
 
