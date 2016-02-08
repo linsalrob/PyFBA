@@ -1,3 +1,20 @@
+# Version 1.0
+
+### Added the iPython Notebook directory
+Example code showing:
+
+importing an SBML file and running FBA
+* iPythonNotebooks/Using_an_SBML_model.ipynb
+
+how to build your model from functional roles and how to gap-fill that model on a media
+* iPythonNotebook/From_functional_roles_to_gap-filling.ipynb
+
+### Added minimization by accuracy
+Removed PyFBA/gapfill/minimize_additional_reactions.py and created reaction_minimization.py
+
+### Example gap-fill pipeline
+* example_code/gapfill_from_reactions_multiple_conditions.py
+
 # Version 0.951
 
 ### Removed the author tag
