@@ -214,6 +214,7 @@ class Enzyme:
         :param ecnumber: The EC number
         :type ecnumber: str
         """
+
         self.ec_number.add(ecnumber)
 
     def probability(self):

@@ -509,6 +509,8 @@ def compounds_reactions_enzymes(organism_type='', verbose=False):
             if complexid not in enzs:
                 enzs[complexid] = PyFBA.metabolism.Enzyme(complexid)
             enzs[complexid].add_roles({rolename})
+            for ecno in re.findall('[\d\-]+\.[\d\-]+\.[\d\-]+\.[\d\-]+', rolename):
+                enzs[complexid].add_ec(ecno)
 
     for complexid in cmplxset:
         if complexid not in enzs:
