@@ -24,6 +24,8 @@ class Enzyme:
     :type roles_w_pegs: dict
     :ivar reactions: a set of reaction IDs that this enzyme connects to
     :type reactions: set
+    :ivar ec_number: one or more EC numbers associated with this Enzyme. We only store the numeric part (not the EC part)
+    :type ec_number: set
     """
 
 
@@ -40,6 +42,7 @@ class Enzyme:
         self.pegs = {}  # a hash that connects Roles to PEGs
         self.roles_w_pegs = {}  # which roles have pegs
         self.reactions = set()  # RIDs that the enzyme connects to
+        self.ec_number = set() # one or more EC numbers associated with this Enzyme. We only store the numeric part (not the EC part)
 
     def __eq__(self, other):
         """
@@ -203,6 +206,15 @@ class Enzyme:
         """
         return len(self.reactions)
 
+
+    def add_ec(self, ecnumber):
+        """
+        Add an EC number to the Enzyme complex. We just store the 1.2.3.4 or 1.2.-.- part, not the EC part.
+
+        :param ecnumber: The EC number
+        :type ecnumber: str
+        """
+        self.ec_number.add(ecnumber)
 
     def probability(self):
         """

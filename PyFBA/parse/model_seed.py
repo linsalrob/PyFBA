@@ -10,12 +10,12 @@ a mapping for compartments (the mapping files do not have the integers
 used in the reactions file!).
 """
 
-
-import sys
+import copy
 import os
 import re
+import sys
+
 import PyFBA
-import copy
 
 MODELSEED_DIR = ""
 if 'ModelSEEDDatabase' in os.environ:
@@ -458,6 +458,8 @@ def enzymes(verbose=False):
             if complexid not in enzs:
                 enzs[complexid] = PyFBA.metabolism.Enzyme(complexid)
             enzs[complexid].add_roles({rolename})
+            for ecno in re.findall('[\d\-]+\.[\d\-]+\.[\d\-]+\.[\d\-]+', rolename):
+                enzs[complexid].add_ec(ecno)
 
     for complexid in cmplxset:
         if complexid not in enzs:
