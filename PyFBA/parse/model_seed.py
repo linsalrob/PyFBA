@@ -421,7 +421,7 @@ def roles_ec(rf="SOLRDump/ComplexRoles.tsv"):
 
                 # Try to add EC number if it exists in role name
                 for ecno in re.findall('[\d\-]+\.[\d\-]+\.[\d\-]+\.[\d\-]+', l):
-                    rls_ec[ecno].add(p[0])
+                    rles_ec[ecno].add(p[0])
     except IOError as e:
         sys.exit("There was an error parsing " + rf + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
 
