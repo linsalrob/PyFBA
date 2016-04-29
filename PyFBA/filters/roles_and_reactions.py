@@ -1,5 +1,5 @@
 import sys
-
+import re
 import PyFBA
 
 
@@ -27,7 +27,7 @@ def reactions_to_roles(reaction_set, verbose=False):
     cmpxs = PyFBA.parse.model_seed.complexes()
     # key is role and value is all complexes
     roles = PyFBA.parse.model_seed.roles()
-    
+
     rct2cmpx = {}
     for c in cmpxs:
         for r in cmpxs[c]:
@@ -45,7 +45,7 @@ def reactions_to_roles(reaction_set, verbose=False):
     roles = {}
     for r in reaction_set:
         if r not in rct2cmpx:
-            if verbose: 
+            if verbose:
                 sys.stderr.write("ERROR " + r + " not found\n")
             continue
         roles[r] = set()
@@ -64,7 +64,7 @@ def roles_to_reactions(roles, verbose=False):
     """
     Convert between roles and reactions using the model seed data
 
-    For a set of roles return a hash where the key is the role and 
+    For a set of roles return a hash where the key is the role and
     the value is the set of reactions that role is involved in.
 
     :param roles: A set of roles that we want to convert to reaction IDs
@@ -83,31 +83,39 @@ def roles_to_reactions(roles, verbose=False):
     # key is complex and value is all reactions
     cmpxs = PyFBA.parse.model_seed.complexes()
     # key is role and value is all complexes
-    seedroles = PyFBA.parse.model_seed.roles()
+    seedRolesECs = PyFBA.parse.model_seed.roles_ec()
 
     rcts = {}
     for r in roles:
         # check to see if it is a multifunctional role
         if '; ' in r or ' / ' in r or ' @ ' in r:
             sys.stderr.write("It seems that {} is a multifunctional role. You should separate the roles\n".format(r))
-        if r not in seedroles:
+        if r not in seedRolesECs:
             if verbose:
                 sys.stderr.write(r + " is not a role we understand. Skipped\n")
             continue
 
         rcts[r] = set()
-        for c in seedroles[r]:
-            if c not in cmpxs:
-                if verbose:
-                    # this occurs because there are reactions like cpx.1896 where we don't yet have a
-                    # reaction for the complex
-                    sys.stderr.write("ERROR: " + c + " was not found in the complexes file, but is from a reaction\n")
-                continue
-            for rc in cmpxs[c]:
-                rcts[r].add(rc)
+
+        searchFor = [r]
+        # search for reaction based on EC number if it exists
+        for ecno in re.findall('[\d\-]+\.[\d\-]+\.[\d\-]+\.[\d\-]+', r):
+            searchFor.append(ecno)
+
+        # First search for the role name, and then any EC number
+        for s in searchFor:
+            for c in seedRolesECs[s]:
+                if c not in cmpxs:
+                    if verbose:
+                        # this occurs because there are reactions like cpx.1896 where we don't yet have a
+                        # reaction for the complex
+                        sys.stderr.write("ERROR: " + c + " was not found in the complexes file, but is from a reaction\n")
+                    continue
+                for rc in cmpxs[c]:
+                    rcts[r].add(rc)
 
     return rcts
-    
+
 
 if __name__ == '__main__':
     try:
@@ -123,5 +131,5 @@ if __name__ == '__main__':
         hs = reactions_to_roles(rx)
 
     for h in hs:
-        print(h + "\t" + ("\n" + h + "\t").join(hs[h])) 
+        print(h + "\t" + ("\n" + h + "\t").join(hs[h]))
 
