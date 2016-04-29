@@ -4,7 +4,7 @@ A parser for the SEED biochemistry modules that are available on Github
 at https://github.com/ModelSEED/ModelSEEDDatabase. We have also included
 them in our repo as a submodule.
 
-We parse compounds from the compounds file in Biochemistry. Locations 
+We parse compounds from the compounds file in Biochemistry. Locations
 are currently hardcoded because the ModelSeedDirectory does not contain
 a mapping for compartments (the mapping files do not have the integers
 used in the reactions file!).
@@ -124,7 +124,7 @@ def compounds(compounds_file=None):
 
 def location():
     """Parse or return the codes for the locations. The ModelSEEDDatabase
-    uses codes, and has a compartments file but they do not match up. 
+    uses codes, and has a compartments file but they do not match up.
 
     This is currently hardcoded, but is put here so we can rewrite it as
     if the compartments file is updated
@@ -143,7 +143,7 @@ def location():
 def reactions(organism_type="", rctf='Biochemistry/reactions.master.tsv', verbose=False):
     """
     Parse the reaction information in Biochemistry/reactions.master.tsv
-    
+
     One reaction ID is associated with one equation and thus many
     compounds and parts.
 
@@ -349,7 +349,7 @@ def complexes(cf="SOLRDump/TemplateReactions.tsv", verbose=False):
     a many:many relationship here
 
     Read the complex file and return a hash of the complexes where
-    key is the complex id and the value is a set of reactions that the 
+    key is the complex id and the value is a set of reactions that the
     complex is involved in.
 
     You can provide an optional complexes file (cf) if you don't like
@@ -362,7 +362,7 @@ def complexes(cf="SOLRDump/TemplateReactions.tsv", verbose=False):
     :return A dict of the complexes where the key is the complex id and the value is the set of reactions
     :rtype: dict
     """
-    
+
     cplxes = {}
     try:
         with open(os.path.join(MODELSEED_DIR, cf), 'r') as rin:
@@ -388,6 +388,44 @@ def complexes(cf="SOLRDump/TemplateReactions.tsv", verbose=False):
         sys.exit(-1)
 
     return cplxes
+
+
+def roles_ec(rf="SOLRDump/ComplexRoles.tsv"):
+    """
+    Read the roles and EC and return a hash of the roles and EC where the id
+    is the role name or EC number and the value is the set of complex IDs that
+    the role is inolved in.
+
+    One role or EC can be involved in many complexes.
+
+    You can provide an alternate roles file (rf) if you don't like the
+    default.
+
+    :param rf: an alternate roles file
+    :type rf: str
+    :return: A dict of role name and complex ids that the roles is involved with
+    :rtype: dict
+
+    """
+    rles_ec = {}
+    try:
+        with open(os.path.join(MODELSEED_DIR, rf), 'r') as rin:
+            for l in rin:
+                if l.startswith("#") or l.startswith('complex_id'):
+                    # ignore any comment lines
+                    continue
+                p = l.strip().split("\t")
+                if p[5] not in rles_ec:
+                    rles_ec[p[5]] = set()
+                rles_ec[p[5]].add(p[0])
+
+                # Try to add EC number if it exists in role name
+                for ecno in re.findall('[\d\-]+\.[\d\-]+\.[\d\-]+\.[\d\-]+', l):
+                    rls_ec[ecno].add(p[0])
+    except IOError as e:
+        sys.exit("There was an error parsing " + rf + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
+
+    return rles_ec
 
 
 def roles(rf="SOLRDump/ComplexRoles.tsv"):
@@ -473,7 +511,7 @@ def enzymes(verbose=False):
 
     return enzs
 
-    
+
 def compounds_reactions_enzymes(organism_type='', verbose=False):
     """
     Convert each of the roles and complexes into a set of enzymes, and
