@@ -104,10 +104,12 @@ def roles_to_reactions(roles, verbose=False):
 
         # First search for the role name, and then any EC number
         for s in searchFor:
+            if s not in seedRolesECs:
+                continue
             for c in seedRolesECs[s]:
                 if c not in cmpxs:
                     if verbose:
-                        # this occurs because there are reactions like cpx.1896 where we don't yet have a
+                        # this occurs because there are reactions like cpx.1898 where we don't yet have a
                         # reaction for the complex
                         sys.stderr.write("ERROR: " + c + " was not found in the complexes file, but is from a reaction\n")
                     continue
