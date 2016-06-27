@@ -89,10 +89,24 @@ roles = set([i[0] for i in [list(j) for j in assigned_functions.values()]])
 print("There are {} unique roles in this genome".format(len(roles)),
       file=sys.stderr)
 
-roles_to_reactions = PyFBA.filters.roles_to_reactions(roles)
+# Obtain dictionary of roles and their reactions
+#roles_to_reactions = PyFBA.filters.roles_to_reactions(roles)
+#reactions_to_run = set()
+#for role in roles_to_reactions:
+#    reactions_to_run.update(roles_to_reactions[role])
+#print("There are {}".format(len(reactions_to_run)),
+#      "unique reactions associated with this genome", file=sys.stderr)
+
+# Obtain enzyme complexes from roles
+complexes = PyFBA.filters.roles_to_complexes(roles)
+if args.verbose:
+    print("There are", len(complexes["complete"]), "complete and",
+          len(complexes["incomplete"]), "incomplete enzyme complexes",
+          file=sys.stderr)
+# Get reactions from only completed complexes
 reactions_to_run = set()
-for role in roles_to_reactions:
-    reactions_to_run.update(roles_to_reactions[role])
+for c in complexes["complete"]:
+    reactions_to_run.update(enzymes[c].reactions)
 print("There are {}".format(len(reactions_to_run)),
       "unique reactions associated with this genome", file=sys.stderr)
 
