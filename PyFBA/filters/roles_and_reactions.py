@@ -83,38 +83,28 @@ def roles_to_reactions(roles, verbose=False):
     # key is complex and value is all reactions
     cmpxs = PyFBA.parse.model_seed.complexes()
     # key is role and value is all complexes
-    seedRolesECs = PyFBA.parse.model_seed.roles_ec()
+    seedroles = PyFBA.parse.model_seed.roles()
 
     rcts = {}
     for r in roles:
         # check to see if it is a multifunctional role
         if '; ' in r or ' / ' in r or ' @ ' in r:
             sys.stderr.write("It seems that {} is a multifunctional role. You should separate the roles\n".format(r))
-        if r not in seedRolesECs:
+        if r not in seedroles:
             if verbose:
                 sys.stderr.write(r + " is not a role we understand. Skipped\n")
             continue
 
         rcts[r] = set()
-
-        searchFor = [r]
-        # search for reaction based on EC number if it exists
-        for ecno in re.findall('[\d\-]+\.[\d\-]+\.[\d\-]+\.[\d\-]+', r):
-            searchFor.append(ecno)
-
-        # First search for the role name, and then any EC number
-        for s in searchFor:
-            if s not in seedRolesECs:
+        for c in seedroles[r]:
+            if c not in cmpxs:
+                if verbose:
+                    # this occurs because there are reactions like cpx.1898 where we don't yet have a
+                    # reaction for the complex
+                    sys.stderr.write("ERROR: " + c + " was not found in the complexes file, but is from a reaction\n")
                 continue
-            for c in seedRolesECs[s]:
-                if c not in cmpxs:
-                    if verbose:
-                        # this occurs because there are reactions like cpx.1898 where we don't yet have a
-                        # reaction for the complex
-                        sys.stderr.write("ERROR: " + c + " was not found in the complexes file, but is from a reaction\n")
-                    continue
-                for rc in cmpxs[c]:
-                    rcts[r].add(rc)
+            for rc in cmpxs[c]:
+                rcts[r].add(rc)
 
     return rcts
 
