@@ -60,7 +60,7 @@ class TestFBA(unittest.TestCase):
                                                              self.__class__.compounds, set(), biomass_equation)
         self.assertEqual(len(cp), 102)
         self.assertEqual(len(rc), 23)
-        self.assertEqual(len(reactions), 34698)
+        self.assertEqual(len(reactions), 34710)
 
     def test_run_fba(self):
         """Test running the fba. We build a run a complete FBA based on reaction_list.txt"""
@@ -84,4 +84,4 @@ class TestFBA(unittest.TestCase):
         status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass, verbose=False)
         self.assertTrue(growth)
         value = float('%0.3f' % value)
-        self.assertEqual(value, 356.294)
+        self.assertEqual(value, 340.873)
