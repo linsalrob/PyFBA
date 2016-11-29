@@ -47,4 +47,7 @@ def roles_to_model(rolesFile, id, name, orgtype="gramnegative", verbose=False):
                       "is not in our reactions list. Skipped.",
                       file=sys.stderr)
 
+    # Set biomass equation based on organism type
+    biomass_eqn = PyFBA.metabolism.biomass_equation(orgtype)
+    model.set_biomass_reaction(biomass_eqn)
     return model
