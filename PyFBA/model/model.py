@@ -120,6 +120,6 @@ class Model:
         :type rxn: Reaction
         """
         if rxn not in self.reactions:
-            self.reactions.add(rxn)
+            self.add_reactions({rxn})
 
-        self.biomass_reaction = self.reactions[rxn]
+        self.biomass_reaction = rxn
