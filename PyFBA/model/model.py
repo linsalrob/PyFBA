@@ -1,3 +1,6 @@
+from __future__ import print_function
+import PyFBA
+
 class Model:
     """
     A model is a structured collection of reactions, compounds, and functional roles.
@@ -11,9 +14,10 @@ class Model:
     :ivar compounds: A set of compound objects contained in this model
     :ivar gapfilled_media: A set of media names this model has been gap-filled with
     :ivar biomass_reaction: A reaction object representing the biomass reaction
+    :ivar organism_type: A String describing the type of organism
     """
 
-    def __init__(self, id, name):
+    def __init__(self, id, name, organism_type="gramnegative"):
         """
         Initiate the object
 
@@ -31,6 +35,7 @@ class Model:
         self.compounds = set()
         self.gapfilled_media = set()
         self.biomass_reaction = None
+        self.organism_type = organism_type
 
 
     def __str__(self):
@@ -119,7 +124,46 @@ class Model:
         :param rxn: A Reaction object.
         :type rxn: Reaction
         """
-        if rxn not in self.reactions:
-            self.add_reactions({rxn})
-
         self.biomass_reaction = rxn
+
+
+    def run_fba(self, media_file, biomass_reaction=None):
+        """
+        Run FBA on model and return status, value, and growth.
+
+        :param media_file: Media filepath
+        :type media_file: str
+        :param biomass_reaction: Given biomass Reaction object
+        :type biomass_reaction: Reaction
+        :rtype: tuple
+        """
+        # Check if model has a biomass reaction if none was given
+        if not biomass_reaction and not self.biomass_reaction:
+            raise Exception("Model has no biomass reaction, please supply one to run FBA")
+            return
+
+        elif not biomass_reaction:
+            biomass_reaction = self.biomass_reaction
+
+        # Read in media file
+        try:
+            media = PyFBA.parse.read_media_file(media_file)
+        except IOError as e:
+            print(e)
+            return
+
+        # Load ModelSEED database
+        compounds, reactions, enzymes =\
+            PyFBA.parse.model_seed.compounds_reactions_enzymes(
+                self.organism_type)
+
+        modelRxns = [r.name for r in self.reactions]
+        modelRxns = set(modelRxns)
+
+        status, value, growth = PyFBA.fba.run_fba(compounds,
+                                                  reactions,
+                                                  modelRxns,
+                                                  media,
+                                                  biomass_reaction)
+
+        return (status, value, growth)
