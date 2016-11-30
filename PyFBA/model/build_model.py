@@ -36,7 +36,7 @@ def roles_to_model(rolesFile, id, name, orgtype="gramnegative", verbose=False):
     model_reactions = PyFBA.filters.roles_to_reactions(roles)
 
     # Create model object
-    model = PyFBA.model.Model(id, name)
+    model = PyFBA.model.Model(id, name, orgtype)
     for role, rxnIDs in model_reactions.items():
         for rxnID in rxnIDs:
             if rxnID in reactions:
