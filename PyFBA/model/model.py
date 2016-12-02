@@ -1,5 +1,7 @@
 from __future__ import print_function
 import PyFBA
+import copy
+import sys
 
 class Model:
     """
@@ -10,8 +12,8 @@ class Model:
     :ivar id: Model ID
     :ivar name: Model name
     :ivar roles: A dictionary of roles as the key and sets of reaction IDs as the value
-    :ivar reactions: A set of reaction objects contained in this model
-    :ivar compounds: A set of compound objects contained in this model
+    :ivar reactions: A dictionary of reaction IDs as the key and Reaction objects as the value
+    :ivar compounds: A dictionary of compound IDs as the key and Compound objects as the value
     :ivar gapfilled_media: A set of media names this model has been gap-filled with
     :ivar biomass_reaction: A reaction object representing the biomass reaction
     :ivar organism_type: A String describing the type of organism
@@ -31,8 +33,8 @@ class Model:
         self.id = str(id)
         self.name = str(name)
         self.roles = {}
-        self.reactions = set()
-        self.compounds = set()
+        self.reactions = {}
+        self.compounds = {}
         self.gapfilled_media = set()
         self.biomass_reaction = None
         self.organism_type = organism_type
@@ -49,7 +51,7 @@ class Model:
 
     def add_roles(self, roles):
         """
-        Add a role to the model.
+        Add roles to the model.
 
         :param roles: A dictionary of roles and reaction IDs
         :type roles: dict of set of str
@@ -63,18 +65,33 @@ class Model:
 
     def add_reactions(self, rxns):
         """
-        Add a reaction to the model.
+        Add reactions to the model.
 
-        :param rxns: A Reaction object
+        :param rxns: Reaction objects
         :type rxns: set
         """
         if isinstance(rxns, set):
-            self.reactions.update(rxns)
-            # Add compounds from new reactions
             for r in rxns:
-                self.compounds.update(r.all_compounds())
+                if r.name not in self.reactions:
+                    self.reactions[r.name] = r
+                    # Add compounds from new reactions
+                    for c in r.all_compounds():
+                        if c.name not in self.compounds:
+                            self.compounds[c.name] = c
         else:
             raise TypeError("You need to add a set of reactions to a model")
+
+
+    def remove_reactions(self, rxns):
+        """
+        Remove reactions from the model.
+
+        :param rxns: Reaction IDs
+        :type rxns: set
+        """
+        # Passing for now
+        # Need to figure out best way to deal with compounds
+        pass
 
 
     def has_reaction(self, rxn):
@@ -85,7 +102,7 @@ class Model:
         :type rxn: Reaction
         :rtype: bool
         """
-        return rxn in self.reactions
+        return rxn.name in self.reactions
 
 
     def number_of_reactions(self):
@@ -105,7 +122,7 @@ class Model:
         :type cpd: Compound
         :rtype: bool
         """
-        return cpd in self.compounds
+        return cpd.name in self.compounds
 
 
     def number_of_compounds(self):
@@ -150,14 +167,14 @@ class Model:
             media = PyFBA.parse.read_media_file(media_file)
         except IOError as e:
             print(e)
-            return
+            return (None, None, None)
 
         # Load ModelSEED database
         compounds, reactions, enzymes =\
             PyFBA.parse.model_seed.compounds_reactions_enzymes(
                 self.organism_type)
 
-        modelRxns = [r.name for r in self.reactions]
+        modelRxns = [rID for rID in self.reactions]
         modelRxns = set(modelRxns)
 
         status, value, growth = PyFBA.fba.run_fba(compounds,
@@ -167,3 +184,313 @@ class Model:
                                                   biomass_reaction)
 
         return (status, value, growth)
+
+
+    def gapfill(self, media_file, cg_file, verbose=0):
+        """
+        Gap-fill model on given media.
+
+        :param media_file: Media filepath
+        :type media_file: str
+        :param cg_file: Close genomes roles filepath
+        :type cg_file: str
+        :param verbose: Verbose output level
+        :type verbose: int
+        :rtype: bool
+        """
+        # Check if model needs any gap-filling
+        status, value, growth = self.run_fba(media_file)
+
+        # Check that FBA ran successfully
+        if not status:
+            return False
+        elif growth:
+            print("Initial FBA run results in growth; no need to gap-fill on given media")
+            print("Biomass flux value:", value)
+            sys.stdout.flush()
+            return False
+
+
+        # Read in media file
+        try:
+            media = PyFBA.parse.read_media_file(media_file)
+        except IOError as e:
+            print(e)
+            return False
+
+        # Create new model to run gap-filling with
+        newModel = PyFBA.model.Model(self.id, self.name, self.organism_type)
+        newModel.add_reactions(set(self.reactions.values()))
+        newModel.set_biomass_reaction(self.biomass_reaction)
+
+        newModelRxns = [rID for rID in self.reactions]
+        newModelRxns = set(newModelRxns)
+        original_reactions = copy.copy(newModelRxns)
+        added_reactions = []
+
+        if verbose >= 1:
+            print("Current model contains", len(newModelRxns), "reactions",
+                  file=sys.stderr)
+            sys.stderr.flush()
+
+        # Load ModelSEED database
+        compounds, reactions, enzymes =\
+            PyFBA.parse.model_seed.compounds_reactions_enzymes(
+                self.organism_type)
+
+        ########################################
+        ## Media import reactions
+        ########################################
+        if verbose >= 1:
+            print("Finding media import reactions", file=sys.stderr)
+            sys.stderr.flush()
+        gf_reactions = PyFBA.gapfill.suggest_from_media(compounds,
+                                                        reactions,
+                                                        newModelRxns,
+                                                        media)
+        added_reactions.append(("media", gf_reactions))
+        newModelRxns.update(gf_reactions)
+        rxns_for_new_model = set()
+        for r in gf_reactions:
+            rxns_for_new_model.add(reactions[r])
+        newModel.add_reactions(rxns_for_new_model)
+        if verbose >= 1:
+            print("Found", len(gf_reactions), "reactions", file=sys.stderr)
+            print("New total:", len(newModelRxns), "reactions", file=sys.stderr)
+            sys.stderr.flush()
+
+        if len(gf_reactions) > 0:
+            # Run FBA
+            status, value, growth = newModel.run_fba(media_file)
+        if not growth:
+            ####################################
+            ## Essential reactions
+            ####################################
+            if verbose >= 1:
+                print("Finding essential reactions", file=sys.stderr)
+                sys.stderr.flush()
+            gf_reactions = PyFBA.gapfill.suggest_essential_reactions()
+            added_reactions.append(("essential", gf_reactions))
+            newModelRxns.update(gf_reactions)
+            rxns_for_new_model = set()
+            for r in gf_reactions:
+                rxns_for_new_model.add(reactions[r])
+            newModel.add_reactions(rxns_for_new_model)
+            if verbose >= 1:
+                print("Found", len(gf_reactions), "reactions",
+                      file=sys.stderr)
+                print("New total:", len(newModelRxns), "reactions",
+                      file=sys.stderr)
+                sys.stderr.flush()
+
+            if len(gf_reactions) > 0:
+                # Run FBA
+                status, value, growth = newModel.run_fba(media_file)
+        if not growth:
+            ####################################
+            ## Close organism reactions
+            ####################################
+            if verbose >= 1:
+                print("Finding close organism reactions", file=sys.stderr)
+                sys.stderr.flush()
+            gf_reactions =\
+                    PyFBA.gapfill.suggest_from_roles(cg_file, reactions)
+            added_reactions.append(("close genomes", gf_reactions))
+            newModelRxns.update(gf_reactions)
+            rxns_for_new_model = set()
+            for r in gf_reactions:
+                rxns_for_new_model.add(reactions[r])
+            newModel.add_reactions(rxns_for_new_model)
+            if verbose >= 1:
+                print("Found", len(gf_reactions), "reactions",
+                      file=sys.stderr)
+                print("New total:", len(newModelRxns), "reactions",
+                      file=sys.stderr)
+                sys.stderr.flush()
+
+            if len(gf_reactions) > 0:
+                # Run FBA
+                status, value, growth = newModel.run_fba(media_file)
+        if not growth:
+            ####################################
+            ## Subsystem reactions
+            ####################################
+            if verbose >= 1:
+                print("Finding subsystem reactions", file=sys.stderr)
+                sys.stderr.flush()
+            gf_reactions =\
+                    PyFBA.gapfill.suggest_reactions_from_subsystems(reactions,
+                                                                    newModelRxns,
+                                                                    threshold=0.5)
+            added_reactions.append(("subsystems", gf_reactions))
+            newModelRxns.update(gf_reactions)
+            rxns_for_new_model = set()
+            for r in gf_reactions:
+                rxns_for_new_model.add(reactions[r])
+            newModel.add_reactions(rxns_for_new_model)
+            if verbose >= 1:
+                print("Found", len(gf_reactions), "reactions",
+                      file=sys.stderr)
+                print("New total:", len(newModelRxns), "reactions",
+                      file=sys.stderr)
+                sys.stderr.flush()
+
+            if len(gf_reactions) > 0:
+                # Run FBA
+                status, value, growth = newModel.run_fba(media_file)
+        if not growth:
+            ####################################
+            ## EC reactions
+            ####################################
+            if verbose >= 1:
+                print("Finding EC reactions", file=sys.stderr)
+                sys.stderr.flush()
+            gf_reactions =\
+                    PyFBA.gapfill.suggest_reactions_using_ec(newModel.roles.keys(),
+                                                             reactions,
+                                                             newModelRxns)
+            added_reactions.append(("ec", gf_reactions))
+            newModelRxns.update(gf_reactions)
+            rxns_for_new_model = set()
+            for r in gf_reactions:
+                rxns_for_new_model.add(reactions[r])
+            newModel.add_reactions(rxns_for_new_model)
+            if verbose >= 1:
+                print("Found", len(gf_reactions), "reactions",
+                      file=sys.stderr)
+                print("New total:", len(newModelRxns), "reactions",
+                      file=sys.stderr)
+                sys.stderr.flush()
+
+            if len(gf_reactions) > 0:
+                # Run FBA
+                status, value, growth = newModel.run_fba(media_file)
+        if not growth:
+            ####################################
+            ## Compound-probabilty reactions
+            ####################################
+            if verbose >= 1:
+                print("Finding compound-probability reactions", file=sys.stderr)
+                sys.stderr.flush()
+            gf_reactions=\
+                    PyFBA.gapfill.compound_probability(reactions,
+                                                       newModelRxns,
+                                                       cutoff=0,
+                                                       rxn_with_proteins=True)
+            added_reactions.append(("probable", gf_reactions))
+            newModelRxns.update(gf_reactions)
+            rxns_for_new_model = set()
+            for r in gf_reactions:
+                rxns_for_new_model.add(reactions[r])
+            newModel.add_reactions(rxns_for_new_model)
+            if verbose >= 1:
+                print("Found", len(gf_reactions), "reactions",
+                      file=sys.stderr)
+                print("New total:", len(newModelRxns), "reactions",
+                      file=sys.stderr)
+                sys.stderr.flush()
+
+            if len(gf_reactions) > 0:
+                # Run FBA
+                status, value, growth = newModel.run_fba(media_file)
+        if not growth:
+            ####################################
+            ## Orphan-compound reactions
+            ####################################
+            if verbose >= 1:
+                print("Finding orphan-compound reactions", file=sys.stderr)
+                sys.stderr.flush()
+            gf_reactions =\
+                    PyFBA.gapfill.suggest_by_compound(compounds,
+                                                      reactions,
+                                                      newModelRxns,
+                                                      max_reactions=1)
+            added_reactions.append(("orphans", gf_reactions))
+            newModelRxns.update(gf_reactions)
+            rxns_for_new_model = set()
+            for r in gf_reactions:
+                rxns_for_new_model.add(reactions[r])
+            newModel.add_reactions(rxns_for_new_model)
+            if verbose >= 1:
+                print("Found", len(gf_reactions), "reactions",
+                      file=sys.stderr)
+                print("New total:", len(newModelRxns), "reactions",
+                      file=sys.stderr)
+                sys.stderr.flush()
+
+            if len(gf_reactions) > 0:
+                # Run FBA
+                status, value, growth = newModel.run_fba(media_file)
+        ########################################
+        ## Check if gap-filling was successful
+        ########################################
+        if not growth:
+            print("Unable to gap-fill model", file=sys.stderr)
+            sys.stderr.flush()
+            return False
+        elif verbose >= 1:
+            print("Gap-fill was successful, now trimming model",
+                  file=sys.stderr)
+            sys.stderr.flush()
+
+        # Trimming the model
+        required_rxns = set()
+        # Begin loop through all gap-filled reactions
+        while added_reactions:
+            ori = copy.copy(original_reactions)
+            ori.update(required_rxns)
+
+            # Test next set of gap-filled reactions
+            # Each set is based on a method described above
+            how, new = added_reactions.pop()
+
+            if verbose >= 1:
+                print("Trimming", how, "group of reactions",
+                      file=sys.stderr)
+                sys.stderr.flush()
+
+            # Get all the other gap-filled reactions we need to add
+            for gf_tple in added_reactions:
+                ori.update(gf_tple[1])
+
+            # Use minimization function to determine the minimal
+            # set of gap-filled reactions from the current method
+            if verbose == 2:
+                verb = True
+            else:
+                verb = False
+            minimized_set =\
+                    PyFBA.gapfill.minimize_additional_reactions(ori,
+                                                                new,
+                                                                compounds,
+                                                                reactions,
+                                                                media,
+                                                                newModel.biomass_reaction,
+                                                                verbose=verb)
+            # Record the method used to determine
+            # how the reaction was gap-filled
+            for new_rxn in minimized_set:
+                reactions[new_rxn].is_gapfilled = True
+                reactions[new_rxn].gapfill_method = how
+            required_rxns.update(minimized_set)
+        # End trimming
+
+        if verbose >= 1:
+            print("Trimming complete. Total gap-filled reactions:",
+                  len(requirex_rxns), file=sys.stderr)
+            sys,stderr.flush()
+
+        # Add reactions to this model
+        add_to_model_rxns = set()
+        for r in required_rxns:
+            add_to_model_rxns.add(reactions[r])
+        self.add_reactions(add_to_model_rxns)
+
+        # Run FBA
+        status, value, growth = self.run_fba(media_file)
+        if not growth:
+            print("Failed final FBA check!", file=sys.stderr)
+            return False
+        print("The biomass reaction has a flux of", value)
+
+        return growth
