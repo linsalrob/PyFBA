@@ -455,10 +455,7 @@ class Model:
 
             # Use minimization function to determine the minimal
             # set of gap-filled reactions from the current method
-            if verbose == 2:
-                verb = True
-            else:
-                verb = False
+            verb = verbose == 2
             minimized_set =\
                     PyFBA.gapfill.minimize_additional_reactions(ori,
                                                                 new,
@@ -477,8 +474,8 @@ class Model:
 
         if verbose >= 1:
             print("Trimming complete. Total gap-filled reactions:",
-                  len(requirex_rxns), file=sys.stderr)
-            sys,stderr.flush()
+                  len(required_rxns), file=sys.stderr)
+            sys.stderr.flush()
 
         # Add reactions to this model
         add_to_model_rxns = set()
