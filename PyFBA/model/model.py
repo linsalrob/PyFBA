@@ -157,7 +157,7 @@ class Model:
         # Check if model has a biomass reaction if none was given
         if not biomass_reaction and not self.biomass_reaction:
             raise Exception("Model has no biomass reaction, please supply one to run FBA")
-            return
+            return (None, None, None)
 
         elif not biomass_reaction:
             biomass_reaction = self.biomass_reaction
@@ -184,6 +184,48 @@ class Model:
                                                   biomass_reaction)
 
         return (status, value, growth)
+
+
+    def run_fba_get_fluxes(self, media_file, biomass_reaction=None):
+        """
+        Run FBA on model and return dictionary of reaction ID and flux.
+
+        :param media_file: Media filepath
+        :type media_file: str
+        :param biomass_reaction: Given biomass Reaction object
+        :type biomass_reaction: Reaction
+        :rtype: dict
+        """
+        # Check if model has a biomass reaction if none was given
+        if not biomass_reaction and not self.biomass_reaction:
+            raise Exception("Model has no biomass reaction, please supply one to run FBA")
+            return None
+
+        elif not biomass_reaction:
+            biomass_reaction = self.biomass_reaction
+
+        # Read in media file
+        try:
+            media = PyFBA.parse.read_media_file(media_file)
+        except IOError as e:
+            print(e)
+            return None
+
+        # Load ModelSEED database
+        compounds, reactions, enzymes =\
+            PyFBA.parse.model_seed.compounds_reactions_enzymes(
+                self.organism_type)
+
+        modelRxns = [rID for rID in self.reactions]
+        modelRxns = set(modelRxns)
+
+        status, value, growth = PyFBA.fba.run_fba(compounds,
+                                                  reactions,
+                                                  modelRxns,
+                                                  media,
+                                                  biomass_reaction)
+
+        return PyFBA.lp.col_primal_hash()
 
 
     def gapfill(self, media_file, cg_file, verbose=0):
