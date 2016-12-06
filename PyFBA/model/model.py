@@ -15,6 +15,7 @@ class Model:
     :ivar reactions: A dictionary of reaction IDs as the key and Reaction objects as the value
     :ivar compounds: A dictionary of compound IDs as the key and Compound objects as the value
     :ivar gapfilled_media: A set of media names this model has been gap-filled with
+    :ivar gf_reactions: A dictionary of gap-filled reaction IDs as the key and sets of roles as the value
     :ivar biomass_reaction: A reaction object representing the biomass reaction
     :ivar organism_type: A String describing the type of organism
     """
@@ -36,6 +37,7 @@ class Model:
         self.reactions = {}
         self.compounds = {}
         self.gapfilled_media = set()
+        self.gf_reactions = {}
         self.biomass_reaction = None
         self.organism_type = organism_type
 
@@ -186,49 +188,7 @@ class Model:
         return (status, value, growth)
 
 
-    def run_fba_get_fluxes(self, media_file, biomass_reaction=None):
-        """
-        Run FBA on model and return dictionary of reaction ID and flux.
-
-        :param media_file: Media filepath
-        :type media_file: str
-        :param biomass_reaction: Given biomass Reaction object
-        :type biomass_reaction: Reaction
-        :rtype: dict
-        """
-        # Check if model has a biomass reaction if none was given
-        if not biomass_reaction and not self.biomass_reaction:
-            raise Exception("Model has no biomass reaction, please supply one to run FBA")
-            return None
-
-        elif not biomass_reaction:
-            biomass_reaction = self.biomass_reaction
-
-        # Read in media file
-        try:
-            media = PyFBA.parse.read_media_file(media_file)
-        except IOError as e:
-            print(e)
-            return None
-
-        # Load ModelSEED database
-        compounds, reactions, enzymes =\
-            PyFBA.parse.model_seed.compounds_reactions_enzymes(
-                self.organism_type)
-
-        modelRxns = [rID for rID in self.reactions]
-        modelRxns = set(modelRxns)
-
-        status, value, growth = PyFBA.fba.run_fba(compounds,
-                                                  reactions,
-                                                  modelRxns,
-                                                  media,
-                                                  biomass_reaction)
-
-        return PyFBA.lp.col_primal_hash()
-
-
-    def gapfill(self, media_file, cg_file, verbose=0):
+    def gapfill(self, media_file, cg_file, use_flux=False, verbose=0):
         """
         Gap-fill model on given media.
 
@@ -475,7 +435,30 @@ class Model:
                   file=sys.stderr)
             sys.stderr.flush()
 
-        # Trimming the model
+        ########################################
+        ## Trimming the model
+        ########################################
+        if use_flux:
+            # Get fluxes from gap-filled reactions
+            # Keep those without a flux of zero
+            rxnfluxes = PyFBA.model.model_reaction_fluxes(newModel,
+                                                          media_file)
+            numRemoved = 0
+            tmp_added_reactions = []
+            for how, gfrxns in added_reactions:
+                tmp_gfrxns = set()
+                for gfr in gfrxns:
+                    if float(rxnfluxes[gfr]) == 0.0:
+                        numRemoved += 1
+                    else:
+                        tmp_gfrxns.add(gfr)
+                tmp_added_reactions.append((how, tmp_gfrxns))
+            added_reactions = tmp_added_reactions
+
+            if verbose >= 1:
+                print("Removed", numRemoved, "reactions based on flux value",
+                    file=sys.stderr)
+
         required_rxns = set()
         # Begin loop through all gap-filled reactions
         while added_reactions:
@@ -515,7 +498,7 @@ class Model:
         # End trimming
 
         if verbose >= 1:
-            print("Trimming complete. Total gap-filled reactions:",
+            print("Trimming complete.\nTotal gap-filled reactions:",
                   len(required_rxns), file=sys.stderr)
             sys.stderr.flush()
 
@@ -524,6 +507,17 @@ class Model:
         for r in required_rxns:
             add_to_model_rxns.add(reactions[r])
         self.add_reactions(add_to_model_rxns)
+
+        # Record roles for each gap-filled reaction
+        gf_reactions = PyFBA.filters.reactions_to_roles(required_rxns, verb)
+        for rxn in required_rxns:
+            if rxn not in self.gf_reactions:
+                self.gf_reactions[rxn] = set()
+            # Check to see if we were able to find roles for the reaction
+            if rxn not in gf_reactions:
+                self.gf_reactions[rxn].add("None")
+            else:
+                self.gf_reactions[rxn].update(gf_reactions[rxn])
 
         # Run FBA
         status, value, growth = self.run_fba(media_file)
