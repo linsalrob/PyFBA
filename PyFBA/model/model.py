@@ -146,6 +146,36 @@ class Model:
         self.biomass_reaction = rxn
 
 
+    def output_model(self, f):
+        """
+        Output model reaction, function, and gap-fill information.
+
+        :param f: File object to print to
+        :type f: file
+        """
+        # Get mapping from reaction IDs to roles
+        mReactions = {r: [] for r in self.reactions.keys()}
+        for role, rxns in self.roles.items():
+            for r in rxns:
+                mReactions[r].append(role)
+        # Print header
+        f.write("reaction\tfunction\tequation\tgapfilled\n")
+
+        # Print reactions from model
+        for r, roles in mReactions.items():
+            eqn = self.reactions[r].equation
+            rolecolumn = ";".join(roles)
+            f.write("\t".join([r, rolecolumn, eqn, "no"]))
+            f.write("\n")
+
+        # Print reactions from gap-filling
+        for r, roles in self.gf_reactions.items():
+            eqn = self.reactions[r].equation
+            rolecolumn = ";".join(roles)
+            f.write("\t".join([r, rolecolumn, eqn, "yes"]))
+            f.write("\n")
+
+
     def run_fba(self, media_file, biomass_reaction=None):
         """
         Run FBA on model and return status, value, and growth.
