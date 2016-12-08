@@ -21,10 +21,12 @@ def model_reaction_fluxes(model, media_file, biomass_reaction=None):
     return PyFBA.fba.reaction_fluxes()
 
 
-def stdout_fba(model, media_file, biomass_reaction=None):
+def output_fba(f, model, media_file, biomass_reaction=None):
     """
     Run FBA on model and output results in tab-delimited format.
 
+    :param f: File object to print to
+    :type f: file
     :param model: Model object to obtain fluxes from
     :type model: Model
     :param media_file: Media filepath
@@ -42,38 +44,11 @@ def stdout_fba(model, media_file, biomass_reaction=None):
     fluxes = model_reaction_fluxes(model, media_file, biomass_reaction)
 
     # Print header
-    print("reaction\tflux\tfunction")
+    f.write("reaction\tflux\tfunction\n")
     for r, flux in fluxes.items():
         if r not in mReactions or mReactions[r] == "":
             rolecolumn = "None"
         else:
             rolecolumn = ";".join(mReactions[r])
-        print(r, flux, rolecolumn)
-
-
-def stdout_model(model):
-    """
-    Output model reaction, function, and gap-fill information.
-
-    :param model: Model object
-    :type model: Model
-    """
-    # Get mapping from reaction IDs to roles
-    mReactions = {r: [] for r in model.reactions.keys()}
-    for role, rxns in model.roles.items():
-        for r in rxns:
-            mReactions[r].append(role)
-    # Print header
-    print("reaction\tfunction\tequation\tgapfilled")
-
-    # Print reactions from model
-    for r, roles in mReactions.items():
-        eqn = model.reactions[r].equation
-        rolecolumn = ";".join(roles)
-        print(r, rolecolumn, eqn, "no", sep="\t")
-
-    # Print reactions from gap-filling
-    for r, roles in model.gf_reactions.items():
-        eqn = model.reactions[r].equation
-        rolecolumn = ";".join(roles)
-        print(r, rolecolumn, eqn, "yes", sep="\t")
+        f.write("\t".join([r, flux, rolecolumn]))
+        f.write("\n")
