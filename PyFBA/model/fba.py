@@ -50,5 +50,5 @@ def output_fba(f, model, media_file, biomass_reaction=None):
             rolecolumn = "None"
         else:
             rolecolumn = ";".join(mReactions[r])
-        f.write("\t".join([r, flux, rolecolumn]))
+        f.write("\t".join([r, str(flux), rolecolumn]))
         f.write("\n")
