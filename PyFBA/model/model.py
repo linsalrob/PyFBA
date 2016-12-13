@@ -15,7 +15,7 @@ class Model:
     :ivar reactions: A dictionary of reaction IDs as the key and Reaction objects as the value
     :ivar compounds: A dictionary of compound IDs as the key and Compound objects as the value
     :ivar gapfilled_media: A set of media names this model has been gap-filled with
-    :ivar gf_reactions: A dictionary of gap-filled reaction IDs as the key and sets of roles as the value
+    :ivar gf_reactions: A set of gap-filled reaction IDs
     :ivar biomass_reaction: A reaction object representing the biomass reaction
     :ivar organism_type: A String describing the type of organism
     """
@@ -165,14 +165,10 @@ class Model:
         for r, roles in mReactions.items():
             eqn = self.reactions[r].equation
             rolecolumn = ";".join(roles)
-            f.write("\t".join([r, rolecolumn, eqn, "no"]))
-            f.write("\n")
-
-        # Print reactions from gap-filling
-        for r, roles in self.gf_reactions.items():
-            eqn = self.reactions[r].equation
-            rolecolumn = ";".join(roles)
-            f.write("\t".join([r, rolecolumn, eqn, "yes"]))
+            if r in self.gf_reactions:
+                f.write("\t".join([r, rolecolumn, eqn, "yes"]))
+            else:
+                f.write("\t".join([r, rolecolumn, eqn, "no"]))
             f.write("\n")
 
 
@@ -490,6 +486,7 @@ class Model:
                     file=sys.stderr)
 
         required_rxns = set()
+        gapfilled_keep = set()
         # Begin loop through all gap-filled reactions
         while added_reactions:
             ori = copy.copy(original_reactions)
@@ -525,6 +522,7 @@ class Model:
                 reactions[new_rxn].is_gapfilled = True
                 reactions[new_rxn].gapfill_method = how
             required_rxns.update(minimized_set)
+            gapfilled_keep.update(minimized_set)
         # End trimming
 
         if verbose >= 1:
@@ -532,22 +530,23 @@ class Model:
                   len(required_rxns), file=sys.stderr)
             sys.stderr.flush()
 
-        # Add reactions to this model
+        # Record reactions and roles for each gap-filled reaction
         add_to_model_rxns = set()
-        for r in required_rxns:
-            add_to_model_rxns.add(reactions[r])
-        self.add_reactions(add_to_model_rxns)
+        add_to_model_roles = {}
+        gf_reactions = PyFBA.filters.reactions_to_roles(gapfilled_keep, verb)
+        for rxn, rls in gapfilled_keep.items():
+            if rxn in original_reactions:
+                continue
+            self.gf_reactions.add(rxn)  # Add to model gf_reactions set
+            add_to_model_rxns.add(reactions[rxn])
+            for rl in rls:
+                if rl not in add_to_model_roles:
+                    add_to_model_roles[rl] = set()
+                add_to_model_roles[rl].add(rxn)
 
-        # Record roles for each gap-filled reaction
-        gf_reactions = PyFBA.filters.reactions_to_roles(required_rxns, verb)
-        for rxn in required_rxns:
-            if rxn not in self.gf_reactions:
-                self.gf_reactions[rxn] = set()
-            # Check to see if we were able to find roles for the reaction
-            if rxn not in gf_reactions:
-                self.gf_reactions[rxn].add("None")
-            else:
-                self.gf_reactions[rxn].update(gf_reactions[rxn])
+        # Add to this model
+        self.add_reactions(add_to_model_rxns)
+        self.add_roles(add_to_model_roles)
 
         # Run FBA
         status, value, growth = self.run_fba(media_file)
