@@ -30,13 +30,15 @@ compounds, reactions, enzymes =\
 
 # Read in reactions file
 modelReactions = set()
+modelInfo = {}
 with open(args.reactions, "r") as f:
     if args.header:
         next(f)  # Header line
     for l in f:
         l = l.strip()
-        ll = l.split("\t")
-        modelReactions.add(ll[0])
+        rxn, func, eqn, gf = l.split("\t")
+        modelReactions.add(rxn)
+        modelInfo[rxn] = (func, eqn, gf)
 
 if vrb:
     print("Loaded", len(modelReactions), "reactions", file=sys.stderr)
@@ -68,5 +70,7 @@ print("The biomass reaction has a flux of", value,
       "--> Growth:", growth, file=sys.stderr)
 
 # Save flux values
+print("reaction\tflux\tfunction\tequation")
 for rxn, val in PyFBA.lp.col_primal_hash().items():
-    print(rxn, val, sep="\t")
+    func, eqn, gf = modelInfo[rxn]
+    print(rxn, val, func, eqn, sep="\t")
