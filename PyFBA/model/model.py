@@ -172,6 +172,22 @@ class Model:
             f.write("\n")
 
 
+    def output_subsystem(self, f):
+        """
+        Output subsystem information based on roles.
+
+        :param f: File object to print to
+        :type f: file
+        """
+        # Get subsystem information
+        roles_to_ss = PyFBA.parse.roles_to_subsystem(set(self.roles.keys()))
+        f.write("function\tsubsystem\tsubcategory\tcategory\n")
+        for role, info in roles_to_ss.items():
+            for i in info:
+                cat, subcat, ss = i
+                f.write("{}\t{}\t{}\t{}\n".format(role, ss, subcat, cat))
+
+
     def run_fba(self, media_file, biomass_reaction=None):
         """
         Run FBA on model and return status, value, and growth.
