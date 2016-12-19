@@ -37,7 +37,7 @@ class Model:
         self.reactions = {}
         self.compounds = {}
         self.gapfilled_media = set()
-        self.gf_reactions = {}
+        self.gf_reactions = set()
         self.biomass_reaction = None
         self.organism_type = organism_type
 
@@ -550,15 +550,18 @@ class Model:
         add_to_model_rxns = set()
         add_to_model_roles = {}
         gf_reactions = PyFBA.filters.reactions_to_roles(gapfilled_keep, verb)
-        for rxn, rls in gapfilled_keep.items():
+        for rxn in gapfilled_keep:
             if rxn in original_reactions:
                 continue
             self.gf_reactions.add(rxn)  # Add to model gf_reactions set
             add_to_model_rxns.add(reactions[rxn])
-            for rl in rls:
-                if rl not in add_to_model_roles:
-                    add_to_model_roles[rl] = set()
-                add_to_model_roles[rl].add(rxn)
+            try:
+                for rl in gf_reactions[rxn]:
+                    if rl not in add_to_model_roles:
+                        add_to_model_roles[rl] = set()
+                    add_to_model_roles[rl].add(rxn)
+            except KeyError:
+                pass
 
         # Add to this model
         self.add_reactions(add_to_model_rxns)
