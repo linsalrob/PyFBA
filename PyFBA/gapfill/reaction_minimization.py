@@ -89,13 +89,17 @@ def iterate_reactions_to_run(base_reactions, optional_reactions, compounds, reac
 
     num_elements = len(optional_reactions)
     required_optionals = set()
+    i = 1
 
     for r in range(num_elements):
         removed_reaction = optional_reactions.pop()
         r2r = base_reactions.union(optional_reactions).union(required_optionals)
+        if verbose:
+            sys.stderr.write("Single reaction iteration {} of {}: Attempting without {}\n".format(i, num_elements, removed_reaction))
         status, value, growth = PyFBA.fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
         if not growth:
             required_optionals.add(removed_reaction)
+        i += 1
 
     return list(required_optionals)
 
@@ -198,7 +202,7 @@ def minimize_additional_reactions(base_reactions, optional_reactions, compounds,
                 # Otherwise, we can we split the list unevenly and see if we get growth
                 uneven_test = True
                 if len(current_rx_list) < 20:
-                    left = iterate_reactions_to_run(base_reactions, optional_reactions, compounds, reactions, media, biomass_eqn, verbose)
+                    left = iterate_reactions_to_run(base_reactions, current_rx_list, compounds, reactions, media, biomass_eqn, verbose)
                     right = []
                     test = False
                 else:
