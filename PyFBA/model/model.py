@@ -2,6 +2,7 @@ from __future__ import print_function
 import PyFBA
 import copy
 import sys
+from os.path import basename
 
 class Model:
     """
@@ -566,6 +567,9 @@ class Model:
         # Add to this model
         self.add_reactions(add_to_model_rxns)
         self.add_roles(add_to_model_roles)
+
+        # Add media to gap-filled media
+        self.gapfilled_media.add(basename(media_file))
 
         # Run FBA
         status, value, growth = self.run_fba(media_file)
