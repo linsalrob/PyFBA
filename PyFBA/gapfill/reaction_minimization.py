@@ -95,10 +95,14 @@ def iterate_reactions_to_run(base_reactions, optional_reactions, compounds, reac
         removed_reaction = optional_reactions.pop()
         r2r = base_reactions.union(optional_reactions).union(required_optionals)
         if verbose:
-            sys.stderr.write("Single reaction iteration {} of {}: Attempting without {}\n".format(i, num_elements, removed_reaction))
+            sys.stderr.write("Single reaction iteration {} of {}: Attempting without {}: {}\n".format(i, num_elements, removed_reaction, reactions[removed_reaction].equation))
         status, value, growth = PyFBA.fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
         if not growth:
+            if verbose:
+                sys.stderr.write("Result: REQUIRED\n")
             required_optionals.add(removed_reaction)
+        elif verbose:
+            sys.stderr.write("Result: NOT REQUIRED\n")
         i += 1
 
     return list(required_optionals)
@@ -209,19 +213,24 @@ def minimize_additional_reactions(base_reactions, optional_reactions, compounds,
                     percent = 40
                     left, right = PyFBA.gapfill.bisections.percent_split(current_rx_list, percent)
                     while uneven_test and len(left) > 0 and len(right) > 0:
-                        r2r = base_reactions.union(set(left))
-                        status, value, lgrowth = PyFBA.fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
+                        #### Not testing left side anymore! The left side is always giving some of its
+                        #### reactions to the right side. Decreasing the number of reactions will never
+                        #### result in growth if it didn't grow with the larger number of reactions.
+                        #### Will leave it commented out for now.
+                        #r2r = base_reactions.union(set(left))
+                        #status, value, lgrowth = PyFBA.fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
                         r2r = base_reactions.union(set(right))
                         status, value, rgrowth = PyFBA.fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
                         if verbose:
                             sys.stderr.write(
                                 "Iteration: {} Try: {} Length: {} and {}".format(itera, tries, len(left), len(right)) +
                                 " Growth: {} and {}\n".format(lgrowth, rgrowth))
-                        if lgrowth:
-                            tries = 0
-                            current_rx_list = left
-                            uneven_test = False
-                        elif rgrowth:
+                        #if lgrowth:
+                        #    tries = 0
+                        #    current_rx_list = left
+                        #    uneven_test = False
+                        #elif rgrowth:
+                        if rgrowth:
                             tries = 0
                             current_rx_list = right
                             uneven_test = False
