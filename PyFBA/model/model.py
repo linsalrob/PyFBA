@@ -253,7 +253,9 @@ class Model:
             print("Initial FBA run results in growth; no need to gap-fill on given media")
             print("Biomass flux value:", value)
             sys.stdout.flush()
-            return False
+            # Add media to gap-filled media
+            self.gapfilled_media.add(basename(media_file))
+            return True
 
 
         # Read in media file
