@@ -10,8 +10,10 @@ from reaction_minimization import minimize_additional_reactions
 from reaction_minimization import minimize_by_accuracy
 from roles import suggest_from_roles
 from subsystem import suggest_reactions_from_subsystems
+from ecnumbers import suggest_reactions_using_ec
 
-__all__ = ['suggest_from_media',
+__all__ = ['suggest_reactions_using_ec',
+           'suggest_from_media',
            'limit_reactions_by_compound',
            'suggest_by_compound',
            'suggest_essential_reactions', 'suggest_reactions_from_subsystems',

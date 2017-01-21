@@ -67,3 +67,32 @@ def read_assigned_functions(assigned_functions_file):
             p = l.strip().split("\t")
             function[p[0]] = roles_of_function(p[1])
     return function
+
+
+def roles_to_subsystem(roles):
+    """
+    Find the subsystem categories for a set of functional roles.
+
+    :param roles: The functional roles
+    :type roles: set
+    :rtype: dict of sets of 3-tuples
+    """
+    ss_data = {}
+    with open(os.path.join(os.path.dirname(__file__), "..", "util", "full_roles_ss.tsv")) as f:
+        for l in f:
+            func, cat, subcat, ss = l.rstrip("\n").split("\t")
+            ss_data[func] = (cat, subcat, ss)
+
+    roles_to_ss = {}
+    for r in roles:
+        roles_to_ss[r] = set()
+        if r not in ss_data:
+            roles_to_ss[r].add(("Unknown", "Unknown", "Unknown"))
+        else:
+            cat, subcat, ss = ss_data[r]
+            cat = cat if cat != "" else "Unknown"
+            subcat = subcat if subcat != "" else "Unknown"
+            ss = ss if ss != "" else "Unknown"
+            roles_to_ss[r].add((cat, subcat, ss))
+
+    return roles_to_ss
