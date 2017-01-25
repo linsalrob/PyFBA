@@ -47,8 +47,8 @@ class TestModelSeedParsing(unittest.TestCase):
         allkeys = enz.keys()
         self.assertGreaterEqual(len(allkeys), 19000)
 
-        self.assertIn('direction', enz[allkeys[0]], "The model seed template data should contain direction")
-        self.assertIn('enzymes', enz[allkeys[0]], "The model seed template data should contain enzymes")
+        self.assertIn('direction', enz[list(allkeys)[0]], "The model seed template data should contain direction")
+        self.assertIn('enzymes', enz[list(allkeys)[0]], "The model seed template data should contain enzymes")
 
     def test_compounds(self):
         """

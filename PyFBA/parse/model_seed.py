@@ -365,7 +365,7 @@ def complexes(cf="SOLRDump/TemplateReactions.tsv", verbose=False):
 
     cplxes = {}
     try:
-        with open(os.path.join(MODELSEED_DIR, cf), 'r') as rin:
+        with open(os.path.join(MODELSEED_DIR, cf), 'r', errors='replace') as rin:
             for l in rin:
                 if l.startswith("#") or l.startswith('id'):
                     # ignore any comment lines

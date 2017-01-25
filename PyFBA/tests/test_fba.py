@@ -36,7 +36,7 @@ class TestFBA(unittest.TestCase):
         """Testing the fba external reactions"""
         compounds, reactions = PyFBA.parse.model_seed.reactions()
         # create a few external compounds
-        cpds = compounds.keys()[0:10]
+        cpds = list(compounds.keys())[0:10]
         model_cpds = set()
         for c in cpds:
             new_comp = copy.copy(compounds[c])
@@ -54,13 +54,17 @@ class TestFBA(unittest.TestCase):
     def test_create_sm(self):
         """Test the stoichiometric matrix"""
 
-        reactions2run = self.__class__.reactions.keys()[0:20]
+        reactions2run = list(self.__class__.reactions.keys())[0:20]
         biomass_equation = PyFBA.metabolism.biomass_equation('gram_negative')
         cp, rc, reactions = PyFBA.fba.create_stoichiometric_matrix(reactions2run, self.__class__.reactions,
                                                              self.__class__.compounds, set(), biomass_equation)
-        self.assertEqual(len(cp), 102)
-        self.assertEqual(len(rc), 23)
-        self.assertEqual(len(reactions), 34710)
+        # this allows some wiggle room as the data changes
+        self.assertGreaterEqual(len(cp), 100)
+        self.assertLessEqual(len(cp), 150)
+        self.assertGreaterEqual(len(rc), 20)
+        self.assertLessEqual(len(rc), 30)
+        self.assertGreaterEqual(len(reactions), 34000)
+        self.assertLessEqual(len(reactions), 35000)
 
     def test_run_fba(self):
         """Test running the fba. We build a run a complete FBA based on reaction_list.txt"""

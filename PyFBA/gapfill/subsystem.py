@@ -39,7 +39,7 @@ def suggest_reactions_from_subsystems(reactions, reactions2run, ssfile=SS_FILE_P
     # read the ss file
     subsys_to_roles = {}
     roles_to_subsys = {}
-    with open(ssfile, 'r') as sin:
+    with open(ssfile, 'r', errors='replace') as sin:
         for l in sin:
             if l.startswith('#'):
                 continue
