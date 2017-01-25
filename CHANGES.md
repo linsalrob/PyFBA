@@ -1,3 +1,15 @@
+# Version 1.1
+
+### Updated all the code to work with Python 3.
+However, this breaks compatibility with Python 2 because of the "errors" keyword in open.
+
+The main changes include relative imports, a new class in the tests/ package to allow deep assertions,
+and using this type of construct with the open command to ignore unicode errors in ModelSeed:
+
+	with open(ssfile, 'r', errors='replace') as sin:
+
+
+
 # Version 1.0
 
 ### Added the iPython Notebook directory
