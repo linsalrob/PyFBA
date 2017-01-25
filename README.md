@@ -38,6 +38,8 @@ To update to Python 3 from a working Python 2 installation, you will need to rei
 [github](https://github.com/bradfordboyle/pyglpk). Checkout that code, `cd` into the directory, and then install it 
 using `python3 setup.py`. Everything else should work just fine.
 
+If you `cd` into the PyBFA directory, `nosetests3 tests/` should successfully run 77 tests with no errors.
+
 ### Copyright and License
 
 PyFBA is copyright Daniel Cuevas, Taylor O'Connell, and Rob Edwards, and is released under the MIT license.
