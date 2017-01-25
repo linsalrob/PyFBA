@@ -29,6 +29,15 @@ Once you have installed GLPK, PyGLPK, and PyFBA, you will most likely want to bu
 model, and test it for growth on different media. We have [detailed instructions](GETTING_STARTED.md) that walk you through the step-by-step
 procedures that you need to use to run flux balance analysis on your own genome.
 
+## Updating to Python 3
+
+This branch of PyFBA is compatible with Python 3, however that currently breaks compatibility with Python 2 because we use
+an open syntax that is not supported in earlier Python versions.
+
+To update to Python 3 from a working Python 2 installation, you will need to reinstall pyGLPK available from
+[github](https://github.com/bradfordboyle/pyglpk). Checkout that code, `cd` into the directory, and then install it 
+using `python3 setup.py`. Everything else should work just fine.
+
 ### Copyright and License
 
 PyFBA is copyright Daniel Cuevas, Taylor O'Connell, and Rob Edwards, and is released under the MIT license.
