@@ -12,6 +12,10 @@ and using this type of construct with the open command to ignore unicode errors 
 
 # Version 1.0
 
+## Added a CITATION.md
+
+Please cite us if you use PyFBA
+
 ### Added the iPython Notebook directory
 Example code showing:
 
