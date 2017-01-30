@@ -22,7 +22,12 @@ def suggest_from_media(compounds, reactions, reactions2run, media, verbose=False
     # which compounds are in our media
     suggest = set()
     for c in media:
-        rxns = compounds[str(c)].all_reactions()
+        try:
+            rxns = compounds[str(c)].all_reactions()
+        except KeyError:
+            if verbose:
+                sys.stderr.write(str(c) + " does not exist in the database, probably because of its compartment\n")
+            continue
         importrxn = rxns.intersection(reactions2run)
         if len(importrxn) == 0:
             if verbose:

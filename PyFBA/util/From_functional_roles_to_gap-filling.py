@@ -57,7 +57,7 @@ def outputFlux(fn, sfx):
     fh.close()
 
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(description="Build model from roles then gap-fill model")
 parser.add_argument("functions", help="Assigned functions file")
 parser.add_argument("cgfunctions", help="Closest genomes functions file")
 parser.add_argument("media", help="Media file")
