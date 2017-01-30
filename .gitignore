@@ -61,3 +61,6 @@ target/
 
 # temporary files
 temp
+
+# ipython notebooks
+iPythonNotebooks/.ipynb_checkpoints/
