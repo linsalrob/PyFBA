@@ -1,10 +1,10 @@
 
 
-import fba
-import filters
-import gapfill
-import metabolism
-import parse
-import model
+import PyFBA.fba
+import PyFBA.filters
+import PyFBA.gapfill
+import PyFBA.metabolism
+import PyFBA.parse
+import PyFBA.model
 
 __version__ = 0.100
