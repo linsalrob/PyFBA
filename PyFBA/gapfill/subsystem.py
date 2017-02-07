@@ -1,5 +1,6 @@
 import os
 import sys
+import io
 
 import PyFBA
 
@@ -39,8 +40,11 @@ def suggest_reactions_from_subsystems(reactions, reactions2run, ssfile=SS_FILE_P
     # read the ss file
     subsys_to_roles = {}
     roles_to_subsys = {}
-    with open(ssfile, 'r', errors='replace') as sin:
+    with io.open(ssfile, 'r', encoding="utf-8", errors='replace') as sin:
         for l in sin:
+            # If using Python2, must convert unicode object to str object
+            if sys.version_info.major == 2:
+                l = l.encode('utf-8', 'replace')
             if l.startswith('#'):
                 continue
             p = l.strip().split("\t")
