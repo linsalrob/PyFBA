@@ -14,6 +14,7 @@ import copy
 import os
 import re
 import sys
+import io
 
 import PyFBA
 
@@ -365,8 +366,14 @@ def complexes(cf="SOLRDump/TemplateReactions.tsv", verbose=False):
 
     cplxes = {}
     try:
-        with open(os.path.join(MODELSEED_DIR, cf), 'r') as rin:
+        # io.open() to enable the encoding and errors arguments when using Python2
+        # io.open() will read lines as unicode objects instead of str objects
+        # In Python2, unicode objects are equivalent to Python3 str objects
+        with io.open(os.path.join(MODELSEED_DIR, cf), 'r', encoding='utf-8', errors='replace') as rin:
             for l in rin:
+                # If using Python2, must convert unicode object to str object
+                if sys.version_info.major == 2:
+                    l = l.encode('utf-8', 'replace')
                 if l.startswith("#") or l.startswith('id'):
                     # ignore any comment lines
                     continue

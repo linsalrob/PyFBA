@@ -1,16 +1,16 @@
-from bisections import bisect, percent_split, optimize_split_by_rclust
-from essentials import suggest_essential_reactions
-from limit_reactions import limit_reactions_by_compound
-from maps_to_proteins import suggest_reactions_without_proteins, suggest_reactions_with_proteins
-from media import suggest_from_media
-from orphan_compound import suggest_by_compound
-from probability import compound_probability
-from reaction_minimization import calculate_precision_recall
-from reaction_minimization import minimize_additional_reactions
-from reaction_minimization import minimize_by_accuracy
-from roles import suggest_from_roles
-from subsystem import suggest_reactions_from_subsystems
-from ecnumbers import suggest_reactions_using_ec
+from .bisections import bisect, percent_split, optimize_split_by_rclust
+from .essentials import suggest_essential_reactions
+from .limit_reactions import limit_reactions_by_compound
+from .maps_to_proteins import suggest_reactions_without_proteins, suggest_reactions_with_proteins
+from .media import suggest_from_media
+from .orphan_compound import suggest_by_compound
+from .probability import compound_probability
+from .reaction_minimization import calculate_precision_recall
+from .reaction_minimization import minimize_additional_reactions
+from .reaction_minimization import minimize_by_accuracy
+from .roles import suggest_from_roles
+from .subsystem import suggest_reactions_from_subsystems
+from .ecnumbers import suggest_reactions_using_ec
 
 __all__ = ['suggest_reactions_using_ec',
            'suggest_from_media',
