@@ -7,7 +7,7 @@ cd PyFBA
 nosetests tests
 ```
 
-We have updated PyFBA to work with Python version 3, and you should also be able to test that using nosetests:
+We have updated PyFBA to work with [Python 3](https://www.python.org/download/releases/3.0/), and you should also be able to test that using nosetests:
 
 ```
 cd PyFBA
