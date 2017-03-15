@@ -37,10 +37,15 @@ GNU, and build it:
     make test 
     make install
 
-At this point, you need to add `/usr/local/lib` to your `LD_LIBRARY_PATH` and then continue with the PyGLPK installation
-below
+At this point, you need to add `/usr/local/lib` to your `LD_LIBRARY_PATH` and then continue with the PyGLPK installation. 
 
-``` export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib python2.7 setup.py build python2.7 setup.py install ```
+Check out the [GLPK code](https://github.com/bradfordboyle/pyglpk) and then install glpK:
+
+``` 
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+python3 setup.py build 
+python3 setup.py install
+```
 
 
 ### Installing GLPK on Mac OSX 10.10 Yosemite
@@ -70,11 +75,20 @@ clear. We will have detailed installation instructions shortly.
 You need to install [PyGLPK](https://github.com/bradfordboyle/pyglpk). Make sure that you install [this fork of
 PyGLPK](https://github.com/bradfordboyle/pyglpk) as the original has not worked for quite some time!
 
+Clone the code, and then install it:
+
+```
+git clone https://github.com/bradfordboyle/pyglpk.git
+cd pyglpk
+python3 setup.py build
+python3 setup.py install
+```
+
 ## Install the ModelSEEDDatabase
 
 We rely on the [Model SEED](http://www.theseed.org/models) to provide the biochemistry tables that we use (although we 
 have designed PyFBA with the potential to use biochemistry tables from other sources if they become publicly 
-available!). To get the latest ModelSEED database you need to clone their GIT repository to a destination on your hard 
+available!). To get the latest ModelSEED database you need to clone [their GIT repository](https://github.com/ModelSEED/ModelSEEDDatabase) to a destination on your hard 
 drive. You then need to set the [ModelSEEDDatabase environment variable](#set_the_environment_variables) as explained 
 below.
 
@@ -98,8 +112,8 @@ and lxml installed to read the SBML files.
 with `pip install`:
 
 ```
-    pip install python-libsbml-experimental
-    pip install lxml
+    pip3 install python-libsbml-experimental
+    pip3 install lxml
 ````
 
 ### Beautiful Soup 4
@@ -109,7 +123,7 @@ to make life easy! `setup.py` should try and install this for you, but if you wi
 be able to do so with `pip intall`:
 
 ```
-   pip install beautifulsoup4
+   pip3 install beautifulsoup4
 ```
 
 # Install PyFBA
@@ -117,7 +131,7 @@ be able to do so with `pip intall`:
 You should be able to install PyFBA from [PyPI](https://pypi.python.org) using `pip install`:
 
 ```
-    pip install pyfba
+    pip3 install pyfba
 ```
 
 If that does not work, you can clone the git hub repository and run setup.py manually:
@@ -126,15 +140,15 @@ If that does not work, you can clone the git hub repository and run setup.py man
     git clone https://github.com/linsalrob/PyFBA.git
     cd PyFBA
     # run the tests
-    python setup.py test
+    python3 setup.py test
     # install the code
-    python setup.py install
+    python3 setup.py install
 ```
 
 If you do not have administrative (root) access to your machine you can also install the code in a 
 [local directory](https://docs.python.org/2/install/#alternate-installation):
 ```
-    python setup.py install --user
+    python3 setup.py install --user
 ```
 
 
