@@ -38,6 +38,10 @@ GNU, and build it:
     make install
 
 At this point, you need to add `/usr/local/lib` to your `LD_LIBRARY_PATH` and then continue with the PyGLPK installation. 
+There are two ways to do this:
+1. As root, edit `vi /etc/ld.so.conf` and add a line `/usr/local/lib`. Then run the command `ldconfig`
+2. As a user, add a line `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib` to your ~/.bashrc file
+
 
 Check out the [GLPK code](https://github.com/bradfordboyle/pyglpk) and then install glpK:
 
@@ -92,6 +96,14 @@ available!). To get the latest ModelSEED database you need to clone [their GIT r
 drive. You then need to set the [ModelSEEDDatabase environment variable](#set_the_environment_variables) as explained 
 below.
 
+For example, you may need to use:
+
+```
+export ModelSEEDDatabase=$HOME/ModelSEEDDatabase
+```
+
+Make sure you do this or the tests will fail!
+
 ## Python modules
 
 PyFBA depends on a few different Python modules:
@@ -99,6 +111,7 @@ PyFBA depends on a few different Python modules:
     * [libSBML](http://sbml.org/)
     * [Beautiful Soup 4](http://www.crummy.com/software/BeautifulSoup/)
     * [PyGLPK](https://github.com/bradfordboyle/pyglpk)
+    * [nose](http://nose.readthedocs.io/en/latest/)
     
 As noted [above](#install_pyglpk), you should install PyGLPK from [GitHub](https://github.com/bradfordboyle/pyglpk). 
 However, `setup.py` will try and do the right thing for you.
@@ -126,6 +139,14 @@ be able to do so with `pip intall`:
    pip3 install beautifulsoup4
 ```
 
+### Nose
+
+We use nose for testing. You should be able to install this with 
+
+```
+   nosetests-3.4 PyFBA/tests
+```
+
 # Install PyFBA
 
 You should be able to install PyFBA from [PyPI](https://pypi.python.org) using `pip install`:
@@ -140,6 +161,8 @@ If that does not work, you can clone the git hub repository and run setup.py man
     git clone https://github.com/linsalrob/PyFBA.git
     cd PyFBA
     # run the tests
+    nosetests-3.4 PyFBA/tests/
+
     python3 setup.py test
     # install the code
     python3 setup.py install
