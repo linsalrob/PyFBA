@@ -1,3 +1,8 @@
+# Version 1.2
+
+### Crucial edit to setup.py file
+Adding PyFBA.model package to list.
+
 # Version 1.1
 
 ### Updated all the code to work with Python 3.
