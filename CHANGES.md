@@ -8,7 +8,37 @@ and using this type of construct with the open command to ignore unicode errors 
 
 	with open(ssfile, 'r', errors='replace') as sin:
 
+### Added function to obtain Model SEED complexes from a set of roles
 
+* PyFBA/filters/roles_and_complexes.py
+
+### Added gap-fill step to add reactions based on existent EC numbers
+
+* PyFBA/gapfill/ecnumbers.py
+
+### Optimized and fixed bugs during gap-fill reaction minimization process
+
+* PyFBA/gapfill/reaction_minimization.py
+
+### New Model class objects
+
+Model object contains functionality to make common processes easier to facilitate.
+
+* Generate model from RAST annotations
+* Save model to hard disk location
+* Load model from hard disk location
+* Run FBA
+* Run FBA and obtain flux values
+* Run FBA and obtain flux values according to SEED subsystems
+* Run gap-fill
+* Remember which reactions were gap-filled reactions and which media
+
+### New iPython Notebooks
+
+* Find a metabolite.ipynb
+* PATRIC to FBA.ipynb
+* Gap-fill_a_model.ipynb
+* Saving_and_loading_a_model.ipynb
 
 # Version 1.0
 

@@ -7,4 +7,4 @@ import PyFBA.metabolism
 import PyFBA.parse
 import PyFBA.model
 
-__version__ = 0.100
+__version__ = 1.1
