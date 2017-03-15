@@ -1,6 +1,6 @@
 import sys
-from compound import Compound
-from reaction import Reaction
+from .compound import Compound
+from .reaction import Reaction
 
 
 def standard_eqn():

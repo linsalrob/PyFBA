@@ -1,5 +1,4 @@
 import os
-
 import sys
 
 import PyFBA
@@ -24,7 +23,7 @@ def read_media_file(mediaf):
         if 'PYFBA_MEDIA_DIR' in os.environ and os.path.exists(os.path.join(os.environ['PYFBA_MEDIA_DIR'], mediaf)):
             mediaf = os.path.join(os.environ['PYFBA_MEDIA_DIR'], mediaf)
         else:
-            raise IOError("Media file {} can not be found\n".format(mediaf))
+            raise IOError("Media file {} can not be found\nPlease set the environment variable PYFBA_MEDIA_DIR to point to a directory with all the media files".format(mediaf))
 
     with open(mediaf, 'r') as f:
         for li, l in enumerate(f):

@@ -4,18 +4,19 @@ A parser for the SEED biochemistry modules that are available on Github
 at https://github.com/ModelSEED/ModelSEEDDatabase. We have also included
 them in our repo as a submodule.
 
-We parse compounds from the compounds file in Biochemistry. Locations 
+We parse compounds from the compounds file in Biochemistry. Locations
 are currently hardcoded because the ModelSeedDirectory does not contain
 a mapping for compartments (the mapping files do not have the integers
 used in the reactions file!).
 """
 
-
-import sys
+import copy
 import os
 import re
+import sys
+import io
+
 import PyFBA
-import copy
 
 MODELSEED_DIR = ""
 if 'ModelSEEDDatabase' in os.environ:
@@ -124,7 +125,7 @@ def compounds(compounds_file=None):
 
 def location():
     """Parse or return the codes for the locations. The ModelSEEDDatabase
-    uses codes, and has a compartments file but they do not match up. 
+    uses codes, and has a compartments file but they do not match up.
 
     This is currently hardcoded, but is put here so we can rewrite it as
     if the compartments file is updated
@@ -143,7 +144,7 @@ def location():
 def reactions(organism_type="", rctf='Biochemistry/reactions.master.tsv', verbose=False):
     """
     Parse the reaction information in Biochemistry/reactions.master.tsv
-    
+
     One reaction ID is associated with one equation and thus many
     compounds and parts.
 
@@ -349,7 +350,7 @@ def complexes(cf="SOLRDump/TemplateReactions.tsv", verbose=False):
     a many:many relationship here
 
     Read the complex file and return a hash of the complexes where
-    key is the complex id and the value is a set of reactions that the 
+    key is the complex id and the value is a set of reactions that the
     complex is involved in.
 
     You can provide an optional complexes file (cf) if you don't like
@@ -362,11 +363,17 @@ def complexes(cf="SOLRDump/TemplateReactions.tsv", verbose=False):
     :return A dict of the complexes where the key is the complex id and the value is the set of reactions
     :rtype: dict
     """
-    
+
     cplxes = {}
     try:
-        with open(os.path.join(MODELSEED_DIR, cf), 'r') as rin:
+        # io.open() to enable the encoding and errors arguments when using Python2
+        # io.open() will read lines as unicode objects instead of str objects
+        # In Python2, unicode objects are equivalent to Python3 str objects
+        with io.open(os.path.join(MODELSEED_DIR, cf), 'r', encoding='utf-8', errors='replace') as rin:
             for l in rin:
+                # If using Python2, must convert unicode object to str object
+                if sys.version_info.major == 2:
+                    l = l.encode('utf-8', 'replace')
                 if l.startswith("#") or l.startswith('id'):
                     # ignore any comment lines
                     continue
@@ -388,6 +395,46 @@ def complexes(cf="SOLRDump/TemplateReactions.tsv", verbose=False):
         sys.exit(-1)
 
     return cplxes
+
+
+def roles_ec(rf="SOLRDump/ComplexRoles.tsv"):
+    """
+    Read the roles and EC and return a hash of the roles and EC where the id
+    is the role name or EC number and the value is the set of complex IDs that
+    the role is inolved in.
+
+    One role or EC can be involved in many complexes.
+
+    You can provide an alternate roles file (rf) if you don't like the
+    default.
+
+    :param rf: an alternate roles file
+    :type rf: str
+    :return: A dict of role name and complex ids that the roles is involved with
+    :rtype: dict
+
+    """
+    rles_ec = {}
+    try:
+        with open(os.path.join(MODELSEED_DIR, rf), 'r') as rin:
+            for l in rin:
+                if l.startswith("#") or l.startswith('complex_id'):
+                    # ignore any comment lines
+                    continue
+                p = l.strip().split("\t")
+                if p[5] not in rles_ec:
+                    rles_ec[p[5]] = set()
+                rles_ec[p[5]].add(p[0])
+
+                # Try to add EC number if it exists in role name
+                for ecno in re.findall('[\d\-]+\.[\d\-]+\.[\d\-]+\.[\d\-]+', l):
+                    if ecno not in rles_ec:
+                        rles_ec[ecno] = set()
+                    rles_ec[ecno].add(p[0])
+    except IOError as e:
+        sys.exit("There was an error parsing " + rf + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
+
+    return rles_ec
 
 
 def roles(rf="SOLRDump/ComplexRoles.tsv"):
@@ -458,6 +505,8 @@ def enzymes(verbose=False):
             if complexid not in enzs:
                 enzs[complexid] = PyFBA.metabolism.Enzyme(complexid)
             enzs[complexid].add_roles({rolename})
+            for ecno in re.findall('[\d\-]+\.[\d\-]+\.[\d\-]+\.[\d\-]+', rolename):
+                enzs[complexid].add_ec(ecno)
 
     for complexid in cmplxset:
         if complexid not in enzs:
@@ -471,7 +520,7 @@ def enzymes(verbose=False):
 
     return enzs
 
-    
+
 def compounds_reactions_enzymes(organism_type='', verbose=False):
     """
     Convert each of the roles and complexes into a set of enzymes, and
@@ -507,6 +556,8 @@ def compounds_reactions_enzymes(organism_type='', verbose=False):
             if complexid not in enzs:
                 enzs[complexid] = PyFBA.metabolism.Enzyme(complexid)
             enzs[complexid].add_roles({rolename})
+            for ecno in re.findall('[\d\-]+\.[\d\-]+\.[\d\-]+\.[\d\-]+', rolename):
+                enzs[complexid].add_ec(ecno)
 
     for complexid in cmplxset:
         if complexid not in enzs:

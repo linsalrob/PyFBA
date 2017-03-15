@@ -1,5 +1,5 @@
 import sys
-
+import re
 import PyFBA
 
 
@@ -27,7 +27,7 @@ def reactions_to_roles(reaction_set, verbose=False):
     cmpxs = PyFBA.parse.model_seed.complexes()
     # key is role and value is all complexes
     roles = PyFBA.parse.model_seed.roles()
-    
+
     rct2cmpx = {}
     for c in cmpxs:
         for r in cmpxs[c]:
@@ -45,7 +45,7 @@ def reactions_to_roles(reaction_set, verbose=False):
     roles = {}
     for r in reaction_set:
         if r not in rct2cmpx:
-            if verbose: 
+            if verbose:
                 sys.stderr.write("ERROR " + r + " not found\n")
             continue
         roles[r] = set()
@@ -64,7 +64,7 @@ def roles_to_reactions(roles, verbose=False):
     """
     Convert between roles and reactions using the model seed data
 
-    For a set of roles return a hash where the key is the role and 
+    For a set of roles return a hash where the key is the role and
     the value is the set of reactions that role is involved in.
 
     :param roles: A set of roles that we want to convert to reaction IDs
@@ -99,7 +99,7 @@ def roles_to_reactions(roles, verbose=False):
         for c in seedroles[r]:
             if c not in cmpxs:
                 if verbose:
-                    # this occurs because there are reactions like cpx.1896 where we don't yet have a
+                    # this occurs because there are reactions like cpx.1898 where we don't yet have a
                     # reaction for the complex
                     sys.stderr.write("ERROR: " + c + " was not found in the complexes file, but is from a reaction\n")
                 continue
@@ -107,7 +107,7 @@ def roles_to_reactions(roles, verbose=False):
                 rcts[r].add(rc)
 
     return rcts
-    
+
 
 if __name__ == '__main__':
     try:
@@ -123,5 +123,5 @@ if __name__ == '__main__':
         hs = reactions_to_roles(rx)
 
     for h in hs:
-        print(h + "\t" + ("\n" + h + "\t").join(hs[h])) 
+        print(h + "\t" + ("\n" + h + "\t").join(hs[h]))
 

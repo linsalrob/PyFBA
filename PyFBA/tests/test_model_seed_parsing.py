@@ -47,8 +47,8 @@ class TestModelSeedParsing(unittest.TestCase):
         allkeys = enz.keys()
         self.assertGreaterEqual(len(allkeys), 19000)
 
-        self.assertIn('direction', enz[allkeys[0]], "The model seed template data should contain direction")
-        self.assertIn('enzymes', enz[allkeys[0]], "The model seed template data should contain enzymes")
+        self.assertIn('direction', enz[list(allkeys)[0]], "The model seed template data should contain direction")
+        self.assertIn('enzymes', enz[list(allkeys)[0]], "The model seed template data should contain enzymes")
 
     def test_compounds(self):
         """
@@ -56,7 +56,7 @@ class TestModelSeedParsing(unittest.TestCase):
         """
 
         cmps = PyFBA.parse.model_seed.compounds()
-        self.assertEqual(len(cmps), 27586, 'The compounds list has changed. Most likely the model seed has been ' +
+        self.assertEqual(len(cmps), 27587, 'The compounds list has changed. Most likely the model seed has been ' +
                          'updated and the test code is wrong!')
 
     def test_locations(self):

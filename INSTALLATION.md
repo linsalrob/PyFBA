@@ -47,14 +47,14 @@ below
 
 Unfortunately, the easiest way is to build glpk from source
 
-Download the following file: http://ftp.gnu.org/gnu/glpk/glpk-4.47.tar.gz and then open a Terminal and install GLPK:
+Download the latest version of GLPK from http://ftp.gnu.org/gnu/glpk/ and then open a Terminal and install GLPK:
 
     mkdir glpk_install
     cd glpk_install
     # Move tar file here to this directory 
-    mv ~/Downloads/glpk-4.47.tar.gz ./ 
-    tar xzf glpk-4.47.tar.gz 
-    cd glpk-4.47
+    mv ~/Downloads/glpk-*.tar.gz ./ 
+    tar xzf glpk-*.tar.gz 
+    cd glpk-VERSION  # NOTE: Replace VERSION with the version you choose.
     ./configure
     make 
     make test 

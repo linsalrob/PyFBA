@@ -1,4 +1,5 @@
 import unittest
+from PyFBA.tests.assertDeepAlmostEqual import assertDeepAlmostEqual
 from PyFBA import lp
 
 """
@@ -126,7 +127,8 @@ class TestGLPKSolver(unittest.TestCase):
         status, result = lp.solve()
         col_pri = {'y': 66.66666666666666, 'x': 33.333333333333336, 'z': 0.0}
         col_res = lp.col_primal_hash()
-        self.assertEqual(col_pri, col_res)
+        assertDeepAlmostEqual(self, col_pri, col_res, places=5)
+        #self.assertEqual(col_pri, col_res)
 
     def test_primals(self):
         """Test getting the primals back as a list"""
@@ -145,7 +147,8 @@ class TestGLPKSolver(unittest.TestCase):
         status, result = lp.solve()
         col_pri = [33.333333333333336, 66.66666666666666, 0.0]
         col_res = lp.col_primals()
-        self.assertEqual(col_pri, col_res)
+        assertDeepAlmostEqual(self, col_pri, col_res, places=5)
+        #self.assertEqual(col_pri, col_res)
         
 
 
