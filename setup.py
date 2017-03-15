@@ -41,7 +41,7 @@ setup(
     name='PyFBA',
     version=PyFBA.__version__,
     packages=['PyFBA', 'PyFBA.lp', 'PyFBA.fba', 'PyFBA.parse', 'PyFBA.tests', 'PyFBA.filters', 'PyFBA.gapfill',
-              'PyFBA.metabolism'],
+              'PyFBA.metabolism', 'PyFBA.model'],
     url='http://linsalrob.github.io/PyFBA/',
     license='The MIT License (MIT)',
     author='Rob Edwards',
