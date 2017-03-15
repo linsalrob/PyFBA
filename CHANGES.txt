@@ -1,5 +1,14 @@
 
 
+VERSION 1.2
+
+
+Crucial edit to setup.py file
+
+Adding PyFBA.model package to list.
+
+
+
 VERSION 1.1
 
 
