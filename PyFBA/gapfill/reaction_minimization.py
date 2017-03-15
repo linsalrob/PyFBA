@@ -196,6 +196,8 @@ def minimize_additional_reactions(base_reactions, optional_reactions, compounds,
             if rgrowth:
                 # the right list grows so we can use it
                 tries = 0
+                if len(right) > 5 * len(left) and len(right) != 1:
+                    shuffle(right)
                 current_rx_list = right
                 if len(right) == 1:
                     test = False
