@@ -23,6 +23,8 @@ latest biochemistry tables.
 
 Our [installation](INSTALLATION.md) page has detailed instructions on installing PyFBA and getting everything running.
 
+Vimalkumar Velayudhan from the [APC Microbiome Institute](http://apc.ucc.ie/) at the [University College](http://www.ucc.ie) in Cork, Ireland has created a [Docker image](https://hub.docker.com/r/vimalkvn/pyfba/) for PyFBA. Instructions are provided on the docker website.
+
 ## Getting Started with PyFBA
 
 Once you have installed GLPK, PyGLPK, and PyFBA, you will most likely want to build a model from a genome, gap fill that
