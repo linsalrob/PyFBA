@@ -49,15 +49,15 @@ def rxn_to_rxn_network(model, filter_threshold=100):
         cpds -= skip
 
         # Only keep compounds that are below filter threshold
-        newset = set()
+        filtered_cpds = set()
         for c in cpds:
             if filter_threshold != -1 and len(c.reactions) < filter_threshold:
-                newset.add(c)
-        cpds = newset
+                filtered_cpds.add(c)
+        cpds = filtered_cpds
 
         # For each compound, get list of reactions
-        for cpd in cpds:
-            cpd_rxns = cpd.reactions
+        for c in cpds:
+            cpd_rxns = c.reactions
             # Grab only reactions that are in the current model
             cpd_rxns &= rxnIDset
             # Make sure its own reaction ID is not included here
