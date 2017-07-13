@@ -40,7 +40,7 @@ class Network:
         """
 
         # Iterate through compounds and generate nodes
-        for c in model.compounds.values():
+        for c in model.compounds:
             self.graph.add_node(c)
         for n in self.graph.nodes():
             print(n)
