@@ -29,7 +29,6 @@ class Network:
         print("Network contains {} nodes ".format(len(self.graph)), end="")
         print("and {} edges".format(self.graph.size()))
 
-
     def __build_graph(self, model):
         """
         Build the initial graph from the Model object.
@@ -38,7 +37,6 @@ class Network:
         :type model: PyFBA.Model
         :return: None
         """
-
         # Iterate through compounds and generate nodes
         for c in model.compounds:
             self.graph.add_node(c)
@@ -67,12 +65,11 @@ class Network:
                         self.graph.add_edge(cl, cr)
                         self.graph.add_edge(cr, cl)
 
-
-    def common_compounds():
+    def common_compounds(self):
         """
         Return set of highly common compounds
         """
-        cc = ["H+", "H2O", "ATP", "ADP","Phosphate",
+        cc = ["H+", "H2O", "ATP", "ADP", "Phosphate",
               "NAD", "NADH", "NADP", "NADPH", "PPi",
               "CoA", "CO2"]
         cpds = set()
@@ -80,39 +77,3 @@ class Network:
             cpds.add(PyFBA.metabolism.Compound(c, "c"))
             cpds.add(PyFBA.metabolism.Compound(c, "e"))
         return cpds
-
-
-def clustering_coeff(network):
-    """
-    Calculate the clustering coefficient using the NetworkX library.
-
-    :param network: Network of nodes
-    :type network: PyFBA.Network
-    :return: Clustering coefficient for nodes in the network
-    :rtype: dict
-    """
-    # Check type
-    if not isinstance(network, Network):
-        raise TypeError
-
-    # Convert directed graph to undirected
-    if network.graph.is_directed():
-        return nx.clustering(network.graph.to_undirected())
-
-    return nx.clustering(network.graph)
-
-
-def avg_clustering_coeff(network):
-    """
-    Calculate the average clustering coefficient using the NetworkX library.
-
-    :param network: Network of nodes and edges
-    :type network: PyFBA.Network
-    :return: Average clustering coefficient for all nodes in the network
-    :rtype: float
-    """
-    coeffs = clustering_coeff(network)
-    if len(coeffs) == 0:
-        raise ValueError("Network is empty")
-
-    return sum(list(coeffs.values())) / len(coeffs)
