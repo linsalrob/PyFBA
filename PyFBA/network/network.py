@@ -83,4 +83,36 @@ class Network:
 
 
 def clustering_coeff(network):
-    pass
+    """
+    Calculate the clustering coefficient using the NetworkX library.
+
+    :param network: Network of nodes
+    :type network: PyFBA.Network
+    :return: Clustering coefficient for nodes in the network
+    :rtype: dict
+    """
+    # Check type
+    if not isinstance(network, Network):
+        raise TypeError
+
+    # Convert directed graph to undirected
+    if network.graph.is_directed():
+        return nx.clustering(network.graph.to_undirected())
+
+    return nx.clustering(network.graph)
+
+
+def avg_clustering_coeff(network):
+    """
+    Calculate the average clustering coefficient using the NetworkX library.
+
+    :param network: Network of nodes and edges
+    :type network: PyFBA.Network
+    :return: Average clustering coefficient for all nodes in the network
+    :rtype: float
+    """
+    coeffs = clustering_coeff(network)
+    if len(coeffs) == 0:
+        raise ValueError("Network is empty")
+
+    return sum(list(coeffs.values())) / len(coeffs)
