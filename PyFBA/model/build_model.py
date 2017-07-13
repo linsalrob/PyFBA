@@ -99,7 +99,7 @@ def save_model(model, out_dir):
     # Store compound IDs
     fname = prefix + ".compounds"
     with open(os.path.join(out_dir, fname), "w") as f:
-        f.write("\n".join(model.compounds.keys()) + "\n")
+        f.write("\n".join([str(c) for c in model.compounds]) + "\n")
 
     # Store gap-filled media
     fname = prefix + ".gfmedia"

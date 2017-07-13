@@ -14,7 +14,7 @@ class Model:
     :ivar name: Model name
     :ivar roles: A dictionary of roles as the key and sets of reaction IDs as the value
     :ivar reactions: A dictionary of reaction IDs as the key and Reaction objects as the value
-    :ivar compounds: A dictionary of compound IDs as the key and Compound objects as the value
+    :ivar compounds: A set of compound IDs Compound objects
     :ivar gapfilled_media: A set of media names this model has been gap-filled with
     :ivar gf_reactions: A set of gap-filled reaction IDs
     :ivar biomass_reaction: A reaction object representing the biomass reaction
@@ -36,7 +36,7 @@ class Model:
         self.name = str(name)
         self.roles = {}
         self.reactions = {}
-        self.compounds = {}
+        self.compounds = set()
         self.gapfilled_media = set()
         self.gf_reactions = set()
         self.biomass_reaction = None
@@ -79,8 +79,8 @@ class Model:
                     self.reactions[r.name] = r
                     # Add compounds from new reactions
                     for c in r.all_compounds():
-                        if c.name not in self.compounds:
-                            self.compounds[c.name] = c
+                        if c not in self.compounds:
+                            self.compounds.add(c)
         else:
             raise TypeError("You need to add a set of reactions to a model")
 
@@ -125,7 +125,7 @@ class Model:
         :type cpd: Compound
         :rtype: bool
         """
-        return cpd.name in self.compounds
+        return cpd in self.compounds
 
 
     def number_of_compounds(self):
@@ -202,7 +202,6 @@ class Model:
         # Check if model has a biomass reaction if none was given
         if not biomass_reaction and not self.biomass_reaction:
             raise Exception("Model has no biomass reaction, please supply one to run FBA")
-            return (None, None, None)
 
         elif not biomass_reaction:
             biomass_reaction = self.biomass_reaction
