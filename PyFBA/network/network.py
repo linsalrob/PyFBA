@@ -1,6 +1,4 @@
 from __future__ import print_function, division, absolute_import
-import sys
-import os.path
 import networkx as nx
 import PyFBA
 
@@ -40,9 +38,6 @@ class Network:
         # Iterate through compounds and generate nodes
         for c in model.compounds:
             self.graph.add_node(c)
-        for n in self.graph.nodes():
-            print(n)
-        print("Number nodes before edges: " + str(len(self.graph)))
 
         # Iterate through reactions and add edges from each reactant compound
         # to each product compound
