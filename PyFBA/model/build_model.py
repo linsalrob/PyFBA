@@ -107,11 +107,12 @@ def save_model(model, out_dir):
         if len(model.gapfilled_media) > 0:
             f.write("\n".join(model.gapfilled_media) + "\n")
 
-    # Store gap-filled reaction IDs
+    # Store gap-filled reaction, gap-fill step, and media
     fname = prefix + ".gfreactions"
     with open(os.path.join(out_dir, fname), "w") as f:
         if len(model.gf_reactions) > 0:
-            f.write("\n".join(model.gf_reactions) + "\n")
+            for rxn, gf_info in model.gf_reactions.items():
+                f.write(rxn + "\t" + gf_info[0] + "\t" + gf_info[1] + "\n")
 
 
 def load_model(in_dir, prefix):
@@ -183,17 +184,19 @@ def load_model(in_dir, prefix):
 
     # Load gap-filled reaction IDs
     fname = prefix + ".gfreactions"
-    gf_reactions = set()
+    gf_reactions = {}
     with open(os.path.join(in_dir, fname)) as f:
         for l in f:
-            gfrxn = l.rstrip("\n")
-            gf_reactions.add(gfrxn)
+            rxn, method, media = l.rstrip("\n").split("\t")
+            gf_reactions[rxn] = (method, media)
+            reactions[rxn].is_gapfilled = True
+            reactions[rxn].gapfill_method = method
 
     # Create model object
     model = PyFBA.model.Model(id, name, orgtype)
     model.roles = copy.deepcopy(mroles)
     model.gapfilled_media = copy.copy(gapfilled_media)
-    model.gf_reactions = copy.copy(gf_reactions)
+    model.gf_reactions = copy.deepcopy(gf_reactions)
     model.add_reactions(mreactions)
     biomass_eqn = PyFBA.metabolism.biomass_equation(orgtype)
     model.set_biomass_reaction(biomass_eqn)
