@@ -16,7 +16,7 @@ class Model:
     :ivar reactions: A dictionary of reaction IDs as the key and Reaction objects as the value
     :ivar compounds: A set of compound IDs Compound objects
     :ivar gapfilled_media: A set of media names this model has been gap-filled with
-    :ivar gf_reactions: A set of gap-filled reaction IDs
+    :ivar gf_reactions: A dictionary of gap-filled reaction IDs as the key and their gap-filled step as the value
     :ivar biomass_reaction: A reaction object representing the biomass reaction
     :ivar organism_type: A String describing the type of organism
     """
@@ -38,7 +38,7 @@ class Model:
         self.reactions = {}
         self.compounds = set()
         self.gapfilled_media = set()
-        self.gf_reactions = set()
+        self.gf_reactions = {}
         self.biomass_reaction = None
         self.organism_type = organism_type
 
@@ -555,7 +555,9 @@ class Model:
         for rxn in gapfilled_keep:
             if rxn in original_reactions:
                 continue
-            self.gf_reactions.add(rxn)  # Add to model gf_reactions set
+            # Add to model gf_reactions dictionary
+            self.gf_reactions[rxn] = (reactions[rxn].gapfill_method,
+                                      basename(media_file))
             add_to_model_rxns.add(reactions[rxn])
             try:
                 for rl in gf_reactions[rxn]:
