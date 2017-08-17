@@ -4,6 +4,7 @@ import copy
 import sys
 from os.path import basename
 
+
 class Model:
     """
     A model is a structured collection of reactions, compounds, and functional roles.
@@ -42,7 +43,6 @@ class Model:
         self.biomass_reaction = None
         self.organism_type = organism_type
 
-
     def __str__(self):
         """
         The to string function.
@@ -50,7 +50,6 @@ class Model:
         :rtype: str
         """
         return self.name + " (id: " + self.id  + ")"
-
 
     def add_roles(self, roles):
         """
@@ -64,7 +63,6 @@ class Model:
                 if role not in self.roles:
                     self.roles[role] = set()
                 self.roles[role].update(rxns)
-
 
     def add_reactions(self, rxns):
         """
@@ -84,7 +82,6 @@ class Model:
         else:
             raise TypeError("You need to add a set of reactions to a model")
 
-
     def remove_reactions(self, rxns):
         """
         Remove reactions from the model.
@@ -96,7 +93,6 @@ class Model:
         # Need to figure out best way to deal with compounds
         pass
 
-
     def has_reaction(self, rxn):
         """
         Check if model contains reaction.
@@ -107,7 +103,6 @@ class Model:
         """
         return rxn.name in self.reactions
 
-
     def number_of_reactions(self):
         """
         Return number of reactions this model contains.
@@ -115,7 +110,6 @@ class Model:
         :rtype: int
         """
         return len(self.reactions)
-
 
     def has_compound(self, cpd):
         """
@@ -127,7 +121,6 @@ class Model:
         """
         return cpd in self.compounds
 
-
     def number_of_compounds(self):
         """
         Return number of compounds this model contains.
@@ -135,7 +128,6 @@ class Model:
         :rtype: int
         """
         return len(self.compounds)
-
 
     def set_biomass_reaction(self, rxn):
         """
@@ -145,7 +137,6 @@ class Model:
         :type rxn: Reaction
         """
         self.biomass_reaction = rxn
-
 
     def output_model(self, f):
         """
@@ -172,7 +163,6 @@ class Model:
                 f.write("\t".join([r, rolecolumn, eqn, "no"]))
             f.write("\n")
 
-
     def output_subsystem(self, f):
         """
         Output subsystem information based on roles.
@@ -188,7 +178,6 @@ class Model:
                 cat, subcat, ss = i
                 f.write("{}\t{}\t{}\t{}\n".format(role, ss, subcat, cat))
 
-
     def run_fba(self, media_file, biomass_reaction=None):
         """
         Run FBA on model and return status, value, and growth.
@@ -197,7 +186,8 @@ class Model:
         :type media_file: str
         :param biomass_reaction: Given biomass Reaction object
         :type biomass_reaction: Reaction
-        :rtype: tuple
+        :return: FBA status, the biomass reaction flux, and
+        :rtype: tuple of str, float, and bool
         """
         # Check if model has a biomass reaction if none was given
         if not biomass_reaction and not self.biomass_reaction:
@@ -227,8 +217,64 @@ class Model:
                                                   media,
                                                   biomass_reaction)
 
-        return (status, value, growth)
+        return status, value, growth
 
+    def run_fba_pm_plate(self, pm_plate, mask=set(), biomass_reaction=None,
+                         verbose=False):
+        """
+        Run FBA across a PM plate
+
+        :param pm_plate: Name of the PM plate
+        :type pm_plate: str
+        :param mask: Set of wells to omit from the FBA runs
+        :type mask: set
+        :param biomass_reaction: Given biomass Reaction object
+        :type biomass_reaction: Reaction
+        :param verbose: Verbose output flag
+        :type verbose: bool
+        :return: Growth information for each media
+        :rtype: dict of dict
+        """
+        results = {}
+        # Set plate compositions
+        pm_plates = PyFBA.parse.read_media.get_pm_plates()
+
+        # Check if PM plate exist
+        if pm_plate not in pm_plates:
+            raise Exception("The PM plate " + pm_plate + " does not exist")
+
+        # Iterate through media
+        num_media = len(pm_plates[pm_plate])
+        if verbose:
+            print("Preparing to run FBA on a total of", num_media,
+                  "media conditions")
+        for midx, media in enumerate(pm_plates[pm_plate], start=1):
+            # Check if media must be skipped
+            if media in mask:
+                if verbose:
+                    print(media, "in mask set. Skipping.", file=sys.stderr)
+                # Remove from mask set
+                mask.remove(media)
+                continue
+
+            # Run the FBA
+            if verbose:
+                print("FBA running on", media,
+                      "({} out of {})".format(midx, num_media),
+                      file=sys.stderr)
+            status, flux, growth = self.run_fba(media, biomass_reaction)
+            if verbose:
+                print(media, ": ", growth, " (", flux, ")",
+                      sep="", file=sys.stderr)
+
+            results[media] = {"status": status,
+                              "biomass_flux": flux,
+                              "growth": growth}
+
+        if verbose:
+            print("FBA on", pm_plate, "complete!", file=sys.stderr)
+
+        return results
 
     def gapfill(self, media_file, cg_file, use_flux=False, verbose=0):
         """
@@ -238,6 +284,8 @@ class Model:
         :type media_file: str
         :param cg_file: Close genomes roles filepath
         :type cg_file: str
+        :param use_flux: Flag to remove candidate reactions carrying no flux\
+        :type use_flux: bool
         :param verbose: Verbose output level
         :type verbose: int
         :rtype: bool
