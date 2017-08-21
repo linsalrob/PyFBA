@@ -295,13 +295,25 @@ class Model:
         :return: Essential reactions
         :rtype: set
         """
+        ##### IMPORTANT #####
+        # Currently, one thread is only allowed due to the setup of PyFBA.
+        # A shared GLPK solver is used and may be compromised between threads
+        # when multi-threading is implemented. This may be resolved in future
+        # versions
+        #####################
+        thread_statement = "WARNING: Currently, only one thread is allowed due to the setup of PyFBA. " \
+                           "A shared GLPK solver is used and may be compromised between threads " \
+                           "when multi-threading is implemented. This may be resolved in future " \
+                           "versions."
+        if n_threads != 1:
+            print(thread_statement, file=sys.stderr)
+            n_threads = 1
+
         # Global variables
         essential = set()  # Set object of reactions to return
         rxn_q = queue.Queue()  # Main queue of reactions
         q_lock = threading.Lock()  # Queue lock for threads
         threads = []
-        num_r = self.number_of_reactions()
-        rxn_count = 0
 
         # Create Thread class
         class ER_Thread(threading.Thread):
@@ -348,28 +360,26 @@ class Model:
 
                 # Remove reaction from Model
                 if verbose:
-                    print("Thread ", thread_id, ": Removing ", r_id,
-                          " from the model", file=sys.stderr, sep="")
+                    print("Thread", thread_id, ": Removing", r_id,
+                          "from the model", file=sys.stderr)
                 del tmp_model.reactions[r_id]
 
-                print("Thread", thread_id, ": Starting FBA", file=sys.stderr)
                 # Run FBA
                 status, value, growth = tmp_model.run_fba(media)
                 if verbose:
-                    if growth:
-                        print("Thread", thread_id, ":", r_id,
-                              "is not essential", file=sys.stderr)
-                    else:
-                        print("Thread", thread_id, ":", r_id, "is essential",
-                              file=sys.stderr)
+                    ans = "not " if growth else ""
+                    print("Thread ", thread_id, " : ", r_id, " is ", ans,
+                          "essential", sep="", file=sys.stderr)
                 if not growth:
                     essential.add(r_id)
 
         # Fill up queue
         for rxn in self.reactions:
             rxn_q.put(rxn)
-            if rxn_q.qsize() == 10:
-                break
+
+        if verbose:
+            print("Model contains", rxn_q.qsize(), "reactions to test",
+                  file=sys.stderr)
 
         # Start threads
         if verbose:
