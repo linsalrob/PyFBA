@@ -345,10 +345,11 @@ class Model:
         #####################
         import threading
         import queue
-        thread_statement = "WARNING: Currently, only one thread is allowed due to the setup of PyFBA. " \
-                           "A shared GLPK solver is used and may be compromised between threads " \
-                           "when multi-threading is implemented. This may be resolved in future " \
-                           "versions."
+        thread_statement = "WARNING: Currently, only one thread is allowed " \
+                           "due to the setup of PyFBA. A shared GLPK solver " \
+                           "is used and may be compromised between threads " \
+                           "when multi-threading is implemented. This may " \
+                           "be resolved in future versions."
         if n_threads != 1:
             print(thread_statement, file=sys.stderr)
             n_threads = 1
