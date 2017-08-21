@@ -331,7 +331,7 @@ class Model:
                 if rxn_q.empty():
                     q_lock.release()
                     if verbose:
-                        print("Thread", thread_id, " is closing",
+                        print("Thread", thread_id, "is closing",
                               file=sys.stderr)
                     break
 
@@ -354,13 +354,14 @@ class Model:
 
                 print("Thread", thread_id, ": Starting FBA", file=sys.stderr)
                 # Run FBA
-                status, value, growth = tmp_model.run_fba(media,
-                                                          verbose=verbose)
+                status, value, growth = tmp_model.run_fba(media)
                 if verbose:
                     if growth:
-                        print(r_id, "is not essential", file=sys.stderr)
+                        print("Thread", thread_id, ":", r_id,
+                              "is not essential", file=sys.stderr)
                     else:
-                        print(r_id, "is essential", file=sys.stderr)
+                        print("Thread", thread_id, ":", r_id, "is essential",
+                              file=sys.stderr)
                 if not growth:
                     essential.add(r_id)
 
