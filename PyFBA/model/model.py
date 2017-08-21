@@ -3,6 +3,9 @@ import PyFBA
 import copy
 import sys
 from os.path import basename
+import threading
+import queue
+import time
 
 
 class Model:
@@ -178,7 +181,7 @@ class Model:
                 cat, subcat, ss = i
                 f.write("{}\t{}\t{}\t{}\n".format(role, ss, subcat, cat))
 
-    def run_fba(self, media_file, biomass_reaction=None):
+    def run_fba(self, media_file, biomass_reaction=None, verbose=False):
         """
         Run FBA on model and return status, value, and growth.
 
@@ -191,7 +194,8 @@ class Model:
         """
         # Check if model has a biomass reaction if none was given
         if not biomass_reaction and not self.biomass_reaction:
-            raise Exception("Model has no biomass reaction, please supply one to run FBA")
+            raise Exception("Model has no biomass reaction, "
+                            "please supply one to run FBA")
 
         elif not biomass_reaction:
             biomass_reaction = self.biomass_reaction
@@ -201,7 +205,7 @@ class Model:
             media = PyFBA.parse.read_media_file(media_file)
         except IOError as e:
             print(e)
-            return (None, None, None)
+            return None, None, None
 
         # Load ModelSEED database
         compounds, reactions, enzymes =\
@@ -215,7 +219,8 @@ class Model:
                                                   reactions,
                                                   modelRxns,
                                                   media,
-                                                  biomass_reaction)
+                                                  biomass_reaction,
+                                                  verbose=verbose)
 
         return status, value, growth
 
@@ -276,11 +281,12 @@ class Model:
 
         return results
 
-    def find_essential_reactions(self, media, verbose=False):
+    def find_essential_reactions(self, media, n_threads=1, verbose=False):
         """
         Find which reactions in the model are essential for growth on a given
         media. Essential reactions are those that, when removed from the model,
-        result in no growth
+        result in no growth. Function provides use of multithreading with the
+        threading and queue modules.
 
         :param media: Media file
         :type media: str
@@ -289,34 +295,95 @@ class Model:
         :return: Essential reactions
         :rtype: set
         """
-        essential = set()
+        # Global variables
+        essential = set()  # Set object of reactions to return
+        rxn_q = queue.Queue()  # Main queue of reactions
+        q_lock = threading.Lock()  # Queue lock for threads
+        threads = []
+        num_r = self.number_of_reactions()
+        rxn_count = 0
 
-        num = self.number_of_reactions()
-        # Iterate through all reactions
-        for i, rxn in enumerate(self.reactions, start=1):
-            # Make copy of the model
-            tmp_model = PyFBA.model.Model(self.id, self.name,
-                                          self.organism_type)
-            tmp_model.reactions = copy.deepcopy(self.reactions)
-            tmp_model.compounds = copy.deepcopy(self.compounds)
-            tmp_model.biomass_reaction = copy.copy(self.biomass_reaction)
+        # Create Thread class
+        class ER_Thread(threading.Thread):
+            def __init__(self, thread_id, q):
+                threading.Thread.__init__(self)
+                self.thread_id = thread_id
+                self.q = q
 
-            # Remove reaction from Model
-            if verbose:
-                print('Removing ', rxn, ' from the Model (', i, '/', num, ')',
-                      file=sys.stderr, end='\r', sep='')
-            del tmp_model.reactions[rxn]
+            def run(self):
+                process_data(self.thread_id, self.q)
 
-            # Run FBA
-            status, value, growth = tmp_model.run_fba(media)
-            if not growth:
-                essential.add(rxn)
+        # Create thread worker function
+        def process_data(thread_id, q):
+            """
+            Perform infinite loop of FBA until reaction queue is completed
 
-            if i == 10:
+            :param thread_id: Thread ID
+            :type thread_id: int
+            :param q: Queue of reaction IDs
+            :type q: Queue
+            :return: None
+            """
+            while True:
+                # Grab queue lock
+                q_lock.acquire()
+
+                if rxn_q.empty():
+                    q_lock.release()
+                    if verbose:
+                        print("Thread", thread_id, " is closing",
+                              file=sys.stderr)
+                    break
+
+                # When queue is not empty, grab next reaction ID
+                r_id = q.get()
+                q_lock.release()
+
+                # Make copy of the model
+                tmp_model = PyFBA.model.Model(self.id, self.name,
+                                              self.organism_type)
+                tmp_model.reactions = copy.deepcopy(self.reactions)
+                tmp_model.compounds = copy.deepcopy(self.compounds)
+                tmp_model.biomass_reaction = copy.copy(self.biomass_reaction)
+
+                # Remove reaction from Model
+                if verbose:
+                    print("Thread ", thread_id, ": Removing ", r_id,
+                          " from the model", file=sys.stderr, sep="")
+                del tmp_model.reactions[r_id]
+
+                print("Thread", thread_id, ": Starting FBA", file=sys.stderr)
+                # Run FBA
+                status, value, growth = tmp_model.run_fba(media,
+                                                          verbose=verbose)
+                if verbose:
+                    if growth:
+                        print(r_id, "is not essential", file=sys.stderr)
+                    else:
+                        print(r_id, "is essential", file=sys.stderr)
+                if not growth:
+                    essential.add(r_id)
+
+        # Fill up queue
+        for rxn in self.reactions:
+            rxn_q.put(rxn)
+            if rxn_q.qsize() == 10:
                 break
 
+        # Start threads
         if verbose:
-            print('Model contains', len(essential), 'essential reactions')
+            print("Starting up", n_threads, "threads", file=sys.stderr)
+        for i in range(n_threads):
+            t = ER_Thread(i, rxn_q)
+            t.start()
+            threads.append(t)
+
+        # Synchronize threads -- wait for them to complete
+        for t in threads:
+            t.join()
+
+        if verbose:
+            print("Model contains", len(essential), "essential reactions")
 
         return essential
 
