@@ -276,6 +276,50 @@ class Model:
 
         return results
 
+    def find_essential_reactions(self, media, verbose=False):
+        """
+        Find which reactions in the model are essential for growth on a given
+        media. Essential reactions are those that, when removed from the model,
+        result in no growth
+
+        :param media: Media file
+        :type media: str
+        :param verbpse: Verbose output flag
+        :type verbose: bool
+        :return: Essential reactions
+        :rtype: set
+        """
+        essential = set()
+
+        num = self.number_of_reactions()
+        # Iterate through all reactions
+        for i, rxn in enumerate(self.reactions, start=1):
+            # Make copy of the model
+            tmp_model = PyFBA.model.Model(self.id, self.name,
+                                          self.organism_type)
+            tmp_model.reactions = copy.deepcopy(self.reactions)
+            tmp_model.compounds = copy.deepcopy(self.compounds)
+            tmp_model.biomass_reaction = copy.copy(self.biomass_reaction)
+
+            # Remove reaction from Model
+            if verbose:
+                print('Removing ', rxn, ' from the Model (', i, '/', num, ')',
+                      file=sys.stderr, end='\r', sep='')
+            del tmp_model.reactions[rxn]
+
+            # Run FBA
+            status, value, growth = tmp_model.run_fba(media)
+            if not growth:
+                essential.add(rxn)
+
+            if i == 10:
+                break
+
+        if verbose:
+            print('Model contains', len(essential), 'essential reactions')
+
+        return essential
+
     def gapfill(self, media_file, cg_file, use_flux=False, verbose=0):
         """
         Gap-fill model on given media.
