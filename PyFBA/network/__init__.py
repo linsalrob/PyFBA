@@ -1,10 +1,10 @@
-from .network import Network
+from .network import Network, network_sif
 from .metrics import clustering_coeff, avg_clustering_coeff, \
     closeness_centrality, avg_closeness_centrality, \
     betweenness_centrality, avg_betweenness_centrality, \
     diameter, number_connected_components, jaccard_distance
 
-__all__ = ["Network",
+__all__ = ["Network", "network_sif",
            "clustering_coeff", "avg_clustering_coeff",
            "closeness_centrality", "avg_closeness_centrality",
            "betweenness_centrality", "avg_betweenness_centrality",

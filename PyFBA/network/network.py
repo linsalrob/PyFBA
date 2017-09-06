@@ -108,3 +108,17 @@ class Network:
         :rtype: iter
         """
         return self.edges_iter()
+
+
+def network_sif(network, filepath):
+    """
+    Create a SIF (simple interaction file) format of a network. SIF is
+    compatible with Cytoscape. The filepath provided will be overwritten.
+
+    :param network: Network to produce file for
+    :type network: PyFBA.network.Network
+    :param filepath: Filepath for output
+    :type filepath: str
+    :return: None
+    """
+    pass
