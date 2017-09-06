@@ -96,24 +96,53 @@ class Network:
         Provide an iterator for the network's nodes
 
         :return: Node iterator
-        :rtype: iter
+        :rtype: iterator
         """
-        return self.nodes_iter()
+        for n in self.graph.nodes():
+            yield n
 
     def edges_iter(self):
         """
         Provide an iterator for the network's edges
 
         :return: Edges iterator
-        :rtype: iter
+        :rtype: iterator
         """
-        return self.edges_iter()
+        for e in self.graph.edges():
+            yield e
 
 
-def network_sif(network, filepath):
+def network_compounds_sif(network,  filepath):
     """
-    Create a SIF (simple interaction file) format of a network. SIF is
-    compatible with Cytoscape. The filepath provided will be overwritten.
+    Create a SIF (simple interaction file) format of a network. Network nodes
+    are compounds. SIF is compatible with Cytoscape. The filepath provided
+    will be overwritten.
+
+    :param network: Network to produce file for
+    :type network: PyFBA.network.Network
+    :param filepath: Filepath for output
+    :type filepath: str
+    :return: None
+    """
+    fh = open(filepath, "w")
+    conns = set()  # Record which connections were already passed through
+    for e in network.edges_iter():
+        # Skip connections we've already seen
+        # Could be due to bidirectional reactions
+        if e in conns:
+            continue
+        cpd1, cpd2 = e
+        conns.add(e)
+        conns.add((cpd2, cpd1))
+        fh.write(cpd1.name + "\tcc\t" + cpd2.name + "\n")
+    fh.close()
+
+
+def network_reactions_sif(network,  filepath):
+    """
+    Create a SIF (simple interaction file) format of a network. Network nodes
+    are reactions. SIF is compatible with Cytoscape. The filepath provided
+    will be overwritten.
 
     :param network: Network to produce file for
     :type network: PyFBA.network.Network
