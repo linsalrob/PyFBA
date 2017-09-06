@@ -72,3 +72,39 @@ class Network:
             cpds.add(PyFBA.metabolism.Compound(c, "c"))
             cpds.add(PyFBA.metabolism.Compound(c, "e"))
         return cpds
+
+    def number_of_nodes(self):
+        """
+        Provide number of nodes (compounds) in the network
+
+        :return: Number of nodes
+        :rtype: int
+        """
+        return self.graph.number_of_nodes()
+
+    def number_of_edges(self):
+        """
+        Provide number of edges (reactions) in the network
+
+        :return: Number of edges
+        :rtype: int
+        """
+        return self.graph.number_of_edges()
+
+    def nodes_iter(self):
+        """
+        Provide an iterator for the network's nodes
+
+        :return: Node iterator
+        :rtype: iter
+        """
+        return self.nodes_iter()
+
+    def edges_iter(self):
+        """
+        Provide an iterator for the network's edges
+
+        :return: Edges iterator
+        :rtype: iter
+        """
+        return self.edges_iter()
