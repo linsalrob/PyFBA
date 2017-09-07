@@ -1,5 +1,6 @@
 from __future__ import print_function, division, absolute_import
 import networkx as nx
+from copy import deepcopy
 import PyFBA
 
 
@@ -12,19 +13,33 @@ class Network:
     :ivar graph: NetworkX directed graph
     """
 
-    def __init__(self, model):
+    def __init__(self, model=None, graph=None):
         """
-        Initiate the object.
+        Initiate the object. model takes precendence over graph
 
         :param model: Model object to build graph form
         :type model: PyFBA.Model
+        :param graph: Graph to build Network from
+        :type graph: networkx.Graph
         """
-        # Initiate networkx graph
-        self.graph = nx.DiGraph()
-        # self.reaction_edges = dict()
+        if model is not None:
+            # Initiate networkx graph
+            self.graph = nx.DiGraph()
+            self.__build_graph(model)
+            print("Network from model " + model.name + " created!")
 
-        self.__build_graph(model)
-        print("Network from model " + model.name + " created!")
+        elif graph is not None:
+            # Check if the graph is not directed
+            # If not, change to directed
+            # Note: this forces all edges to form, making each bi-directional
+            if not graph.is_directed():
+                self.graph = deepcopy(graph.to_directed())
+            else:
+                self.graph = deepcopy(graph)
+
+        else:
+            raise ValueError("Model or graph is required")
+
         print("Network contains {} nodes ".format(len(self.graph)), end="")
         print("and {} edges".format(self.graph.size()))
 
