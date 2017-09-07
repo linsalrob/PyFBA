@@ -183,7 +183,7 @@ def network_compounds_sif(network,  filepath, ulimit=None, verbose=False):
     :type verbose: bool
     :return: None
     """
-    fh = open(filepath, "w")
+    fh = open(filepath + ".sif", "w")
     fhdata = open(filepath + ".sizes", "w")
     conns = set()  # Record which connections were already passed through
     conns_to_output = set()  # Connections to print out
