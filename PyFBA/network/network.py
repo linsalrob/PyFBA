@@ -2,7 +2,7 @@ from __future__ import print_function, division, absolute_import
 import networkx as nx
 import PyFBA
 import sys
-
+from itertools import combinations
 
 class Network:
     """
@@ -22,6 +22,7 @@ class Network:
         """
         # Initiate networkx graph
         self.graph = nx.DiGraph()
+        # self.reaction_edges = dict()
 
         self.__build_graph(model)
         print("Network from model " + model.name + " created!")
@@ -43,23 +44,30 @@ class Network:
         # Iterate through reactions and add edges from each reactant compound
         # to each product compound
         for r in model.reactions.values():
+            # Instantiate reaction edge in dict
+            rname = str(r)
+            # self.reaction_edges[rname] = [set(), set(), r.direction]
             for cl in r.left_compounds:
+                # Add left compound to edge dict
+                # self.reaction_edges[rname][0].add(str(cl))
                 if not self.graph.has_node(cl):
                     print("New compound: {}, reaction: {}".format(cl, r))
                 for cr in r.right_compounds:
+                    # Add right compound to edge dict
+                    # self.reaction_edges[rname][1].add(str(cr))
                     if not self.graph.has_node(cr):
                         print("New compound: {}, reaction: {}".format(cr, r))
                     # Since graph is directed, the order of the compounds
                     # in the add_edge() function matters
                     if r.direction == ">":
-                        self.graph.add_edge(cl, cr)
+                        self.graph.add_edge(cl, cr, {"reaction" : str(rname)})
 
                     elif r.direction == "<":
-                        self.graph.add_edge(cr, cl)
+                        self.graph.add_edge(cr, cl, {"reaction" : str(rname)})
 
                     else:
-                        self.graph.add_edge(cl, cr)
-                        self.graph.add_edge(cr, cl)
+                        self.graph.add_edge(cl, cr, {"reaction" : str(rname)})
+                        self.graph.add_edge(cr, cl, {"reaction" : str(rname)})
 
     def common_compounds(self):
         """
@@ -121,6 +129,7 @@ class Network:
     def number_neighbors(self, node):
         """
         Sum number of neighbors for a node
+
         :param node: Node given
         :type node: PyFBA.Compound
         :return: Number of neighbors
@@ -132,6 +141,16 @@ class Network:
 
         # Make network undirected first
         return sum(1 for n in self.nodes_neighbors_iter(node))
+
+    def node_adj_iter(self):
+        """
+        Provide an iterator for each node and their adjacent nodes
+
+        :return: Adjacency iterator
+        :rtype: iterator
+        """
+        for n, nbrs in self.graph.to_undirected().adjacency_iter():
+            yield (n, nbrs)
 
     def edges_iter(self):
         """
@@ -184,9 +203,9 @@ def network_compounds_sif(network,  filepath, ulimit=None, verbose=False):
     :return: None
     """
     fh = open(filepath + ".sif", "w")
-    fhdata = open(filepath + ".sizes", "w")
     conns = set()  # Record which connections were already passed through
     conns_to_output = set()  # Connections to print out
+    counts = dict()
 
     num_nodes = network.number_of_nodes()
     num_edges = network.number_of_edges()
@@ -249,12 +268,15 @@ def network_compounds_sif(network,  filepath, ulimit=None, verbose=False):
             if counts[cpd1] > ulimit or counts[cpd2] > ulimit:
                 continue
             fh.write(cpd1.name + "\tcc\t" + cpd2.name + "\n")
-        for cpd, count in counts.items():
-            if count > ulimit:
-                continue
-            fhdata.write(cpd.name + "\t" + str(count) + "\n")
         fh.close()
-        fhdata.close()
+
+        with open(filepath + ".sizes", "w") as fh,\
+                open(filepath + ".skip", "w") as fhskip:
+            for cpd, count in counts.items():
+                if count > ulimit:
+                    fhskip.write(cpd.name + "\t" + str(count) + "\n")
+                    continue
+                fh.write(cpd.name + "\t" + str(count) + "\n")
     if verbose:
         print("", file=sys.stderr)
 
@@ -271,4 +293,36 @@ def network_reactions_sif(network,  filepath):
     :type filepath: str
     :return: None
     """
-    pass
+    fh = open(filepath + ".sif", "w")
+    conns = set()  # Record which connections were already passed through
+    counts = dict()  # Record how often a reaction had a connection
+    # Iterate through nodes and their neighbors
+    # Algorithm: for each node, obtain all reactions connecting to it. The node
+    # is essentially the connection between two reactions
+    for n, nbrs in network.node_adj_iter():
+        # Skip if the number of neighbors is less than two
+        if len(nbrs) < 2:
+            continue
+        # Obtain all combinations of edges between the current
+        # node and its neighboring nodes
+        for n1, n2 in combinations(nbrs, 2):
+            r1 = nbrs[n1]['reaction']
+            r2 = nbrs[n2]['reaction']
+            # Skip connections we've already seen
+            check = (r1, r2)
+            if check in conns:
+                continue
+            if r1 not in counts:
+                counts[r1] = 0
+            if r2 not in counts:
+                counts[r2] = 0
+            counts[r1] += 1
+            counts[r2] += 1
+            conns.add((r1, r2))
+            conns.add((r2, r1))
+            fh.write(r1 + "\trr\t" + r2 + "\n")
+    fh.close()
+
+    with open(filepath + ".sizes", "w") as fh:
+        for rxn, count in counts.items():
+            fh.write(rxn + "\t" + str(count) + "\n")
