@@ -83,6 +83,14 @@ class Network:
                         self.graph.add_edge(cl, cr, {"reaction" : str(rname)})
                         self.graph.add_edge(cr, cl, {"reaction" : str(rname)})
 
+    def get_nx_graph(self):
+        """
+        Getter for graph
+        :return: Graph
+        :rtype: networkx.Graph
+        """
+        return self.graph
+
     def common_compounds(self):
         """
         Return set of highly common compounds

@@ -204,3 +204,21 @@ def jaccard_distance(net1, net2):
     intersection = nx.intersection(g1, g2)
 
     return 1 - (intersection.number_of_edges() / union.number_of_edges())
+
+
+def core_network(net1, net2):
+    """
+    Core network is defined by the shared edges of two networks
+
+    :param net1: Network 1
+    :type net1: PyFBA.network.Network
+    :param net2: Network 2
+    :type net2: PyFBA.network.Network
+    :return: Core network
+    :rtype: PyFBA.network.Network
+    """
+    ng1 = net1.get_nx_graph()
+    ng2 = net2.get_nx_graph()
+    new_graph = ng1.copy()
+    new_graph.remove_nodes_from(node for node in ng1 if node not in ng2)
+    return Network(graph=new_graph)
