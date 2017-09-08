@@ -200,10 +200,30 @@ def jaccard_distance(net1, net2):
         print("Resulting graphs have {} nodes each".format(
             g1.number_of_nodes()))
 
-    union = nx.disjoint_union(g1, g2)
-    intersection = nx.intersection(g1, g2)
+    union = network_union(net1, net2).get_nx_graph()
+    g1 = net1.get_nx_graph()
+    g2 = net2.get_nx_graph()
+    intersection = g1.copy()
+    intersection.remove_nodes_from(n for n in g1 if n not in g2)
 
     return 1 - (intersection.number_of_edges() / union.number_of_edges())
+
+
+def network_union(net1, net2):
+    """
+    Create a new network with the combined edges between two networks
+    :param net1: Network 1
+    :type net1: PyFBA.network.Network
+    :param net2: Network 2
+    :type net2: PyFBA.network.Network
+    :return: Network union
+    :rtype: PyFBA.network.Network
+    """
+    union = net1.get_nx_graph().copy()
+    for e in net2.edges_iter():
+        if not union.has_edge(*e):
+            union.add_edge(*e)
+    return Network(graph=union)
 
 
 def core_network(net1, net2):
