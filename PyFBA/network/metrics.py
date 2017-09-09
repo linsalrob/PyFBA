@@ -211,7 +211,9 @@ def jaccard_distance(net1, net2):
 
 def network_union(net1, net2):
     """
+
     Create a new network with the combined edges between two networks
+
     :param net1: Network 1
     :type net1: PyFBA.network.Network
     :param net2: Network 2

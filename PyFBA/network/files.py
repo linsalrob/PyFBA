@@ -1,6 +1,7 @@
 from __future__ import print_function, absolute_import, division
 import sys
 from itertools import combinations
+import PyFBA
 
 
 def network_compounds_sif(network,  filepath, ulimit=None, verbose=False):
@@ -170,13 +171,21 @@ def network_reactions_sif(network,  filepath):
             fh.write(rxn + "\t" + str(count) + "\n")
 
 
-def compare_networks_sif(network1, network2, filepath, ulimit=None):
+def union_networks_sif(network1, network2, n1_name, n2_name,
+                       filepath, ulimit=None):
     """
+    Create a SIF (simple interaction file) format of the union of two networks.
+    Network nodes are compounds and interactions are reactions. SIF is
+    compatible with Cytoscape. The filepath provided will be overwritten.
 
     :param network1: Network1 to produce file for
     :type network1: PyFBA.network.Network
     :param network2: Network2 to produce file for
     :type network2: PyFBA.network.Network
+    :param n1_name: Network1 name
+    :type n1_name: str
+    :param n2_name: Network2 name
+    :type n2_name: str
     :param filepath: Filepath for output
     :type filepath: str
     :param ulimit: For a compound, the highest allowed number of neighbors
@@ -184,3 +193,28 @@ def compare_networks_sif(network1, network2, filepath, ulimit=None):
     :type ulimit: int
     :return: None
     """
+    # Obtain union of edges between two networks
+    union_net = PyFBA.network.network_union(network1, network2)
+
+    # Make networks undirected
+    union_graph = union_net.get_nx_graph().to_undirected()
+    g1 = network1.get_nx_graph().to_undirected()
+    g2 = network2.get_nx_graph().to_undirected()
+
+    conns = set()
+    # Iterate through edges and label as being unique or shared
+    with open(filepath + ".sif", "w") as fh:
+        for e in union_graph.edges_iter():
+            cpd1, cpd2 = e
+            # Skip connection if already seen
+            if e in conns:
+                continue
+            conns.add(e)
+            conns.add((cpd2, cpd1))
+            if g1.has_edge(*e):
+                if g2.has_edge(*e):
+                    fh.write(cpd1.name + "\tshared\t" + cpd2.name + "\n")
+                else:
+                    fh.write(cpd1.name + "\t" + n1_name + "\t" + cpd2.name)
+            else:
+                fh.write(cpd1.name + "\t" + n2_name + "\t" + cpd2.name)
