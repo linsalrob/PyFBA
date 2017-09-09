@@ -122,6 +122,28 @@ class Network:
         """
         return self.graph.number_of_edges()
 
+    def has_edge(self, edge):
+        """
+        Check if edge exists in network
+
+        :param edge: Edge to check
+        :type edge: tuple of PyFBA.Compound
+        :return: If edge exists
+        :rtype: bool
+        """
+        return self.graph.has_edge(*edge)
+
+    def has_node(self, node):
+        """
+        Check if node exists in network
+
+        :param node: Node to check
+        :type node: PyFBA.Compound
+        :return: If node exists
+        :rtype: bool
+        """
+        return self.graph.has_node(node)
+
     def nodes_iter(self):
         """
         Provide an iterator for the network's nodes
