@@ -205,72 +205,94 @@ def union_networks_sif(network1, network2, n1_name, n2_name,
     counts = dict()
     node_owners = dict()
 
-    if ulimit is None:
-        pass
+    # Iterate through edges and label as being unique or shared
+    for e in union_graph.edges_iter():
+        # Skip connection if already seen
+        if e in conns:
+            continue
+        cpd1, cpd2 = e
+        conns.add(e)
+        conns.add((cpd2, cpd1))
 
-    else:
-        # Iterate through edges and label as being unique or shared
-        for e in union_graph.edges_iter():
-            # Skip connection if already seen
-            if e in conns:
-                continue
-            cpd1, cpd2 = e
-            conns.add(e)
-            conns.add((cpd2, cpd1))
-
-            # Label edge as network 1, network 2, or shared
-            if g1.has_edge(*e):
-                if g2.has_edge(*e):
-                    owner = "shared"
-                else:
-                    owner = n1_name
+        # Label edge as network 1, network 2, or shared
+        if g1.has_edge(*e):
+            if g2.has_edge(*e):
+                owner = "shared"
             else:
-                owner = n2_name
+                owner = n1_name
+        else:
+            owner = n2_name
 
-            # Label node as network 1, network 2, or shared
-            if g1.has_node(cpd1):
-                if g2.has_node(cpd1):
-                    node_owners[cpd1] = "shared"
-                else:
-                    node_owners[cpd1] = n1_name
+        # Label node as network 1, network 2, or shared
+        if g1.has_node(cpd1):
+            if g2.has_node(cpd1):
+                node_owners[cpd1] = "shared"
             else:
-                node_owners[cpd1] = n2_name
-            if g1.has_node(cpd2):
-                if g2.has_node(cpd2):
-                    node_owners[cpd2] = "shared"
-                else:
-                    node_owners[cpd2] = n1_name
+                node_owners[cpd1] = n1_name
+        else:
+            node_owners[cpd1] = n2_name
+        if g1.has_node(cpd2):
+            if g2.has_node(cpd2):
+                node_owners[cpd2] = "shared"
             else:
-                node_owners[cpd2] = n2_name
+                node_owners[cpd2] = n1_name
+        else:
+            node_owners[cpd2] = n2_name
 
-            if cpd1 not in counts:
-                counts[cpd1] = 0
-            if cpd2 not in counts:
-                counts[cpd2] = 0
-            counts[cpd1] += 1
-            counts[cpd2] += 1
-            conns_to_output.add((cpd1, cpd2, owner))
+        if cpd1 not in counts:
+            counts[cpd1] = 0
+        if cpd2 not in counts:
+            counts[cpd2] = 0
+        counts[cpd1] += 1
+        counts[cpd2] += 1
+        conns_to_output.add((cpd1, cpd2, owner))
 
-        with open(filepath + ".sif", "w") as fh, \
-                open(filepath + ".nodes", "w") as fh_nodes, \
-                open(filepath + ".sizes", "w") as fh_sizes, \
-                open(filepath + ".skip", "w") as fh_skip:
-            # fh_nodes will have node assignments for each network
-            fh_nodes.write("compound\tnetwork\n")
-            # fh_sizes will have number of times the compound was found
-            fh_sizes.write("compound\tcount\n")
-            for c in conns_to_output:
-                cpd1, cpd2, owner = c
-                cnt1 = counts[cpd1]
-                cnt2 = counts[cpd2]
-                if cnt1 > ulimit:
+    with open(filepath + ".sif", "w") as fh, \
+            open(filepath + ".nodes", "w") as fh_nodes, \
+            open(filepath + ".sizes", "w") as fh_sizes, \
+            open(filepath + ".skip", "w") as fh_skip:
+        # fh_nodes will have node assignments for each network
+        fh_nodes.write("compound\tnetwork\n")
+        # fh_sizes will have number of times the compound was found
+        fh_sizes.write("compound\tcount\n")
+        # Remember which compounds are seen to avoid repetition in
+        # output files
+        reported_skip = set()
+        reported_others = set()
+        for c in conns_to_output:
+            skip = False
+            cpd1, cpd2, owner = c
+
+            cnt1 = counts[cpd1]
+            cnt2 = counts[cpd2]
+
+            # Check if first compound count is too high
+            if ulimit is not None and cnt1 > ulimit:
+                # Check if first compound was written to file yet
+                if cpd1 not in reported_skip:
                     fh_skip.write(cpd1.name + "\t" + str(cnt1) + "\n")
-                    continue
-                elif cnt2 > ulimit:
+                    reported_skip.add(cpd1)
+                skip = True
+
+            # Check if second compound count is too high
+            if ulimit is not None and cnt2 > ulimit:
+                # Check if second compound was written to file yet
+                if cpd2 not in reported_skip:
                     fh_skip.write(cpd2.name + "\t" + str(cnt2) + "\n")
-                    continue
-                fh.write("\t".join([cpd1.name, owner, cpd2.name]) + "\n")
+                    reported_skip.add(cpd2)
+                skip = True
+            if skip:
+                continue
+
+            # Check if compounds were written to nodes and sizes file yet
+            if cpd1 not in reported_others:
                 fh_nodes.write(cpd1.name + "\t" + node_owners[cpd1] + "\n")
-                fh_nodes.write(cpd2.name + "\t" + node_owners[cpd2] + "\n")
                 fh_sizes.write(cpd1.name + "\t" + str(cnt1) + "\n")
+                reported_others.add(cpd1)
+            if cpd2 not in reported_others:
+                fh_nodes.write(cpd2.name + "\t" + node_owners[cpd2] + "\n")
                 fh_sizes.write(cpd2.name + "\t" + str(cnt2) + "\n")
+                reported_others.add(cpd2)
+
+            # Write out to interaction file
+            fh.write("\t".join([cpd1.name, owner, cpd2.name]) + "\n")
