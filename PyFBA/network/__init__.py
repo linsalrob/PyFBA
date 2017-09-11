@@ -9,6 +9,7 @@ from .metrics import clustering_coeff, avg_clustering_coeff, \
 
 __all__ = ["Network",
            "network_compounds_sif", "network_reactions_sif",
+           "union_networks_sif",
            "clustering_coeff", "avg_clustering_coeff",
            "closeness_centrality", "avg_closeness_centrality",
            "betweenness_centrality", "avg_betweenness_centrality",
