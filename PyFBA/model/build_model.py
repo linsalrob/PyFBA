@@ -1,9 +1,10 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import, division
 import sys
 import os
 import copy
 import errno
 import PyFBA
+import libsbml as sbml
 
 
 def roles_to_model(rolesFile, id, name, orgtype="gramnegative", verbose=False):
@@ -202,3 +203,56 @@ def load_model(in_dir, prefix):
     model.set_biomass_reaction(biomass_eqn)
 
     return model
+
+
+def save_sbml(model, out_dir):
+    """
+    Save model in SBML format. Currently using:
+    SBML Level 3 Version 1 Core (Release 2)
+
+    Contents of SBML file are adapted from KBase
+
+    Code has been adapted from:
+    http://sbml.org/Software/libSBML/docs/python-api/libsbml-python-creating-model.html
+
+    :param model: Model to save
+    :type model: PyFBA.model.Model
+    :param out_dir: Directory to store files
+    :type out_dir: str
+    :return: None
+    """
+    # Function adapted from sbml web page listed above
+    def check(value, message):
+        """
+        If 'value' is None, prints an error message constructed using
+        'message' and then exits with status code 1.  If 'value' is an integer,
+        it assumes it is a libSBML return status code.  If the code value is
+        LIBSBML_OPERATION_SUCCESS, returns without further action; if it is not,
+        prints an error message constructed using 'message' along with text from
+        libSBML explaining the meaning of the code, and exits with status code 1.
+        """
+        if value == None:
+            raise SystemError(
+                'LibSBML returned a null value trying to ' + message + '.')
+        elif type(value) is int:
+            if value == sbml.LIBSBML_OPERATION_SUCCESS:
+                return
+            else:
+                err_msg = 'Error encountered trying to ' + message + '.' \
+                          + 'LibSBML returned error code ' + str(value) + ': "' \
+                          + sbml.OperationReturnValue_toString(value).strip() + '"'
+                raise SystemError(err_msg)
+        else:
+            return
+
+    # Create the SBML document for saving
+    try:
+        sbml_doc = sbml.SBMLDocument(3, 1)
+    except ValueError:
+        raise SystemError("Could not create an SBMLDocument object")
+
+    # Create a model in the document and set global information
+    sbml_model = sbml_doc.createModel()
+    if sbml_model is None:
+        raise SystemError("Could not create an SBML Model object")
+
