@@ -15,7 +15,7 @@ class Model:
     :ivar name: Model name
     :ivar roles: A dictionary of roles as the key and sets of reaction IDs as the value
     :ivar reactions: A dictionary of reaction IDs as the key and Reaction objects as the value
-    :ivar compounds: A set of compound IDs Compound objects
+    :ivar compounds: A set of Compound objects
     :ivar gapfilled_media: A set of media names this model has been gap-filled with
     :ivar gf_reactions: A dictionary of gap-filled reaction IDs as the key and their gap-filled step as the value
     :ivar biomass_reaction: A reaction object representing the biomass reaction
