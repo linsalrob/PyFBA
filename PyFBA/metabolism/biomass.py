@@ -1,4 +1,5 @@
 import sys
+import PyFBA
 from .compound import Compound
 from .reaction import Reaction
 
@@ -187,14 +188,23 @@ def biomass_equation(biomass_type='standard'):
     else:
         sys.exit("ERROR: Do not understand what " + biomass_type + " is for a biomass_equation equation\n")
 
+    # Load compounds from ModelSEED
+    cpds, rxns, enz = PyFBA.parse.compounds_reactions_enzymes()
+    del rxns
+    del enz
+
     r = Reaction('biomass_equation')
     for c in reactants:
         cpd = Compound(c, 'c')
+        if str(cpd) in cpds:
+            cpd = cpds[str(cpd)]
         r.add_left_compounds({cpd})
         r.set_left_compound_abundance(cpd, reactants[c])
 
     for c in products:
         cpd = Compound(c, 'c')
+        if str(cpd) in cpds:
+            cpd = cpds[str(cpd)]
         r.add_right_compounds({cpd})
         r.set_right_compound_abundance(cpd, products[c])
 
