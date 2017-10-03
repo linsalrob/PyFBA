@@ -35,11 +35,11 @@ class Model:
         """
         self.id = str(id)
         self.name = str(name)
-        self.roles = {}
-        self.reactions = {}
+        self.roles = dict()
+        self.reactions = dict()
         self.compounds = set()
         self.gapfilled_media = set()
-        self.gf_reactions = {}
+        self.gf_reactions = dict()
         self.biomass_reaction = None
         self.organism_type = organism_type
 
