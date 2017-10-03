@@ -391,7 +391,6 @@ def save_sbml(model, out_dir=".", file_name=None):
     # Left compounds
     for c, c_abun in model.biomass_reaction.left_abundance.items():
         # Add compound if was not added previously
-        print(c, c.model_seed_id, c.location, sep=" -- ")
         if not model.has_compound(c):
             curr_comp = c.location + "0"
             s = sbml_model.createSpecies()
