@@ -382,6 +382,95 @@ def save_sbml(model, out_dir=".", file_name=None):
         check(math_ast, "create MathML")
         check(kinetic_law.setMath(math_ast), "set math on kinetic law")
 
+    # Create biomass reaction
+    bio_rxn = sbml_model.createReaction()
+    check(bio_rxn, "create biomass reaction")
+    check(bio_rxn.setId("biomass"), "set biomass reaction ID")
+    check(bio_rxn.setName("biomass"), "set biomass reaction name")
+    check(bio_rxn.setReversible(False), "set biomass reaction reversibility")
+    # Left compounds
+    for c, c_abun in model.biomass_reaction.left_abundance.items():
+        # Add compound if was not added previously
+        print(c, c.model_seed_id, c.location, sep=" -- ")
+        if not model.has_compound(c):
+            curr_comp = c.location + "0"
+            s = sbml_model.createSpecies()
+            check(s, "create species")
+            check(s.setId(c.model_seed_id + "_" + curr_comp), "set species ID")
+            check(s.setName(c.name), "set species name")
+            check(s.setCompartment(curr_comp), "set species compartment")
+            # TODO: properly set charge
+            # check(s.setCharge(0), "set species charge")
+            # TODO: properly set boundary
+            check(s.setBoundaryCondition(False),
+                  "set species boundary condition")
+
+        r_comp = bio_rxn.createReactant()
+        check(r_comp, "create reactant")
+        check(r_comp.setSpecies(c.model_seed_id + "_" + c.location + "0"),
+              "assign reaction species")
+        check(r_comp.setStoichiometry(float(c_abun)),
+              "assign stoichiometry")
+
+    # Right compounds
+    for c, c_abun in model.biomass_reaction.right_abundance.items():
+        # Add compound if was not added previously
+        if not model.has_compound(c):
+            curr_comp = c.location + "0"
+            s = sbml_model.createSpecies()
+            check(s, "create species")
+            check(s.setId(c.model_seed_id + "_" + curr_comp), "set species ID")
+            check(s.setName(c.name), "set species name")
+            check(s.setCompartment(curr_comp), "set species compartment")
+            # TODO: properly set charge
+            # check(s.setCharge(0), "set species charge")
+            # TODO: properly set boundary
+            check(s.setBoundaryCondition(False),
+                  "set species boundary condition")
+
+        r_comp = bio_rxn.createProduct()
+        check(r_comp, "create product")
+        check(r_comp.setSpecies(c.model_seed_id + "_" + c.location + "0"),
+              "assign reaction species")
+        check(r_comp.setStoichiometry(float(c_abun)),
+              "assign stoichiometry")
+
+    # Kinetic law
+    kinetic_law = bio_rxn.createKineticLaw()
+    check(kinetic_law, "create kinetic law")
+    param_name = "mmol_per_gDW_per_hr"
+    # Lower bound parameter
+    lb_param = kinetic_law.createParameter()
+    check(lb_param, "create lower bound parameter")
+    check(lb_param.setId("LOWER_BOUND"), "set lower bound parameter ID")
+    check(lb_param.setName(param_name), "set lower bound parameter name")
+    check(lb_param.setValue(0.0), "set lower bound parameter value")
+    # Upper bound parameter
+    ub_param = kinetic_law.createParameter()
+    check(ub_param, "create upper bound parameter")
+    check(ub_param.setId("UPPER_BOUND"), "set upper bound parameter ID")
+    check(ub_param.setName(param_name), "set upper bound parameter name")
+    check(ub_param.setValue(UPPER_BOUND), "set upper bound parameter value")
+    # Create flux value parameter
+    fv_param = kinetic_law.createParameter()
+    check(fv_param, "create flux value parameter")
+    check(fv_param.setId("FLUX_VALUE"), "set flux value parameter ID")
+    check(fv_param.setName(param_name), "set flux value parameter name")
+    check(fv_param.setValue(0.0), "set flux value parameter value")
+    # Create objective coefficient parameter
+    fv_param = kinetic_law.createParameter()
+    check(fv_param, "create objective coefficient parameter")
+    check(fv_param.setId("OBJECTIVE_COEFFICIENT"),
+          "set objective coefficient parameter ID")
+    check(fv_param.setValue(1.0), "set objective coefficient parameter value")
+    # Set math
+    math_xml = """<math xmlns=\"http://www.w3.org/1998/Math/MathML">
+    <ci> FLUX_VALUE </ci>
+    </math>"""
+    math_ast = sbml.readMathMLFromString(math_xml)
+    check(math_ast, "create MathML")
+    check(kinetic_law.setMath(math_ast), "set math on kinetic law")
+
     # Save as XML
     if file_name is None:
         save_as = os.path.join(out_dir, model.name + ".xml")
