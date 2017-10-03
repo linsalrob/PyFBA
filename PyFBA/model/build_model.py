@@ -5,6 +5,7 @@ import copy
 import errno
 import PyFBA
 import libsbml as sbml
+from bs4 import BeautifulSoup
 
 
 def roles_to_model(rolesFile, id, name, orgtype="gramnegative", verbose=False):
@@ -221,6 +222,7 @@ def save_sbml(model, out_dir=".", file_name=None):
     :type out_dir: str
     :return: None
     """
+    #TODO: Record gap-fill, role information, and organism type
     # CONSTANTS
     LOWER_BOUND = -1000.0
     UPPER_BOUND = 1000.0
@@ -480,3 +482,60 @@ def save_sbml(model, out_dir=".", file_name=None):
         print("Failed to save model as:", save_as, file=sys.stderr)
     else:
         print("Saved model successfully to file:", save_as, file=sys.stderr)
+
+
+def load_sbml(sbml_file, org_type="gramnegative"):
+    """
+    Load model from SBML format.
+
+    :param sbml_file: File path of SBML file
+    :type sbml_file: str
+    :return: Metabolic model
+    :rtype: PyFBA.model.Model
+    """
+    #TODO: SBML file does not have all information on gap-fill and roles
+    # Check if model file exists
+    if not os.path.isfile(sbml_file):
+        raise IOError("SBML file '{}' could not be found".format(sbml_file))
+
+    # Load ModelSEED database
+    compounds, reactions, enzymes = \
+        PyFBA.parse.compounds_reactions_enzymes(org_type)
+
+    # Read in SBML file using BeautifulSoup
+    sbml = BeautifulSoup(open(sbml_file, "r"), "xml")
+
+    # Create model object
+    model = PyFBA.model.Model(sbml.model["id"], sbml.model["name"], org_type)
+
+    # Read in compounds
+    model_cpds = dict()
+    for c in sbml.listOfSpecies.find_all("species"):
+        # Remove compartment information from ID and compartment
+        c_id = c["id"].replace("_c0", "").replace("_e0", "")
+        c_name = c["name"]
+        c_comp = c["compartment"].replace("0", "")
+
+        # Create compound object to find the match in ModelSEED
+        c_obj = PyFBA.metabolism.Compound(c_name, c_comp)
+        c_obj.model_seed_id = c_id
+        if str(c_obj) in compounds:
+            model_cpds[c_id] = compounds[str(c_obj)]
+        else:
+            model_cpds[c_id] = c_obj
+
+    # Read in reactions and add to model
+    for r in sbml.listOfReactions.find_all("reaction"):
+        if r["id"].lower() == "biomass":
+            #TODO: Handle biomass reaction
+            biomass_eqn = PyFBA.metabolism.biomass_equation(org_type)
+            model.set_biomass_reaction(biomass_eqn)
+            continue
+        # Try to find in ModelSEED
+        try:
+            r_obj = reactions[r["id"]]
+            model.add_reactions(set([r_obj]))
+        except ValueError:
+            print("Could not find reaction {} in ModelSEED".format(r["id"]))
+
+    return model
