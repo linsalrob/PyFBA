@@ -374,6 +374,13 @@ def save_sbml(model, out_dir=".", file_name=None):
               "set objective coefficient parameter ID")
         check(fv_param.setValue(0.0),
               "set objective coefficient parameter value")
+        # Set math
+        math_xml = """<math xmlns=\"http://www.w3.org/1998/Math/MathML">
+        <ci> FLUX_VALUE </ci>
+        </math>"""
+        math_ast = sbml.readMathMLFromString(math_xml)
+        check(math_ast, "create MathML")
+        check(kinetic_law.setMath(math_ast), "set math on kinetic law")
 
     # Save as XML
     if file_name is None:
@@ -382,4 +389,6 @@ def save_sbml(model, out_dir=".", file_name=None):
         save_as = os.path.join(out_dir, file_name)
     save = sbml.writeSBML(sbml_doc, save_as)
     if save != 1:
-        print("Failed to save model as:", save_as)
+        print("Failed to save model as:", save_as, file=sys.stderr)
+    else:
+        print("Saved model successfully to file:", save_as, file=sys.stderr)
