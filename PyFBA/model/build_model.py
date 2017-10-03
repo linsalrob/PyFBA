@@ -205,7 +205,7 @@ def load_model(in_dir, prefix):
     return model
 
 
-def save_sbml(model, out_dir):
+def save_sbml(model, out_dir=".", file_name=None):
     """
     Save model in SBML format. Currently using:
     SBML Level 3 Version 1 Core (Release 2)
@@ -221,6 +221,10 @@ def save_sbml(model, out_dir):
     :type out_dir: str
     :return: None
     """
+    # CONSTANTS
+    LOWER_BOUND = -1000.0
+    UPPER_BOUND = 1000.0
+
     # Function adapted from sbml web page listed above
     def check(value, message):
         """
@@ -231,19 +235,17 @@ def save_sbml(model, out_dir):
         prints an error message constructed using 'message' along with text from
         libSBML explaining the meaning of the code, and exits with status code 1.
         """
-        if value == None:
-            raise SystemError(
-                'LibSBML returned a null value trying to ' + message + '.')
+        if value is None:
+            raise SystemError("LibSBML returned a null value "
+                              "trying to {}.".format(message))
+
         elif type(value) is int:
-            if value == sbml.LIBSBML_OPERATION_SUCCESS:
-                return
-            else:
-                err_msg = 'Error encountered trying to ' + message + '.' \
-                          + 'LibSBML returned error code ' + str(value) + ': "' \
-                          + sbml.OperationReturnValue_toString(value).strip() + '"'
+            if value != sbml.LIBSBML_OPERATION_SUCCESS:
+                err_code = sbml.OperationReturnValue_toString(value).strip()
+                err_msg = ("Error encountered trying to {}. LibSBML returned "
+                           "error code {}: '{}'".format(message, value,
+                                                        err_code))
                 raise SystemError(err_msg)
-        else:
-            return
 
     # Create the SBML document for saving
     try:
@@ -251,8 +253,133 @@ def save_sbml(model, out_dir):
     except ValueError:
         raise SystemError("Could not create an SBMLDocument object")
 
-    # Create a model in the document and set global information
+    # Create an SBML model in the document and set global information
     sbml_model = sbml_doc.createModel()
-    if sbml_model is None:
-        raise SystemError("Could not create an SBML Model object")
+    check(sbml_model, "create SBML Model object")
+    check(sbml_model.setName(model.name), "set Model Name")
+    check(sbml_model.setId(model.id), "set Model ID")
 
+    # Create unit definitions
+    # Flux rate contains 3 units
+    flux_rate = sbml_model.createUnitDefinition()
+    check(flux_rate, "create unit definition")
+    check(flux_rate.setId("mmol_per_gDW_per_hr"), "set unit definition ID")
+    # Mole unit
+    unit = flux_rate.createUnit()
+    check(unit, "create unit on mmol_per_gDW_per_hr")
+    check(unit.setKind(sbml.UNIT_KIND_MOLE), "set unit mole")
+    check(unit.setScale(-3), "set unit scale")
+    # Gram unit
+    unit = flux_rate.createUnit()
+    check(unit, "create unit on mmol_per_gDW_per_hr")
+    check(unit.setKind(sbml.UNIT_KIND_GRAM), "set unit gram")
+    check(unit.setExponent(-1), "set unit exponent")
+    # Second unit
+    unit = flux_rate.createUnit()
+    check(unit, "create unit on mmol_per_gDW_per_hr")
+    check(unit.setKind(sbml.UNIT_KIND_SECOND), "set unit second")
+    check(unit.setExponent(-1), "set unit exponent")
+    check(unit.setMultiplier(1/3600), "set unit multiplier")
+
+    # Create compartments
+    # Two compartments: c0 and e0
+    # c0
+    comp = sbml_model.createCompartment()
+    check(comp, "create compartment")
+    check(comp.setId("c0"), "set compartment ID")
+    check(comp.setName("c0"), "set compartment name")
+    # e0
+    comp = sbml_model.createCompartment()
+    check(comp, "create compartment")
+    check(comp.setId("e0"), "set compartment ID")
+    check(comp.setName("e0"), "set compartment name")
+
+    # Create compound species
+    # Must iterate through all compounds in the model
+    for c in model.compounds:
+        curr_comp = c.location + "0"
+        s = sbml_model.createSpecies()
+        check(s, "create species")
+        check(s.setId(c.model_seed_id + "_" + curr_comp), "set species ID")
+        check(s.setName(c.name), "set species name")
+        check(s.setCompartment(curr_comp), "set species compartment")
+        # TODO: properly set charge
+        # check(s.setCharge(0), "set species charge")
+        # TODO: properly set boundary
+        check(s.setBoundaryCondition(False), "set species boundary condition")
+
+    # Create reactions
+    # Must iterate through all reactions in the model
+    for rid, r in model.reactions.items():
+        curr_rxn = sbml_model.createReaction()
+        check(curr_rxn, "create reaction")
+        check(curr_rxn.setId(rid), "set reaction ID")
+        check(curr_rxn.setName(r.name), "set reaction name")
+        check(curr_rxn.setReversible(r.direction == "="),
+              "set reaction reversibility")
+
+        # Start with left side
+        for c, c_abun in r.left_abundance.items():
+            if r.direction == ">" or r.direction == "=":
+                r_comp = curr_rxn.createReactant()
+                check(r_comp, "create reactant")
+            else:
+                r_comp = curr_rxn.createProduct()
+                check(r_comp, "create product")
+            check(r_comp.setSpecies(c.model_seed_id + "_" + c.location + "0"),
+                  "assign reaction species")
+            check(r_comp.setStoichiometry(float(c_abun)),
+                  "assign stoichiometry")
+        # Next is right side
+        for c, c_abun in r.right_abundance.items():
+            if r.direction == ">" or r.direction == "=":
+                r_comp = curr_rxn.createProduct()
+                check(r_comp, "create product")
+            else:
+                r_comp = curr_rxn.createReactant()
+                check(r_comp, "create reactant")
+            check(r_comp.setSpecies(c.model_seed_id + "_" + c.location + "0"),
+                  "assign reaction species")
+            check(r_comp.setStoichiometry(float(c_abun)),
+                  "assign stoichiometry")
+
+        # Create kinetic law
+        kinetic_law = curr_rxn.createKineticLaw()
+        check(kinetic_law, "create kinetic law")
+        param_name = "mmol_per_gDW_per_hr"
+        # Create lower bound parameter
+        lb_param = kinetic_law.createParameter()
+        check(lb_param, "create lower bound parameter")
+        check(lb_param.setId("LOWER_BOUND"), "set lower bound parameter ID")
+        check(lb_param.setName(param_name), "set lower bound parameter name")
+        check(lb_param.setValue(LOWER_BOUND),
+              "set lower bound parameter value")
+        # Create upper bound parameter
+        ub_param = kinetic_law.createParameter()
+        check(ub_param, "create upper bound parameter")
+        check(ub_param.setId("UPPER_BOUND"), "set upper bound parameter ID")
+        check(ub_param.setName(param_name), "set upper bound parameter name")
+        check(ub_param.setValue(UPPER_BOUND),
+              "set upper bound parameter value")
+        # Create flux value parameter
+        fv_param = kinetic_law.createParameter()
+        check(fv_param, "create flux value parameter")
+        check(fv_param.setId("FLUX_VALUE"), "set flux value parameter ID")
+        check(fv_param.setName(param_name), "set flux value parameter name")
+        check(fv_param.setValue(0.0), "set flux value parameter value")
+        # Create objective coefficient parameter
+        fv_param = kinetic_law.createParameter()
+        check(fv_param, "create objective coefficient parameter")
+        check(fv_param.setId("OBJECTIVE_COEFFICIENT"),
+              "set objective coefficient parameter ID")
+        check(fv_param.setValue(0.0),
+              "set objective coefficient parameter value")
+
+    # Save as XML
+    if file_name is None:
+        save_as = os.path.join(out_dir, model.name + ".xml")
+    else:
+        save_as = os.path.join(out_dir, file_name)
+    save = sbml.writeSBML(sbml_doc, save_as)
+    if save != 1:
+        print("Failed to save model as:", save_as)
