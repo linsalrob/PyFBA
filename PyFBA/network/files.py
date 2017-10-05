@@ -120,7 +120,7 @@ def network_compounds_sif(network,  filepath, ulimit=None, verbose=False):
         print("", file=sys.stderr)
 
 
-def network_reactions_sif(network,  filepath):
+def network_reactions_sif(network, filepath, ulimit=None):
     """
     Create a SIF (simple interaction file) format of a network. Network nodes
     are reactions. SIF is compatible with Cytoscape. The filepath provided
@@ -130,6 +130,9 @@ def network_reactions_sif(network,  filepath):
     :type network: PyFBA.network.Network
     :param filepath: Filepath for output
     :type filepath: str
+    :param ulimit: For a compound, the highest allowed number of neighbors
+                   to be included in the output
+    :type ulimit: int
     :return: None
     """
     fh = open(filepath + ".sif", "w")
@@ -139,18 +142,23 @@ def network_reactions_sif(network,  filepath):
     # Algorithm: for each node, obtain all reactions connecting to it. The node
     # is essentially the connection between two reactions
     for n, nbrs in network.node_adj_iter():
-        # Skip if the number of neighbors is less than two
-        if len(nbrs) < 2:
+        # Skip if the number of neighbors (compounds) is less than two
+        #if len(nbrs) < 2:
+        #     continue
+        # Skip if the number of neighbors (reactions) exceeds ulimit
+        if ulimit and len(nbrs) > ulimit:
             continue
+        # Make a set of all reactions
+        # Neighbors stored as:
+        #     {cpd_neighbor1: {"reaction": rxn_id},
+        #      cpd_neighbor2: {"reaction": rxn_id}, ...}
+        # Reactions can be repeated
+        rxns = {r["reaction"] for r in nbrs.values()}
         # Obtain all combinations of edges between the current
         # node and its neighboring nodes
-        for n1, n2 in combinations(nbrs, 2):
-            r1 = nbrs[n1]['reaction']
-            r2 = nbrs[n2]['reaction']
-            # Skip connections between the same reaction
-            if r1 == r2:
-                continue
+        for r1, r2 in combinations(rxns, 2):
             # Skip connections we've already seen
+            # This shouldn't happen anymore but we'll keep it here anyway
             check = (r1, r2)
             if check in conns:
                 continue
