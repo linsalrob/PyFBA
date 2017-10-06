@@ -222,8 +222,9 @@ def network_union(net1, net2):
     :rtype: PyFBA.network.Network
     """
     union = net1.get_nx_graph().copy()
-    for e in net2.edges_iter():
-        if not union.has_edge(*e):
+    # Set data to True so reaction information gets passed through
+    for e in net2.edges_iter(data=True):
+        if not union.has_edge(e[0], e[1]):
             union.add_edge(*e)
     return Network(graph=union)
 
