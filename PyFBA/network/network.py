@@ -196,12 +196,14 @@ class Network:
         for n, nbrs in self.graph.to_undirected().adjacency_iter():
             yield (n, nbrs)
 
-    def edges_iter(self):
+    def edges_iter(self, data=False):
         """
         Provide an iterator for the network's edges
 
+        :param data: Flag to include edge data
+        :type data: bool
         :return: Edges iterator
         :rtype: iterator
         """
-        for e in self.graph.edges():
+        for e in self.graph.edges(data=data):
             yield e
