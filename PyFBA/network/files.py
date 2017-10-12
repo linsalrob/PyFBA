@@ -75,11 +75,15 @@ def network_compounds_sif(network,  filepath, ulimit=None, verbose=False):
                     counts[cpd2] = 0
                 counts[cpd1] += 1
                 counts[cpd2] += 1
-                fh.write(cpd1.name + "\tcc\t" + cpd2.name + "\n")
+
+                cpd1_name = "{} [{}]".format(cpd1.name, cpd1.location)
+                cpd2_name = "{} [{}]".format(cpd2.name, cpd2.location)
+                fh.write(cpd1_name + "\tcc\t" + cpd2_name + "\n")
 
         with open(filepath + ".sizes", "w") as fh:
             for cpd, count in counts.items():
-                fh.write(cpd.name + "\t" + count + "\n")
+                cpd_name = "{} [{}]".format(cpd.name, cpd.location)
+                fh.write(cpd_name + "\t" + count + "\n")
 
     else:
         # Iterate through edges
@@ -107,15 +111,18 @@ def network_compounds_sif(network,  filepath, ulimit=None, verbose=False):
                 cpd1, cpd2 = c
                 if counts[cpd1] > ulimit or counts[cpd2] > ulimit:
                     continue
-                fh.write(cpd1.name + "\tcc\t" + cpd2.name + "\n")
+                cpd1_name = "{} [{}]".format(cpd1.name, cpd1.location)
+                cpd2_name = "{} [{}]".format(cpd2.name, cpd2.location)
+                fh.write(cpd1_name + "\tcc\t" + cpd2_name + "\n")
 
         with open(filepath + ".sizes", "w") as fh,\
                 open(filepath + ".skip", "w") as fhskip:
             for cpd, count in counts.items():
+                cpd_name = "{} [{}]".format(cpd.name, cpd.location)
                 if count > ulimit:
-                    fhskip.write(cpd.name + "\t" + str(count) + "\n")
+                    fhskip.write(cpd_name + "\t" + str(count) + "\n")
                     continue
-                fh.write(cpd.name + "\t" + str(count) + "\n")
+                fh.write(cpd_name + "\t" + str(count) + "\n")
     if verbose:
         print("", file=sys.stderr)
 
@@ -273,12 +280,14 @@ def union_networks_sif(network1, network2, n1_name, n2_name,
 
             cnt1 = counts[cpd1]
             cnt2 = counts[cpd2]
+            cpd1_name = "{} [{}]".format(cpd1.name, cpd1.location)
+            cpd2_name = "{} [{}]".format(cpd2.name, cpd2.location)
 
             # Check if first compound count is too high
             if ulimit is not None and cnt1 > ulimit:
                 # Check if first compound was written to file yet
                 if cpd1 not in reported_skip:
-                    fh_skip.write(cpd1.name + "\t" + str(cnt1) + "\n")
+                    fh_skip.write(cpd1_name + "\t" + str(cnt1) + "\n")
                     reported_skip.add(cpd1)
                 skip = True
 
@@ -286,7 +295,7 @@ def union_networks_sif(network1, network2, n1_name, n2_name,
             if ulimit is not None and cnt2 > ulimit:
                 # Check if second compound was written to file yet
                 if cpd2 not in reported_skip:
-                    fh_skip.write(cpd2.name + "\t" + str(cnt2) + "\n")
+                    fh_skip.write(cpd2_name + "\t" + str(cnt2) + "\n")
                     reported_skip.add(cpd2)
                 skip = True
             if skip:
@@ -294,13 +303,13 @@ def union_networks_sif(network1, network2, n1_name, n2_name,
 
             # Check if compounds were written to nodes and sizes file yet
             if cpd1 not in reported_others:
-                fh_nodes.write(cpd1.name + "\t" + node_owners[cpd1] + "\n")
-                fh_sizes.write(cpd1.name + "\t" + str(cnt1) + "\n")
+                fh_nodes.write(cpd1_name + "\t" + node_owners[cpd1] + "\n")
+                fh_sizes.write(cpd1_name + "\t" + str(cnt1) + "\n")
                 reported_others.add(cpd1)
             if cpd2 not in reported_others:
-                fh_nodes.write(cpd2.name + "\t" + node_owners[cpd2] + "\n")
-                fh_sizes.write(cpd2.name + "\t" + str(cnt2) + "\n")
+                fh_nodes.write(cpd2_name + "\t" + node_owners[cpd2] + "\n")
+                fh_sizes.write(cpd2_name + "\t" + str(cnt2) + "\n")
                 reported_others.add(cpd2)
 
             # Write out to interaction file
-            fh.write("\t".join([cpd1.name, owner, cpd2.name]) + "\n")
+            fh.write("\t".join([cpd1_name, owner, cpd2_name]) + "\n")
