@@ -39,7 +39,10 @@ class SuggestionTest(unittest.TestCase):
         """Test suggestions based on a media"""
         toy_media = {PyFBA.metabolism.Compound('NH3', 'e')}
         suggested = PyFBA.gapfill.suggest_from_media(self.__class__.compounds, self.__class__.reactions, {}, toy_media)
-        self.assertEqual(len(suggested), 13)
+        # #self.assertEqual(len(suggested), 13)
+        # New suggestion counts based on the following database commit version
+        # c4ba1c6a2aa81dae6159323c95a4236619c3d9ce
+        self.assertGreaterEqual(len(suggested), 758)
 
     def test_orphan_compound(self):
         """Test suggestions based on orphan compounds"""

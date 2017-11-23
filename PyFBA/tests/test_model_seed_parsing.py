@@ -78,7 +78,10 @@ class TestModelSeedParsing(unittest.TestCase):
         #
         # Note that these numbers are occasionally updated, and so you may need to update the test values.
         # To mitigate this, we use >= in our comparison (in the hope none are deleted!)
-        self.assertGreaterEqual(len(compounds), 45616)
+        # self.assertGreaterEqual(len(compounds), 45616)
+        # New compound counts based on the following database commit version
+        # c4ba1c6a2aa81dae6159323c95a4236619c3d9ce
+        self.assertGreaterEqual(len(compounds), 29938)
         self.assertGreaterEqual(len(reactions), 34696)
         is_transport = 0
         direction = {}
@@ -117,5 +120,8 @@ class TestModelSeedParsing(unittest.TestCase):
         cpds, rcts, enzs = PyFBA.parse.model_seed.compounds_reactions_enzymes()
         self.assertEqual(len(enzs), 4067)
         self.assertGreaterEqual(len(rcts), 34696)
-        self.assertGreaterEqual(len(cpds), 45616)
+        #self.assertGreaterEqual(len(cpds), 45616)
+        # New compound counts based on the following database commit version
+        # c4ba1c6a2aa81dae6159323c95a4236619c3d9ce
+        self.assertGreaterEqual(len(cpds), 29938)
 
