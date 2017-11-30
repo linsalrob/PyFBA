@@ -74,14 +74,14 @@ class Network:
                     # Since graph is directed, the order of the compounds
                     # in the add_edge() function matters
                     if r.direction == ">":
-                        self.graph.add_edge(cl, cr, {"reaction" : str(rname)})
+                        self.graph.add_edge(cl, cr, {"reaction": str(rname)})
 
                     elif r.direction == "<":
-                        self.graph.add_edge(cr, cl, {"reaction" : str(rname)})
+                        self.graph.add_edge(cr, cl, {"reaction": str(rname)})
 
                     else:
-                        self.graph.add_edge(cl, cr, {"reaction" : str(rname)})
-                        self.graph.add_edge(cr, cl, {"reaction" : str(rname)})
+                        self.graph.add_edge(cl, cr, {"reaction": str(rname)})
+                        self.graph.add_edge(cr, cl, {"reaction": str(rname)})
 
     def get_nx_graph(self):
         """
@@ -91,7 +91,8 @@ class Network:
         """
         return self.graph
 
-    def common_compounds(self):
+    @staticmethod
+    def common_compounds():
         """
         Return set of highly common compounds
         """
@@ -154,9 +155,10 @@ class Network:
         for n in self.graph.nodes():
             yield n
 
-    def nodes_neighbors_iter(self, node):
+    def nodes_all_neighbors_iter(self, node):
         """
-        Provide an iterator for a node's neighbors
+        Provide an iterator for a node's neighbors, both predecessors and
+        successors
 
         :param node: Node to provide an iterator for
         :type node: PyFBA.Compound
@@ -166,16 +168,34 @@ class Network:
         if not self.graph.has_node(node):
             raise ValueError("Node does not exist in network")
 
-        # Make network undirected first
-        for n in self.graph.to_undirected().neighbors_iter(node):
+        # Yield all neighboring nodes
+        for n in nx.all_neighbors(self.graph, node):
             yield n
 
-    def number_neighbors(self, node):
+    def nodes_neighbors_iter(self, node):
+        """
+        Provide an iterator for a node's neighbors, only successors
+
+        :param node: Node to provide an iterator for
+        :type node: PyFBA.Compound
+        :return: Neighbor iterator
+        """
+        # First make sure the node exists in the network
+        if not self.graph.has_node(node):
+            raise ValueError("Node does not exist in network")
+
+        # Yield all successor nodes
+        for n in self.graph.neighbors_iter(node):
+            yield n
+
+    def number_neighbors(self, node, all=False):
         """
         Sum number of neighbors for a node
 
         :param node: Node given
         :type node: PyFBA.Compound
+        :param all: Flag to include predecessors in the count
+        :type all: bool
         :return: Number of neighbors
         :rtype: int
         """
@@ -183,8 +203,11 @@ class Network:
         if not self.graph.has_node(node):
             raise ValueError("Node does not exist in network")
 
-        # Make network undirected first
-        return sum(1 for n in self.nodes_neighbors_iter(node))
+        if all:
+            return sum(1 for n in self.nodes_all_neighbors_iter(node))
+
+        else:
+            return sum(1 for n in self.nodes_neighbors_iter(node))
 
     def node_adj_iter(self):
         """
@@ -193,7 +216,7 @@ class Network:
         :return: Adjacency iterator
         :rtype: iterator
         """
-        for n, nbrs in self.graph.to_undirected().adjacency_iter():
+        for n, nbrs in self.graph.adjacency_iter():
             yield (n, nbrs)
 
     def edges_iter(self, data=False):
