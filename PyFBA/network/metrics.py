@@ -1,6 +1,7 @@
 from __future__ import print_function, absolute_import, division
 from .network import Network
 import networkx as nx
+import sys
 
 
 def number_connected_components(network):
@@ -16,7 +17,11 @@ def number_connected_components(network):
     if not isinstance(network, Network):
         raise TypeError
 
-    return nx.number_connected_components(network.graph.to_undirected())
+    # Convert directed graph to undirected
+    if network.graph.is_directed():
+        return nx.number_connected_components(network.graph.to_undirected())
+
+    return nx.number_connected_components(network.graph)
 
 
 def clustering_coeff(network):
@@ -156,6 +161,9 @@ def diameter(network):
     if nx.is_connected(undir_network):
         return nx.diameter(undir_network)
 
+    print("Warning: network is not fully connected. Will calculate largest",
+          "diameter", file=sys.stderr)
+
     # Network is not connected -- find diameter for each component
     largest_diam = 0
     for c in nx.connected_component_subgraphs(undir_network):
@@ -168,9 +176,16 @@ def diameter(network):
     return largest_diam
 
 
-def jaccard_distance(net1, net2):
+def jaccard_distance(net1, net2, verbose=False):
     """
-    Calculate the Jaccard distance between two networks.
+    Calculate the Jaccard distance between two networks. Here, the Jaccard
+    distance between two networks is defined as one minus the quotient of the
+    intersection of edges and the union of edges:
+
+                J(net1, net2) = 1 - (I(net1, net2) / U(net1, net2))
+
+    Note: Jaccard distance is a metric defined for sets. Here the sets are
+    the edges in each network
 
     :param net1: First network to use in comparison
     :type net1: PyFBA.network.Network
@@ -185,22 +200,10 @@ def jaccard_distance(net1, net2):
     elif not isinstance(net2, Network):
         raise TypeError("Second network is not a Network object")
 
-    # Make sure graphs have same number of nodes
-    g1 = net1.graph.copy()
-    g2 = net2.graph.copy()
-    g1.remove_nodes_from([n for n in net1.graph if n not in net2.graph])
-    g2.remove_nodes_from([n for n in net2.graph if n not in net1.graph])
-
-    # Check number of nodes in each
-    if g1.number_of_nodes() != g2.number_of_nodes():
-        raise ValueError("Networks have different number of nodes:"
-                         " net1: {}, net2: {}".format(g1.number_of_nodes(),
-                                                      g2.number_of_nodes()))
-    else:
-        print("Resulting graphs have {} nodes each".format(
-            g1.number_of_nodes()))
-
     union = network_union(net1, net2).get_nx_graph()
+
+    # Calculate intersection by removing nodes not present in both
+    # Removing nodes result in removing edges connected to it
     g1 = net1.get_nx_graph()
     g2 = net2.get_nx_graph()
     intersection = g1.copy()
