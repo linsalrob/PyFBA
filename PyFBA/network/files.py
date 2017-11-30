@@ -1,6 +1,5 @@
 from __future__ import print_function, absolute_import, division
 import sys
-from itertools import combinations
 from .metrics import network_union
 
 
@@ -44,7 +43,6 @@ def network_compounds_sif(network,  filepath, ulimit=None, verbose=False):
     :return: None
     """
     conns = set()  # Record which connections were already passed through
-    conns_to_output = set()  # Connections to print out
     counts = dict()
 
     num_nodes = network.number_of_nodes()
@@ -53,78 +51,69 @@ def network_compounds_sif(network,  filepath, ulimit=None, verbose=False):
         print("Network contains", num_nodes, "nodes and", num_edges, "edges",
               file=sys.stderr)
 
-    # If ulimit is not set, go through edges since it is much faster than
-    # iterating through nodes
-    if ulimit is None:
-        with open(filepath + ".sif", "w") as fh:
-            # Iterate through edges
-            for i, e in enumerate(network.edges_iter(), start=1):
-                if verbose:
-                    print("Working on edge {} out of {}".format(i, num_edges),
-                          end="\r", file=sys.stderr)
-                # Skip connections we've already seen
-                # Could be due to bidirectional reactions
-                if e in conns:
-                    continue
-                cpd1, cpd2 = e
-                conns.add(e)
-                conns.add((cpd2, cpd1))
-                if cpd1 not in counts:
-                    counts[cpd1] = 0
-                if cpd2 not in counts:
-                    counts[cpd2] = 0
-                counts[cpd1] += 1
-                counts[cpd2] += 1
-
-                cpd1_name = "{} [{}]".format(cpd1.name, cpd1.location)
-                cpd2_name = "{} [{}]".format(cpd2.name, cpd2.location)
-                fh.write(cpd1_name + "\tcc\t" + cpd2_name + "\n")
-
-        with open(filepath + ".sizes", "w") as fh:
-            for cpd, count in counts.items():
-                cpd_name = "{} [{}]".format(cpd.name, cpd.location)
-                fh.write(cpd_name + "\t" + count + "\n")
-
-    else:
-        # Iterate through edges
-        for i, e in enumerate(network.edges_iter(), start=1):
-            if verbose:
-                print("Working on edge {} out of {}".format(i, num_edges),
-                      end="\r", file=sys.stderr)
-            # Skip connections we've already seen
-            # Could be due to bidirectional reactions
-            if e in conns:
-                continue
-            cpd1, cpd2 = e
-            conns.add(e)
-            conns.add((cpd2, cpd1))
-            conns_to_output.add(e)
-            if cpd1 not in counts:
-                counts[cpd1] = 0
-            if cpd2 not in counts:
-                counts[cpd2] = 0
-            counts[cpd1] += 1
-            counts[cpd2] += 1
-
-        with open(filepath + ".sif", "w") as fh:
-            for c in conns_to_output:
-                cpd1, cpd2 = c
-                if counts[cpd1] > ulimit or counts[cpd2] > ulimit:
-                    continue
-                cpd1_name = "{} [{}]".format(cpd1.name, cpd1.location)
-                cpd2_name = "{} [{}]".format(cpd2.name, cpd2.location)
-                fh.write(cpd1_name + "\tcc\t" + cpd2_name + "\n")
-
-        with open(filepath + ".sizes", "w") as fh,\
-                open(filepath + ".skip", "w") as fhskip:
-            for cpd, count in counts.items():
-                cpd_name = "{} [{}]".format(cpd.name, cpd.location)
-                if count > ulimit:
-                    fhskip.write(cpd_name + "\t" + str(count) + "\n")
-                    continue
-                fh.write(cpd_name + "\t" + str(count) + "\n")
+    # Iterate through edges
+    for i, e in enumerate(network.edges_iter(), start=1):
+        if verbose:
+            print("Working on edge {} out of {}".format(i, num_edges),
+                  end="\r", file=sys.stderr)
+        # Skip connections we've already seen
+        # Could be due to bidirectional reactions
+        if e in conns:
+            continue
+        cpd1, cpd2 = e
+        conns.add(e)
+        if cpd1 not in counts:
+            counts[cpd1] = 0
+        if cpd2 not in counts:
+            counts[cpd2] = 0
+        counts[cpd1] += 1
+        counts[cpd2] += 1
     if verbose:
         print("", file=sys.stderr)
+
+    # Write out files
+    with open(filepath + ".sif", "w") as fh, \
+            open(filepath + ".sizes", "w") as fh_sizes, \
+            open(filepath + ".skip", "w") as fh_skip:
+        # Remember which compounds are seen to avoid repetition in output files
+        reported_skip = set()
+        reported_sizes = set()
+        for c in conns:
+            skip = False
+            cpd1, cpd2 = c
+            cnt1 = counts[cpd1]
+            cnt2 = counts[cpd2]
+            cpd1_name = "{} [{}]".format(cpd1.name, cpd1.location)
+            cpd2_name = "{} [{}]".format(cpd2.name, cpd2.location)
+
+            # Check if first compound is too high
+            if ulimit and cnt1 > ulimit:
+                # Check if first compound was written to file yet
+                if cpd1 not in reported_skip:
+                    fh_skip.write(cpd1_name + "\t" + str(cnt1) + "\n")
+                    reported_skip.add(cpd1)
+                skip = True
+
+            # Check if second compound is too high
+            if ulimit and cnt2 > ulimit:
+                # Check if second compound was written to file yet
+                if cpd2 not in reported_skip:
+                    fh_skip.write(cpd2_name + "\t" + str(cnt2) + "\n")
+                    reported_skip.add(cpd2)
+                skip = True
+            if skip:
+                continue
+
+            # Check if compounds were written to sizes file yet
+            if cpd1 not in reported_sizes:
+                fh_sizes.write(cpd1_name + "\t" + str(cnt1) + "\n")
+                reported_sizes.add(cpd1)
+            if cpd2 not in reported_sizes:
+                fh_sizes.write(cpd2_name + "\t" + str(cnt2) + "\n")
+                reported_sizes.add(cpd2)
+
+            # Write out to interaction file
+            fh.write(cpd1_name + "\tcc\t" + cpd2_name + "\n")
 
 
 def network_reactions_sif(network, filepath, ulimit=None):
@@ -142,47 +131,93 @@ def network_reactions_sif(network, filepath, ulimit=None):
     :type ulimit: int
     :return: None
     """
-    fh = open(filepath + ".sif", "w")
+    # Record for each compound the reactions in which the
+    # compound is a reactant and the reactions in which the
+    # compound is a product
+    cpds = dict()
+
     conns = set()  # Record which connections were already passed through
     counts = dict()  # Record how often a reaction had a connection
-    # Iterate through nodes and their neighbors
-    # Algorithm: for each node, obtain all reactions connecting to it. The node
-    # is essentially the connection between two reactions
-    for n, nbrs in network.node_adj_iter():
-        # Skip if the number of neighbors (compounds) is less than two
-        #if len(nbrs) < 2:
-        #     continue
-        # Skip if the number of neighbors (reactions) exceeds ulimit
-        if ulimit and len(nbrs) > ulimit:
-            continue
-        # Make a set of all reactions
+
+    # Iterate through nodes (compounds) and their neighbors
+    # Algorithm: for each node (compound), obtain all reactions connecting to
+    # it. The node is essentially the connection between two reactions
+    for c, nbrs in network.node_adj_iter():
         # Neighbors stored as:
         #     {cpd_neighbor1: {"reaction": rxn_id},
         #      cpd_neighbor2: {"reaction": rxn_id}, ...}
-        # Reactions can be repeated
-        rxns = {r["reaction"] for r in nbrs.values()}
-        # Obtain all combinations of edges between the current
-        # node and its neighboring nodes
-        for r1, r2 in combinations(rxns, 2):
-            # Skip connections we've already seen
-            # This shouldn't happen anymore but we'll keep it here anyway
-            check = (r1, r2)
-            if check in conns:
-                continue
-            if r1 not in counts:
-                counts[r1] = 0
-            if r2 not in counts:
-                counts[r2] = 0
-            counts[r1] += 1
-            counts[r2] += 1
-            conns.add((r1, r2))
-            conns.add((r2, r1))
-            fh.write(r1 + "\trr\t" + r2 + "\n")
-    fh.close()
+        for n, data in nbrs.items():
+            r = data["reaction"]
+            # Add right reaction to the current compound
+            if c not in cpds:
+                cpds[c] = {"left": set(), "right": set()}
+            cpds[c]["right"].add(r)
 
-    with open(filepath + ".sizes", "w") as fh:
-        for rxn, count in counts.items():
-            fh.write(rxn + "\t" + str(count) + "\n")
+            # Add the left reaction to the neighboring compounds
+            if n not in cpds:
+                cpds[n] = {"left": set(), "right": set()}
+            cpds[n]["left"].add(r)
+
+    # Iterate through all compounds
+    # Reactions are connected by the left of the compound and the right
+    # of the compound
+    for c in cpds:
+        for r1 in cpds[c]["left"]:
+            for r2 in cpds[c]["right"]:
+                # Skip connections we've already seen
+                # This shouldn't happen anymore but we'll keep it here anyway
+                check = (r1, r2)
+                if check in conns:
+                    continue
+                if r1 not in counts:
+                    counts[r1] = 0
+                if r2 not in counts:
+                    counts[r2] = 0
+                counts[r1] += 1
+                counts[r2] += 1
+                conns.add((r1, r2))
+
+    # Write out files
+    with open(filepath + ".sif", "w") as fh, \
+            open(filepath + ".sizes", "w") as fh_sizes, \
+            open(filepath + ".skip", "w") as fh_skip:
+        # Remember which compounds are seen to avoid repetition in output files
+        reported_skip = set()
+        reported_sizes = set()
+        for c in conns:
+            skip = False
+            rxn1, rxn2 = c
+            cnt1 = counts[rxn1]
+            cnt2 = counts[rxn2]
+
+            # Check if first compound is too high
+            if ulimit and cnt1 > ulimit:
+                # Check if first compound was written to file yet
+                if rxn1 not in reported_skip:
+                    fh_skip.write(rxn1 + "\t" + str(cnt1) + "\n")
+                    reported_skip.add(rxn1)
+                skip = True
+
+            # Check if second compound is too high
+            if ulimit and cnt2 > ulimit:
+                # Check if second compound was written to file yet
+                if rxn2 not in reported_skip:
+                    fh_skip.write(rxn2 + "\t" + str(cnt2) + "\n")
+                    reported_skip.add(rxn2)
+                skip = True
+            if skip:
+                continue
+
+            # Check if compounds were written to sizes file yet
+            if rxn1 not in reported_sizes:
+                fh_sizes.write(rxn1 + "\t" + str(cnt1) + "\n")
+                reported_sizes.add(rxn1)
+            if rxn2 not in reported_sizes:
+                fh_sizes.write(rxn2 + "\t" + str(cnt2) + "\n")
+                reported_sizes.add(rxn2)
+
+            # Write out to interaction file
+            fh.write(rxn1 + "\trr\t" + rxn2 + "\n")
 
 
 def union_networks_sif(network1, network2, n1_name, n2_name,
@@ -209,11 +244,7 @@ def union_networks_sif(network1, network2, n1_name, n2_name,
     """
     # Obtain union of edges between two networks
     union_net = network_union(network1, network2)
-
-    # Make networks undirected
-    union_graph = union_net.get_nx_graph().to_undirected()
-    g1 = network1.get_nx_graph().to_undirected()
-    g2 = network2.get_nx_graph().to_undirected()
+    union_graph = union_net.get_nx_graph()
 
     conns = set()
     conns_to_output = set()
@@ -230,8 +261,8 @@ def union_networks_sif(network1, network2, n1_name, n2_name,
         conns.add((cpd2, cpd1))
 
         # Label edge as network 1, network 2, or shared
-        if g1.has_edge(*e):
-            if g2.has_edge(*e):
+        if network1.has_edge((cpd1, cpd2)):
+            if network2.has_edge((cpd1, cpd2)):
                 owner = "shared"
             else:
                 owner = n1_name
@@ -239,15 +270,15 @@ def union_networks_sif(network1, network2, n1_name, n2_name,
             owner = n2_name
 
         # Label node as network 1, network 2, or shared
-        if g1.has_node(cpd1):
-            if g2.has_node(cpd1):
+        if network1.has_node(cpd1):
+            if network2.has_node(cpd1):
                 node_owners[cpd1] = "shared"
             else:
                 node_owners[cpd1] = n1_name
         else:
             node_owners[cpd1] = n2_name
-        if g1.has_node(cpd2):
-            if g2.has_node(cpd2):
+        if network1.has_node(cpd2):
+            if network2.has_node(cpd2):
                 node_owners[cpd2] = "shared"
             else:
                 node_owners[cpd2] = n1_name
