@@ -1,5 +1,7 @@
 import os
 import sys
+import io
+import PyFBA
 
 import re
 
@@ -78,15 +80,27 @@ def roles_to_subsystem(roles):
     :rtype: dict of sets of 3-tuples
     """
     ss_data = {}
-    with open(os.path.join(os.path.dirname(__file__), "..", "util", "full_roles_ss.tsv")) as f:
+    ss_file = os.path.join(os.path.dirname(__file__),
+                           "..",
+                           "Biochemistry",
+                           "SEED",
+                           "Subsystems",
+                           "SS_functions.txt")
+    with io.open(ss_file, 'r', encoding="utf-8", errors='replace') as f:
+        # Discard header line
+        f.readline()
         for l in f:
-            func, cat, subcat, ss = l.rstrip("\n").split("\t")
-            # Functions can be associated with multiple subsystems
-            try:
-                ss_data[func]
-            except KeyError:
-                ss_data[func] = set()
-            ss_data[func].add((cat, subcat, ss))
+            # If using Python2, must convert unicode object to str object
+            if sys.version_info.major == 2:
+                l = l.encode('utf-8', 'replace')
+            func, ss, cat, subcat = l.rstrip("\n").split("\t")
+
+            # Multiple roles can be embedded in a single line
+            for r in PyFBA.parse.roles_of_function(func):
+                # Functions can be associated with multiple subsystems
+                if r not in ss_data:
+                    ss_data[r] = set()
+                ss_data[r].add((cat, subcat, ss))
 
     roles_to_ss = {}
     for r in roles:
