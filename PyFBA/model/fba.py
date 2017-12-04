@@ -1,6 +1,7 @@
 from __future__ import print_function
 import sys
 import os.path
+import io
 import PyFBA
 
 
@@ -76,15 +77,31 @@ def output_fba_with_subsystem(f, model, media_file, biomass_reaction=None):
 
     # Load subsystem info
     ss_data = {}
-    with open(os.path.join(os.path.dirname(__file__), "..", "util", "full_roles_ss.tsv")) as fin:
-        for l in fin:
-            func, cat, subcat, ss = l.rstrip("\n").split("\t")
-            if func not in ss_data:
-                ss_data[func] = set()
+    ss_file = os.path.join(os.path.dirname(__file__),
+                           "..",
+                           "Biochemistry",
+                           "SEED",
+                           "Subsystems",
+                           "SS_functions.txt")
+    #with open(os.path.join(os.path.dirname(__file__), "..", "util", "full_roles_ss.tsv")) as fin:
+    with io.open(ss_file, 'r', encoding="utf-8", errors='replace') as fin:
+        # Discard header line
+        f.readline()
+        for l in f:
+            # If using Python2, must convert unicode object to str object
+            if sys.version_info.major == 2:
+                l = l.encode('utf-8', 'replace')
+            func, ss, cat, subcat = l.rstrip("\n").split("\t")
             cat = cat if cat != "" else "Unknown"
             subcat = subcat if subcat != "" else "Unknown"
             ss = ss if ss != "" else "Unknown"
-            ss_data[func].add((cat, subcat, ss))
+
+            # Multiple roles can be embedded in a single line
+            for r in PyFBA.parse.roles_of_function(func):
+                # Functions can be associated with multiple subsystems
+                if r not in ss_data:
+                    ss_data[r] = set()
+                ss_data[r].add((cat, subcat, ss))
 
     # Run FBA and get fluxes
     fluxes = model_reaction_fluxes(model, media_file, biomass_reaction)
