@@ -86,8 +86,8 @@ def output_fba_with_subsystem(f, model, media_file, biomass_reaction=None):
     #with open(os.path.join(os.path.dirname(__file__), "..", "util", "full_roles_ss.tsv")) as fin:
     with io.open(ss_file, 'r', encoding="utf-8", errors='replace') as fin:
         # Discard header line
-        f.readline()
-        for l in f:
+        fin.readline()
+        for l in fin:
             # If using Python2, must convert unicode object to str object
             if sys.version_info.major == 2:
                 l = l.encode('utf-8', 'replace')
