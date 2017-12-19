@@ -106,16 +106,27 @@ def compounds(compounds_file=None):
                     # skip the header line
                     continue
                 p = l.strip().split("\t")
-                c = PyFBA.metabolism.Compound(p[2], '')
-                c.model_seed_id = p[0]
-                c.abbreviation = p[1]
-                c.formula = p[3]
-                c.mw = p[4]
+                # Create a extracellular and cytoplasm version
+                cc = PyFBA.metabolism.Compound(p[2], 'c')
+                cc.model_seed_id = p[0]
+                cc.abbreviation = p[1]
+                cc.formula = p[3]
+                cc.mw = p[4]
                 # there are some compounds (like D-Glucose and Fe2+) that appear >1x in the table
-                if str(c) in cpds:
-                    cpds[str(c)].alternate_seed_ids.add(p[0])
+                if str(cc) in cpds:
+                    cpds[str(cc)].alternate_seed_ids.add(p[0])
                 else:
-                    cpds[str(c)] = c
+                    cpds[str(cc)] = cc
+                ce = PyFBA.metabolism.Compound(p[2], 'e')
+                ce.model_seed_id = p[0]
+                ce.abbreviation = p[1]
+                ce.formula = p[3]
+                ce.mw = p[4]
+                # there are some compounds (like D-Glucose and Fe2+) that appear >1x in the table
+                if str(ce) in cpds:
+                    cpds[str(ce)].alternate_seed_ids.add(p[0])
+                else:
+                    cpds[str(ce)] = ce
     except IOError as e:
         sys.exit("There was an error parsing " +
                  compounds_file + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
@@ -168,11 +179,11 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.master.tsv', verbos
     locations = location()
     cpds = compounds()
     # cpds_by_id = {cpds[c].model_seed_id: cpds[c] for c in cpds}
-    cpds_by_id = {}
+    cpds_by_id = {"e": {}, "c": {}, "h": {}}
     for c in cpds:
-        cpds_by_id[cpds[c].model_seed_id] = cpds[c]
+        cpds_by_id[cpds[c].location][cpds[c].model_seed_id] = cpds[c]
         for asi in cpds[c].alternate_seed_ids:
-            cpds_by_id[asi] = cpds[c]
+            cpds_by_id[cpds[c].location][asi] = cpds[c]
 
     all_reactions = {}
 
@@ -268,15 +279,16 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.master.tsv', verbos
                     # and then we need to create a new compound with the
                     # appropriate location
 
-                    if cmpd in cpds_by_id:
+                    if cmpd in cpds_by_id[loc]:
                         #nc = PyFBA.metabolism.Compound(cpds_by_id[cmpd].name, loc)
-                        nc = copy.copy(cpds_by_id[cmpd])
-                        nc.location = loc  # Set location because it
+                        ###nc = copy.copy(cpds_by_id[cmpd])
+                        ###nc.location = loc  # Set location because it
                                            # does not contain it yet
                         # Remove the old version without the location
-                        empty = PyFBA.metabolism.Compound(cpds_by_id[cmpd].name, "")
-                        if str(empty) in cpds:
-                            del cpds[str(empty)]
+                        ###empty = PyFBA.metabolism.Compound(cpds_by_id[cmpd].name, "")
+                        ###if str(empty) in cpds:
+                        ###    del cpds[str(empty)]
+                        nc = cpds_by_id[loc][cmpd]
                     else:
                         if verbose:
                             sys.stderr.write("ERROR: Did not find " + cmpd + " in the compounds file.\n")
@@ -314,15 +326,16 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.master.tsv', verbos
                     # and then we need to create a new compound with the
                     # appropriate location
 
-                    if cmpd in cpds_by_id:
+                    if cmpd in cpds_by_id[loc]:
                         #nc = PyFBA.metabolism.Compound(cpds_by_id[cmpd].name, loc)
-                        nc = copy.copy(cpds_by_id[cmpd])
-                        nc.location = loc  # Set location because it
+                        ###nc = copy.copy(cpds_by_id[cmpd])
+                        ###nc.location = loc  # Set location because it
                                            # does not contain it yet
                         # Remove the old version without the location
-                        empty = PyFBA.metabolism.Compound(cpds_by_id[cmpd].name, "")
-                        if str(empty) in cpds:
-                            del cpds[str(empty)]
+                        ###empty = PyFBA.metabolism.Compound(cpds_by_id[cmpd].name, "")
+                        ###if str(empty) in cpds:
+                        ###    del cpds[str(empty)]
+                        nc = cpds_by_id[loc][cmpd]
 
                     else:
                         if verbose:
