@@ -3,7 +3,7 @@ import sys
 from PyFBA import lp
 import PyFBA
 
-def run_fba(compounds, reactions, reactions_to_run, media, biomass_equation, uptake_secretion={}, verbose=False):
+def run_fba(compounds, reactions, reactions_to_run, media, biomass_equation, uptake_secretion={}, growth_threshold=1, verbose=False):
     """
     Run an fba for a set of data. We required the reactions object,
     a list of reactions to run, the media, and the biomass_equation equation.
@@ -47,7 +47,7 @@ def run_fba(compounds, reactions, reactions_to_run, media, biomass_equation, upt
     status, value = PyFBA.lp.solve()
     
     growth = False
-    if value > 1:
+    if value > growth_threshold:
         growth = True
     
     return status, value, growth
