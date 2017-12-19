@@ -160,6 +160,33 @@ def compute_compound_counts(model, media_file, biomass_reaction=None,
         if rxnID == "BIOMASS_EQN":
             cpd_counts["c"]["Biomass"] = {"flux": rflux,
                                           "reactions": {rxnID: rflux}}
+            if biomass_reaction is None:
+                biomass_reaction = model.biomass_reaction
+
+            # Get left compounds
+            for cpd in biomass_reaction.left_compounds:
+                loc = cpd.location
+                cpd_name = str(cpd)
+                if cpd_name not in cpd_counts[loc]:
+                    cpd_counts[loc][cpd_name] = {"flux": 0,
+                                                 "reactions": {}}
+
+                # Add flux to cpd_count
+                coef = biomass_reaction.left_abundance[cpd]
+                cpd_counts[loc][cpd_name]["flux"] += -rflux * coef
+                cpd_counts[loc][cpd_name]["reactions"][rxnID] = -rflux
+
+            # Get right compounds
+            for cpd in biomass_reaction.right_compounds:
+                cpd_name = str(cpd)
+                loc = cpd.location
+                if cpd_name not in cpd_counts[loc]:
+                    cpd_counts[loc][cpd_name] = {"flux": 0,
+                                                 "reactions": {}}
+                # Add flux to cpd_count
+                coef = biomass_reaction.right_abundance[cpd]
+                cpd_counts[loc][cpd_name]["flux"] += rflux * coef
+                cpd_counts[loc][cpd_name]["reactions"][rxnID] = rflux
             continue
 
         # Biomass has its own secretion reaction, we will skip it
@@ -208,13 +235,9 @@ def compute_compound_counts(model, media_file, biomass_reaction=None,
                                              "reactions": {}}
 
             # Add flux to cpd_count
-            # Check direction because a leftward reaction means left
-            # compounds are products and not reactants
-            if reactions[rxnID].direction == "<":
-                cpd_counts[loc][cpd_name]["flux"] += rflux
-            else:
-                cpd_counts[loc][cpd_name]["flux"] += -rflux
-            cpd_counts[loc][cpd_name]["reactions"][rxnID] = rflux
+            coef = reactions[rxnID].left_abundance[cpd]
+            cpd_counts[loc][cpd_name]["flux"] += -rflux * coef
+            cpd_counts[loc][cpd_name]["reactions"][rxnID] = -rflux
 
         # Get right compounds
         for cpd in reactions[rxnID].right_compounds:
@@ -224,12 +247,8 @@ def compute_compound_counts(model, media_file, biomass_reaction=None,
                 cpd_counts[loc][cpd_name] = {"flux": 0,
                                              "reactions": {}}
             # Add flux to cpd_count
-            # Check direction because a leftward reaction means right
-            # compounds are reactants and not products
-            if reactions[rxnID].direction == "<":
-                cpd_counts[loc][cpd_name]["flux"] += -rflux
-            else:
-                cpd_counts[loc][cpd_name]["flux"] += rflux
+            coef = reactions[rxnID].right_abundance[cpd]
+            cpd_counts[loc][cpd_name]["flux"] += rflux * coef
             cpd_counts[loc][cpd_name]["reactions"][rxnID] = rflux
 
     return cpd_counts
