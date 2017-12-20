@@ -317,9 +317,6 @@ class Model:
             if not growth:
                 essential.add(rxn)
 
-            if i == 10:
-                break
-
         if verbose:
             print('Model contains', len(essential), 'essential reactions')
 
