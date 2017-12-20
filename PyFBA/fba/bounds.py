@@ -3,7 +3,7 @@ import sys
 from PyFBA import lp
 
 
-def reaction_bounds(reactions, reactions_to_run, media, lower=-1000.0, mid=0.0, upper=1000.0, verbose=False):
+def reaction_bounds(reactions, reactions_to_run, media, lower=-1000.0, mid=0.0, upper=1000.0, custom_bounds={}, verbose=False):
     """
     Set the bounds for each reaction. We set the reactions to run between
     either lower/mid, mid/upper, or lower/upper depending on whether the
@@ -21,6 +21,8 @@ def reaction_bounds(reactions, reactions_to_run, media, lower=-1000.0, mid=0.0, 
     :type mid: float
     :param upper: The default upper bound
     :type upper: float
+    :param custom_bounds: A hash of Reactions (keys) and their bounds as a 2-tuple (values)
+    :type custom_bounds: dict
     :return: A dict of the reaction ID and the tuple of bounds
     :rtype: dict
 
@@ -30,6 +32,10 @@ def reaction_bounds(reactions, reactions_to_run, media, lower=-1000.0, mid=0.0, 
     media_uptake_secretion_count = 0
     other_uptake_secretion_count = 0
     for r in reactions_to_run:
+        # Set bounds for reactions with a custom bound
+        if custom_bounds and r in custom_bounds:
+            rbvals[r] = custom_bounds[r]
+            continue
         # if we already know the bounds, eg from an SBML file
         if r is not 'BIOMASS_EQN' and reactions[r].lower_bound is not None and reactions[r].upper_bound is not None:
             rbvals[r] = (reactions[r].lower_bound, reactions[r].upper_bound)

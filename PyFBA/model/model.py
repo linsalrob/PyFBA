@@ -178,7 +178,8 @@ class Model:
                 cat, subcat, ss = i
                 f.write("{}\t{}\t{}\t{}\n".format(role, ss, subcat, cat))
 
-    def run_fba(self, media_file, biomass_reaction=None, verbose=False):
+    def run_fba(self, media_file, biomass_reaction=None, custom_bounds={},
+                verbose=False):
         """
         Run FBA on model and return status, value, and growth.
 
@@ -186,6 +187,8 @@ class Model:
         :type media_file: str
         :param biomass_reaction: Given biomass Reaction object
         :type biomass_reaction: Reaction
+        :param custom_bounds: A hash of Reactions (keys) and their bounds as a 2-tuple (values)
+        :type custom_bounds: dict
         :return: FBA status, the biomass reaction flux, and
         :rtype: tuple of str, float, and bool
         """
@@ -217,6 +220,7 @@ class Model:
                                                   modelRxns,
                                                   media,
                                                   biomass_reaction,
+                                                  custom_bounds=custom_bounds,
                                                   verbose=verbose)
 
         return status, value, growth

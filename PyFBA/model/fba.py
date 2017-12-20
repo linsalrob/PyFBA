@@ -5,7 +5,8 @@ import io
 import PyFBA
 
 
-def model_reaction_fluxes(model, media_file, biomass_reaction=None):
+def model_reaction_fluxes(model, media_file, biomass_reaction=None,
+                          custom_bounds={}):
     """
     Run FBA on model and return dictionary of reaction ID and flux.
 
@@ -15,9 +16,13 @@ def model_reaction_fluxes(model, media_file, biomass_reaction=None):
     :type media_file: str
     :param biomass_reaction: Given biomass Reaction object
     :type biomass_reaction: PyFBA.metabolism.Reaction
+    :param custom_bounds: A hash of Reactions (keys) and their bounds
+                          as a 2-tuple (values)
+    :type custom_bounds: dict
     :rtype: dict
     """
-    status, value, growth = model.run_fba(media_file, biomass_reaction)
+    status, value, growth = model.run_fba(media_file, biomass_reaction,
+                                          custom_bounds)
     if not growth:
         print("Warning: model did not grow on given media", file=sys.stderr)
     return PyFBA.fba.reaction_fluxes()
@@ -131,7 +136,7 @@ def output_fba_with_subsystem(f, model, media_file, biomass_reaction=None):
 
 
 def compute_compound_counts(model, media_file, biomass_reaction=None,
-                            verbose=False):
+                            custom_bounds={}, verbose=False):
     """
     Using FBA, calculate overall compound counts after summing reaction fluxes
 
@@ -141,11 +146,15 @@ def compute_compound_counts(model, media_file, biomass_reaction=None,
     :type media_file: str
     :param biomass_reaction: Given biomass Reaction object
     :type biomass_reaction: PyFBA.metabolism.Reaction
+    :param custom_bounds: A hash of Reactions (keys) and their bounds
+                          as a 2-tuple (values)
+    :type custom_bounds: dict
     :return: Compound counts
     :rtype: dict
     """
     # Run FBA and obtain reaction fluxes
-    fluxes = model_reaction_fluxes(model, media_file, biomass_reaction)
+    fluxes = model_reaction_fluxes(model, media_file, biomass_reaction,
+                                   custom_bounds)
     if verbose:
         print("FBA completed", file=sys.stderr)
 
@@ -222,7 +231,7 @@ def compute_compound_counts(model, media_file, biomass_reaction=None,
                                              "reactions": {}}
 
             # The right side of these reactions are always the boundary
-            cpd_counts["e"][cpd_name]["flux"] += rflux
+            #cpd_counts["e"][cpd_name]["flux"] += rflux
             cpd_counts["e"][cpd_name]["reactions"][rxnID] = rflux
             continue
 
