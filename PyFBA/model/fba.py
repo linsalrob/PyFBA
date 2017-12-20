@@ -167,7 +167,7 @@ def compute_compound_counts(model, media_file, biomass_reaction=None,
     for rxnID, rflux in fluxes.items():
         # First check for biomass reactions
         if rxnID == "BIOMASS_EQN":
-            cpd_counts["c"]["Biomass"] = {"flux": rflux,
+            cpd_counts["c"]["Biomass"] = {"count": rflux,
                                           "reactions": {rxnID: rflux}}
             if biomass_reaction is None:
                 biomass_reaction = model.biomass_reaction
@@ -177,12 +177,12 @@ def compute_compound_counts(model, media_file, biomass_reaction=None,
                 loc = cpd.location
                 cpd_name = str(cpd)
                 if cpd_name not in cpd_counts[loc]:
-                    cpd_counts[loc][cpd_name] = {"flux": 0,
+                    cpd_counts[loc][cpd_name] = {"count": 0,
                                                  "reactions": {}}
 
                 # Add flux to cpd_count
                 coef = biomass_reaction.left_abundance[cpd]
-                cpd_counts[loc][cpd_name]["flux"] += -rflux * coef
+                cpd_counts[loc][cpd_name]["count"] += -rflux * coef
                 cpd_counts[loc][cpd_name]["reactions"][rxnID] = -rflux
 
             # Get right compounds
@@ -190,11 +190,11 @@ def compute_compound_counts(model, media_file, biomass_reaction=None,
                 cpd_name = str(cpd)
                 loc = cpd.location
                 if cpd_name not in cpd_counts[loc]:
-                    cpd_counts[loc][cpd_name] = {"flux": 0,
+                    cpd_counts[loc][cpd_name] = {"count": 0,
                                                  "reactions": {}}
                 # Add flux to cpd_count
                 coef = biomass_reaction.right_abundance[cpd]
-                cpd_counts[loc][cpd_name]["flux"] += rflux * coef
+                cpd_counts[loc][cpd_name]["count"] += rflux * coef
                 cpd_counts[loc][cpd_name]["reactions"][rxnID] = rflux
             continue
 
@@ -227,11 +227,11 @@ def compute_compound_counts(model, media_file, biomass_reaction=None,
             # Add flux to the cpd_count
             cpd_name = str(cpd)
             if cpd_name not in cpd_counts["e"]:
-                cpd_counts["e"][cpd_name] = {"flux": 0,
+                cpd_counts["e"][cpd_name] = {"count": 0,
                                              "reactions": {}}
 
             # The right side of these reactions are always the boundary
-            #cpd_counts["e"][cpd_name]["flux"] += rflux
+            #cpd_counts["e"][cpd_name]["count"] += rflux
             cpd_counts["e"][cpd_name]["reactions"][rxnID] = rflux
             continue
 
@@ -240,12 +240,12 @@ def compute_compound_counts(model, media_file, biomass_reaction=None,
             loc = cpd.location
             cpd_name = str(cpd)
             if cpd_name not in cpd_counts[loc]:
-                cpd_counts[loc][cpd_name] = {"flux": 0,
+                cpd_counts[loc][cpd_name] = {"count": 0,
                                              "reactions": {}}
 
             # Add flux to cpd_count
             coef = reactions[rxnID].left_abundance[cpd]
-            cpd_counts[loc][cpd_name]["flux"] += -rflux * coef
+            cpd_counts[loc][cpd_name]["count"] += -rflux * coef
             cpd_counts[loc][cpd_name]["reactions"][rxnID] = -rflux
 
         # Get right compounds
@@ -253,11 +253,11 @@ def compute_compound_counts(model, media_file, biomass_reaction=None,
             cpd_name = str(cpd)
             loc = cpd.location
             if cpd_name not in cpd_counts[loc]:
-                cpd_counts[loc][cpd_name] = {"flux": 0,
+                cpd_counts[loc][cpd_name] = {"count": 0,
                                              "reactions": {}}
             # Add flux to cpd_count
             coef = reactions[rxnID].right_abundance[cpd]
-            cpd_counts[loc][cpd_name]["flux"] += rflux * coef
+            cpd_counts[loc][cpd_name]["count"] += rflux * coef
             cpd_counts[loc][cpd_name]["reactions"][rxnID] = rflux
 
     return cpd_counts
