@@ -82,9 +82,9 @@ below.
 
 PyFBA depends on a few different Python modules:
 
-    * [libSBML](http://sbml.org/)
-    * [Beautiful Soup 4](http://www.crummy.com/software/BeautifulSoup/)
-    * [PyGLPK](https://github.com/bradfordboyle/pyglpk)
+* [libSBML](http://sbml.org/)
+* [Beautiful Soup 4](http://www.crummy.com/software/BeautifulSoup/)
+* [PyGLPK](https://github.com/bradfordboyle/pyglpk)
     
 As noted [above](#install_pyglpk), you should install PyGLPK from [GitHub](https://github.com/bradfordboyle/pyglpk). 
 However, `setup.py` will try and do the right thing for you.
