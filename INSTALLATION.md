@@ -85,6 +85,7 @@ PyFBA depends on a few different Python modules:
 * [libSBML](http://sbml.org/)
 * [Beautiful Soup 4](http://www.crummy.com/software/BeautifulSoup/)
 * [PyGLPK](https://github.com/bradfordboyle/pyglpk)
+* [networkx](https://networkx.github.io/)
     
 As noted [above](#install_pyglpk), you should install PyGLPK from [GitHub](https://github.com/bradfordboyle/pyglpk). 
 However, `setup.py` will try and do the right thing for you.
@@ -95,29 +96,36 @@ One or two of the scripts (notably [scripts/run_fba_sbml.py](scripts/run_fba_sbm
 and lxml installed to read the SBML files. 
 
 `setup.py` will attempt to install these for you. If you wish to install them manually you should be able to do so 
-with `pip install`:
+with `pip3 install`:
 
 ```
-    pip install python-libsbml-experimental
-    pip install lxml
+    pip3 install python-libsbml-experimental lxml networkx
 ````
+
+### networkx
+
+We use networkx for our analysis of complex networks that we can feed into cytoscape.
+
+```
+    pip3 install networkx
+```
 
 ### Beautiful Soup 4
 
 XML parsing is a pain in the butt, and so we use [Beautiful Soup 4](http://www.crummy.com/software/BeautifulSoup)
 to make life easy! `setup.py` should try and install this for you, but if you wish to do it manually, you should
-be able to do so with `pip intall`:
+be able to do so with `pip3 intall`:
 
 ```
-   pip install beautifulsoup4
+   pip3 install beautifulsoup4
 ```
 
 # Install PyFBA
 
-You should be able to install PyFBA from [PyPI](https://pypi.python.org) using `pip install`:
+You should be able to install PyFBA from [PyPI](https://pypi.python.org) using `pip3 install`:
 
 ```
-    pip install pyfba
+    pip3 install pyfba
 ```
 
 If that does not work, you can clone the git hub repository and run setup.py manually:
