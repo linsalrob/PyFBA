@@ -15,7 +15,7 @@ Python wrapper around GLPK.
 
 If you are on a Debian system you can install them with
 
-``` apt-get install libglpk-dev glpk-utils glpk-doc libglpk36 libgmp10 libgmpxx4ldbl ```
+``` apt-get install libglpk-dev glpk-utils glpk-doc libglpk40 libgmp10 libgmpxx4ldbl ```
 
 (You maybe able to get away with less, but that is what I have installed).
 
