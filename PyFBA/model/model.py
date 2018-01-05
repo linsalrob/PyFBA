@@ -243,25 +243,25 @@ class Model:
                 mReactions[r].append(role)
 
         # Initiate reactions
-        rxn_to_ss = {rid: [] for rid in self.reactions}
+        rxn_to_ss = {rid: set() for rid in self.reactions}
 
         # Iterate through reactions and match to roles
         for rxn in rxn_to_ss:
             # Check if reaction has a role, it might not if it was gap-filled
             if rxn not in mReactions:
                 data = ("Unknown", "Unknown", "Unknown", "Unknown")
-                rxn_to_ss[rxn].append(data)
+                rxn_to_ss[rxn].add(data)
             else:
                 for role in mReactions[rxn]:
                     # Check if role was found previously
                     if role not in roles_to_ss:
                         data = (role, "Unknown", "Unknown", "Unknown")
-                        rxn_to_ss[rxn].append(data)
+                        rxn_to_ss[rxn].add(data)
                     else:
                         for info in roles_to_ss[role]:
                             cat, subcat, ss = info
                             data = (role, cat, subcat, ss)
-                            rxn_to_ss[rxn].append(data)
+                            rxn_to_ss[rxn].add(data)
 
         return rxn_to_ss
 
