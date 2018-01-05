@@ -2,6 +2,7 @@ from __future__ import print_function
 import PyFBA
 import copy
 import sys
+import os
 from os.path import basename
 
 
@@ -178,6 +179,92 @@ class Model:
                 cat, subcat, ss = i
                 f.write("{}\t{}\t{}\t{}\n".format(role, ss, subcat, cat))
 
+    def reactions_to_subsystems(self, ss_file):
+        """
+        Output subsystem information for each reaction.
+        First, roles that were used to build model are matched up with
+        roles-subsystem relationship present in the RAST file. Then, if there
+        are any other leftover roles, their subsystems are gathered from the
+        PyFBA roles-subsystem file. Finally, using the reaction-role
+        relationship used at time of model creation, reactions are paired up
+        with subsystems.
+        Returned dictionary has the reaction ID as the key and a list of
+        4-tuples: (role, category, subcategory, subsystem).
+
+        :param ss_file: Subsystem file from RAST
+        :type ss_file: str
+        :return: Mapping of reaction IDs to subsystems
+        :rtype: dict
+        """
+        # Check if file exists
+        if not os.path.isfile(ss_file):
+            raise ValueError("Subsystem file not found")
+
+        # Read in RAST subsystems file
+        ss_file_data = dict()
+        with open(ss_file, "r") as f:
+            # Discard header
+            f.readline()
+            for l in f:
+                l = l.rstrip("\n")
+                cat, subcat, ss, role, features = l.split("\t")
+
+                # Add subsystem info as a 3-tuple
+                if role not in ss_file_data:
+                    ss_file_data[role] = []
+                to_add = (cat, subcat, ss)
+                ss_file_data[role].append(to_add)
+
+        # Match model roles to those from the file
+        roles_to_ss = dict()
+        model_roles = set(self.roles.keys())  # Temporary set
+        for role in self.roles.keys():
+            # Check if role was in file
+            if role not in ss_file_data:
+                continue
+
+            if role not in roles_to_ss:
+                roles_to_ss[role] = []
+            # Add all of the file data
+            roles_to_ss[role].extend(ss_file_data[role])
+            # Remove from temporary set
+            model_roles.remove(role)
+
+        # Find subsystem information for roles not in file
+        if len(model_roles) > 0:
+            mr_to_ss = PyFBA.parse.roles_to_subsystem(model_roles)
+            for role, info in mr_to_ss.items():
+                roles_to_ss[role] = info
+
+        # Get mapping from model reaction IDs to roles
+        mReactions = {r: [] for r in self.reactions.keys()}
+        for role, rxns in self.roles.items():
+            for r in rxns:
+                mReactions[r].append(role)
+
+        # Initiate reactions
+        rxn_to_ss = {rid: [] for rid in self.reactions}
+
+        # Iterate through reactions and match to roles
+        for rxn in rxn_to_ss:
+            # Check if reaction has a role, it might not if it was gap-filled
+            if rxn not in mReactions:
+                data = ("Unknown", "Unknown", "Unknown", "Unknown")
+                rxn_to_ss[rxn].append(data)
+            else:
+                for role in mReactions[rxn]:
+                    # Check if role was found previously
+                    if role not in roles_to_ss:
+                        data = (role, "Unknown", "Unknown", "Unknown")
+                        rxn_to_ss[rxn].append(data)
+                    else:
+                        for info in roles_to_ss[role]:
+                            cat, subcat, ss = info
+                            data = (role, cat, subcat, ss)
+                            rxn_to_ss[rxn].append(data)
+
+        return rxn_to_ss
+
     def run_fba(self, media_file, biomass_reaction=None, custom_bounds={},
                 verbose=False):
         """
@@ -308,8 +395,10 @@ class Model:
 
             # Remove reaction from Model
             if verbose:
-                print('Removing ', rxn, ' from the Model (', i, '/', num, ')',
-                      file=sys.stderr, end='\r', sep='')
+                eqn = self.reactions[rxn].equation
+                print("(", i, "/", num, ") Removing ", rxn, ": ", eqn,
+                      " Current count: ", len(essential),
+                      file=sys.stderr, end="", sep="")
             del tmp_model.reactions[rxn]
 
             # Run FBA
