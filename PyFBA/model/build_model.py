@@ -96,7 +96,8 @@ def save_model(model, out_dir):
     # Store reaction IDs
     fname = prefix + ".reactions"
     with open(os.path.join(out_dir, fname), "w") as f:
-        f.write("\n".join(model.reactions.keys()) + "\n")
+        for rID, rxn in model.reactions.items():
+            f.write(rID + "\t" + rxn.equation + "\n")
 
     # Store compound IDs
     fname = prefix + ".compounds"
@@ -114,7 +115,9 @@ def save_model(model, out_dir):
     with open(os.path.join(out_dir, fname), "w") as f:
         if len(model.gf_reactions) > 0:
             for rxn, gf_info in model.gf_reactions.items():
-                f.write(rxn + "\t" + gf_info[0] + "\t" + gf_info[1] + "\n")
+                rxnEqn = model.reactions[rxn].equation
+                f.write("\t".join([rxn, gf_info[0], gf_info[1], rxnEqn]) +
+                        "\n")
 
 
 def load_model(in_dir, prefix):
@@ -170,7 +173,7 @@ def load_model(in_dir, prefix):
     mreactions = set()
     with open(os.path.join(in_dir, fname)) as f:
         for l in f:
-            rxn = l.rstrip("\n")
+            rxn, eqn = l.rstrip("\n").split("\t")
             try:
                 mreactions.add(reactions[rxn])
             except KeyError:
@@ -189,7 +192,7 @@ def load_model(in_dir, prefix):
     gf_reactions = {}
     with open(os.path.join(in_dir, fname)) as f:
         for l in f:
-            rxn, method, media = l.rstrip("\n").split("\t")
+            rxn, method, media, eqn = l.rstrip("\n").split("\t")
             gf_reactions[rxn] = (method, media)
             reactions[rxn].is_gapfilled = True
             reactions[rxn].gapfill_method = method
