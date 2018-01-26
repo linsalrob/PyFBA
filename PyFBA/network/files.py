@@ -42,7 +42,7 @@ def network_compounds_sif(network,  filepath, ulimit=None, verbose=False):
     :type verbose: bool
     :return: None
     """
-    conns = set()  # Record which connections were already passed through
+    conns = dict()  # Record which connections were already passed through
     counts = dict()
 
     num_nodes = network.number_of_nodes()
@@ -52,16 +52,17 @@ def network_compounds_sif(network,  filepath, ulimit=None, verbose=False):
               file=sys.stderr)
 
     # Iterate through edges
-    for i, e in enumerate(network.edges_iter(), start=1):
+    for i, e in enumerate(network.edges_iter(data=True), start=1):
         if verbose:
             print("Working on edge {} out of {}".format(i, num_edges),
                   end="\r", file=sys.stderr)
         # Skip connections we've already seen
         # Could be due to bidirectional reactions
-        if e in conns:
+        cpd1, cpd2, rxns = e
+        edge = (cpd1, cpd2)
+        if edge in conns:
             continue
-        cpd1, cpd2 = e
-        conns.add(e)
+        conns[edge] = rxns["reaction"]
         if cpd1 not in counts:
             counts[cpd1] = 0
         if cpd2 not in counts:
@@ -78,7 +79,7 @@ def network_compounds_sif(network,  filepath, ulimit=None, verbose=False):
         # Remember which compounds are seen to avoid repetition in output files
         reported_skip = set()
         reported_sizes = set()
-        for c in conns:
+        for c, rxns in conns.items():
             skip = False
             cpd1, cpd2 = c
             cnt1 = counts[cpd1]
@@ -113,7 +114,7 @@ def network_compounds_sif(network,  filepath, ulimit=None, verbose=False):
                 reported_sizes.add(cpd2)
 
             # Write out to interaction file
-            fh.write(cpd1_name + "\tcc\t" + cpd2_name + "\n")
+            fh.write("\t".join([cpd1_name, rxns, cpd2_name]) + "\n")
 
 
 def network_reactions_sif(network, filepath, ulimit=None):
