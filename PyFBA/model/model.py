@@ -268,7 +268,7 @@ class Model:
         return rxn_to_ss
 
     def run_fba(self, media_file, biomass_reaction=None, custom_bounds={},
-                verbose=False):
+                growth_threshold=1.0, verbose=False):
         """
         Run FBA on model and return status, value, and growth.
 
@@ -310,6 +310,7 @@ class Model:
                                                   media,
                                                   biomass_reaction,
                                                   custom_bounds=custom_bounds,
+                                                  growth_threshold=growth_threshold,
                                                   verbose=verbose)
 
         return status, value, growth
