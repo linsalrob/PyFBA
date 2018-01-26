@@ -74,14 +74,45 @@ class Network:
                     # Since graph is directed, the order of the compounds
                     # in the add_edge() function matters
                     if r.direction == ">":
-                        self.graph.add_edge(cl, cr, {"reaction": str(rname)})
+                        # Check if edge already exists so we can append
+                        # the new reaction ID
+                        if self.graph.has_edge(cl, cr):
+                            data = self.graph.get_edge_data(cl, cr)
+                            data["reaction"] += ";" + str(rname)
+                        else:
+                            data = {"reaction": str(rname)}
+                        self.graph.add_edge(cl, cr, data)
 
                     elif r.direction == "<":
-                        self.graph.add_edge(cr, cl, {"reaction": str(rname)})
+                        # Check if edge already exists so we can append
+                        # the new reaction ID
+                        if self.graph.has_edge(cr, cl):
+                            data = self.graph.get_edge_data(cr, cl)
+                            data["reaction"] += ";" + str(rname)
+                        else:
+                            data = {"reaction": str(rname)}
+                        self.graph.add_edge(cr, cl, data)
 
                     else:
-                        self.graph.add_edge(cl, cr, {"reaction": str(rname)})
-                        self.graph.add_edge(cr, cl, {"reaction": str(rname)})
+                        # First edge
+                        # Check if edge already exists so we can append
+                        # the new reaction ID
+                        if self.graph.has_edge(cl, cr):
+                            data = self.graph.get_edge_data(cl, cr)
+                            data["reaction"] += ";" + str(rname)
+                        else:
+                            data = {"reaction": str(rname)}
+
+                        self.graph.add_edge(cl, cr, data)
+
+                        # Second edge
+                        if self.graph.has_edge(cr, cl):
+                            data = self.graph.get_edge_data(cr, cl)
+                            data["reaction"] += ";" + str(rname)
+                        else:
+                            data = {"reaction": str(rname)}
+
+                        self.graph.add_edge(cr, cl, data)
 
     def get_nx_graph(self):
         """
