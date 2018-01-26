@@ -237,9 +237,11 @@ class Model:
                 roles_to_ss[role] = info
 
         # Get mapping from model reaction IDs to roles
-        mReactions = {r: [] for r in self.reactions.keys()}
+        mReactions = dict()
         for role, rxns in self.roles.items():
             for r in rxns:
+                if r not in mReactions:
+                    mReactions[r] = []
                 mReactions[r].append(role)
 
         # Initiate reactions
