@@ -1,5 +1,6 @@
 from __future__ import print_function, absolute_import, division
 from os.path import isfile, join, dirname
+import sys
 
 
 def plate_to_media(main_source, compound):
@@ -81,7 +82,13 @@ def growth_plate_results(pm_file):
             mainsource = contents[ms_col]
             compound = contents[cp_col]
             growth = "+" in contents[growth_col]
-            pyfba_media = media_map[(mainsource, compound)]
+
+            try:
+                pyfba_media = media_map[(mainsource, compound)]
+            except KeyError:
+                print("Media not found: ({}, {}). Skipping.".format(
+                    mainsource, compound))
+                continue
 
             # Store growth data
             if name not in results:
