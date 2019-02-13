@@ -1,4 +1,7 @@
 
+import sys
+from PyFBA.tools import bcolors
+
 COMMON_REACTION_LIMIT = 5
 
 
@@ -20,9 +23,26 @@ class Compound:
     :ivar abbreviation: a short name for the compound
     :ivar formula: the compounds formula
     :ivar mw: the molecular weight of the compound
+    :ivar mass synonym for mw
     :ivar common: Boolean: this is a common compound. This means the coompound is in > COMMON_REACTION_LIMIT reactions
     :ivar charge: the charge associated with the compound
     :ivar uptake_secretion: The compound is involved in uptake from the media or secretion back to the media
+    :ivar abstract_compound: Whether this is an abstract compount
+    :ivar aliases: Names of this compound in other databases
+    :ivar comprised_of: what is this compound made of
+    :ivar deltag: what is the delta G for the compound
+    :ivar deltagerr: what is the error in the delta G
+    :ivar inchikey: the International Chemical Indentifier for the compound
+    :ivar is_cofactor: whether it is a cofactor
+    :ivar is_core: whether it is a core compound
+    :ivar is_obsolete: is this obselete
+    :ivar linked_compound: is it linked
+    :ivar pka: what is its pka
+    :ivar pkb: what is its pkb
+    :ivar smiles: the smiles string for the compound
+    :ivar source: the source of the compound
+
+
 
     """
 
@@ -45,9 +65,25 @@ class Compound:
         self.abbreviation = None
         self.formula = None
         self.mw = 0
+        self.mass = 0
         self.common = False
         self.charge = 0
         self.uptake_secretion = False
+        self.abstract_compound = False
+        self.aliases = []
+        self.comprised_of = False
+        self.deltag = 0
+        self.deltagerr = 0
+        self.id = name
+        self.inchikey = ""
+        self.is_cofactor = False
+        self.is_core = False
+        self.is_obsolete = False
+        self.linked_compound = ""
+        self.pka = None
+        self.pkb = None
+        self.smiles = ""
+        self.source = None
 
     def __eq__(self, other):
         """
@@ -180,5 +216,13 @@ class Compound:
         :return: The molecular weight
         :rtype: float
         """
+
+        if self.mw:
+            sys.stderr.write(f"{bcolors.WARN}WARNING:{bcolors.ENDC} the mass was as provided not calcualted\n")
+            return self.mw
+
+        if self.mass:
+            sys.stderr.write(f"{bcolors.WARN}WARNING:{bcolors.ENDC} the mass was as provided not calcualted\n")
+            return self.mass
 
         raise NotImplemented("Sorry. Calculate molecular weight has not yet been implemented.")

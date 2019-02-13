@@ -54,6 +54,22 @@ class Reaction:
     :ivar is_gapfilled: Boolean to note whether the reaction was gapfilled
     :ivar gapfill_method: If the reaction was gapfilled, how was it gapfilled
     :ivar is_uptake_secretion: Is the reaction involved in uptake of compounds or secretion of compounds.
+	:ivar abbreviation: The reaction abbreviation
+	:ivar abstract_reaction: Is this an abstract reaction
+	:ivar aliases: a list of aliases for the reaction
+	:ivar code: the code for the reaction
+	:ivar compound_ids: a list of compound IDs involved in the reaction
+	:ivar definition: the definition of the reaction
+	:ivar ec_numbers: a list of EC numbers associated with this reaction
+	:ivar is_obsolete: if this reaction is obsolete
+	:ivar linked_reaction: if this reaction is linked to another
+	:ivar notes: Any notes about the reaction
+	:ivar pathways: Pathways this reaction is involved in
+	:ivar reversibility: Is this reaction reversible?
+	:ivar source: what is the source of the reaction
+	:ivar status: what is the status of the reaction
+	:ivar stoichiometry: what is the stoichiometry of the reaction
+
 
     """
 
@@ -92,6 +108,21 @@ class Reaction:
         self.is_gapfilled = False
         self.gapfill_method = ""
         self.is_uptake_secretion = False
+        self.abbreviation = ""
+        self.abstract_reaction = False
+        self.aliases = ""
+        self.code = ""
+        self.compound_ids = []
+        self.definition = ""
+        self.ec_numbers = []
+        self.is_obsolete = False
+        self.linked_reaction = False
+        self.notes = False
+        self.pathways = False
+        self.reversibility = False
+        self.source = False
+        self.status = False
+        self.stoichiometry = False
 
     def __eq__(self, other):
         """
