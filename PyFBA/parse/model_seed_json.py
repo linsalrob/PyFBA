@@ -117,7 +117,7 @@ def compounds(compounds_file=None):
         for cpd in data:
             cc = PyFBA.metabolism.Compound(data[cpd]['name'], 'c')
             cc.model_seed_id = cpd
-            ce = PyFBA.metabolism.Compound(p[2], 'e')
+            ce = PyFBA.metabolism.Compound(data[cpd]['name'], 'e')
             ce.model_seed_id = cpd
 
             for k in data[cpd].keys():
