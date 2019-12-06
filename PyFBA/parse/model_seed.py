@@ -1,8 +1,10 @@
 
 """
-A parser for the SEED biochemistry modules that are available on Github
-at https://github.com/ModelSEED/ModelSEEDDatabase. We have also included
-them in our repo as a submodule.
+A replacement parser for the Model SEED biochemistry modules that are available on Github
+at https://github.com/ModelSEED/ModelSEEDDatabase.
+
+The older version used the SOLR dumps to parse the data. This version uses the json
+which is a lot cleaner.
 
 We parse compounds from the compounds file in Biochemistry. Locations
 are currently hardcoded because the ModelSeedDirectory does not contain
@@ -15,24 +17,29 @@ import os
 import re
 import sys
 import io
+import json
 
 import PyFBA
+from PyFBA.tools import bcolors
 
 MODELSEED_DIR = ""
 if 'ModelSEEDDatabase' in os.environ:
         MODELSEED_DIR = os.environ['ModelSEEDDatabase']
 else:
+    sys.stderr.write(f"{bcolors.FAIL}FATAL: {bcolors.ENDC}")
     sys.stderr.write("Please ensure that you install the Model SEED Database somewhere, and set the environment " +
                      "variable ModelSEEDDatabase to point to that directory.\n" +
                      " See INSTALLATION.md for more information\n")
     sys.exit(-1)
 
 if not MODELSEED_DIR:
+    sys.stderr.write(f"{bcolors.FAIL}FATAL: {bcolors.ENDC}")
     sys.stderr.write("The ModelSEEDDatabase environment variable is not set.\n")
     sys.stderr.write("Please install the ModelSEEDDatabase, set the variable, and try again")
     sys.exit(-1)
 
 if not os.path.exists(MODELSEED_DIR):
+    sys.stderr.write(f"{bcolors.FAIL}FATAL: {bcolors.ENDC}")
     sys.stderr.write("The MODEL SEED directory: {} does not exist.\n".format(MODELSEED_DIR))
     sys.stderr.write("Please check your installation.\n")
     sys.exit(-1)
@@ -40,7 +47,10 @@ if not os.path.exists(MODELSEED_DIR):
 
 def template_reactions(modeltype='microbial'):
     """
-    Load the template reactions to adjust the model. Returns a hash of some altered parameters for the model
+    Load the template reactions to adjust the model. These are in the Templates directory, and just
+    adjust some of the reactions to be specific for
+
+    Returns a hash of some altered parameters for the model.
     :param modeltype: which type of model to load e.g. GramNegative, GramPositive, Microbial
     :type modeltype: str
     :return: A hash of the new model parameters that should be used to update the reactions object
@@ -58,11 +68,15 @@ def template_reactions(modeltype='microbial'):
         inputfile = "Templates/Mycobacteria/Reactions.tsv"
     elif modeltype.lower() == 'plant':
         inputfile = "Templates/Plant/Reactions.tsv"
+    elif modeltype.lower() == 'fungi':
+        inputfile = "Templates/Fungi/Reactions.tsv"
+    elif modeltype.lower() == 'human':
+        inputfile = "Templates/Human/Reactions.tsv"
     else:
         raise NotImplementedError("Parsing data for " + inputfile + " has not been implemented!")
 
     if not os.path.exists(os.path.join(MODELSEED_DIR, inputfile)):
-        raise IOError(os.path.join(MODELSEED_DIR, inputfile) +
+        raise IOError(f"{bcolors.FAIL}FATAL: {bcolors.ENDC}" + os.path.join(MODELSEED_DIR, inputfile) +
                       " was not found. Please check your model SEED directory (" + MODELSEED_DIR + ")")
 
     new_enz = {}
@@ -76,7 +90,6 @@ def template_reactions(modeltype='microbial'):
             new_enz[p[0]]['enzymes'] = set(p[-1].split("|"))
 
     return new_enz
-
 
 def compounds(compounds_file=None):
     """
@@ -97,13 +110,12 @@ def compounds(compounds_file=None):
     cpds = {}
 
     if not compounds_file:
-        compounds_file = os.path.join(MODELSEED_DIR, 'Biochemistry/compounds.master.tsv')
+        compounds_file = os.path.join(MODELSEED_DIR, 'Biochemistry/compounds.tsv')
 
     try:
         with open(compounds_file, 'r') as f:
-            for li, l in enumerate(f):
-                if li == 0:
-                    # skip the header line
+            for l in f:
+                if l.startswith('id'):
                     continue
                 p = l.strip().split("\t")
                 c = PyFBA.metabolism.Compound(p[2], '')
@@ -122,13 +134,14 @@ def compounds(compounds_file=None):
 
     return cpds
 
-
 def location():
     """Parse or return the codes for the locations. The ModelSEEDDatabase
     uses codes, and has a compartments file but they do not match up.
 
     This is currently hardcoded, but is put here so we can rewrite it as
-    if the compartments file is updated
+    if the compartments file is updated.
+
+    Note: It looks like the locations in the Model SEED files are specific to different organisms
 
     :return: A dict of location numeric IDs and string IDs
     :rtype: dict
@@ -141,9 +154,9 @@ def location():
     return all_locations
 
 
-def reactions(organism_type="", rctf='Biochemistry/reactions.master.tsv', verbose=False):
+def reactions(organism_type="", rctf='Biochemistry/reactions.tsv', verbose=False):
     """
-    Parse the reaction information in Biochemistry/reactions.master.tsv
+    Parse the reaction information in Biochemistry/reactions.tsv
 
     One reaction ID is associated with one equation and thus many
     compounds and parts.
@@ -341,7 +354,7 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.master.tsv', verbos
     return cpds, all_reactions
 
 
-def complexes(cf="SOLRDump/TemplateReactions.tsv", verbose=False):
+def complexes(cf="Templates/Microbial/Reactions.tsv", verbose=False):
     """
     Connection between complexes and reactions. A complex can be
     involved in many reactions.
@@ -366,29 +379,24 @@ def complexes(cf="SOLRDump/TemplateReactions.tsv", verbose=False):
 
     cplxes = {}
     try:
-        # io.open() to enable the encoding and errors arguments when using Python2
-        # io.open() will read lines as unicode objects instead of str objects
-        # In Python2, unicode objects are equivalent to Python3 str objects
-        with io.open(os.path.join(MODELSEED_DIR, cf), 'r', encoding='utf-8', errors='replace') as rin:
+        # @TODO: Make this path specific (Templates/*******/Reactions.tsv)
+        with open(os.path.join(MODELSEED_DIR, cf), 'r') as rin:
             for l in rin:
-                # If using Python2, must convert unicode object to str object
-                if sys.version_info.major == 2:
-                    l = l.encode('utf-8', 'replace')
                 if l.startswith("#") or l.startswith('id'):
                     # ignore any comment lines
                     continue
 
                 p = l.strip().split("\t")
-                if len(p) < 30:
+                if len(p) < 8:
                     if verbose:
                         sys.stderr.write("WARNING: Malformed line in " + cf + ": " + l + "\n")
                     continue
-                if p[28] == "":
+                if p[8] == "":
                     continue
-                for cmplx in p[28].split(';'):
+                for cmplx in p[8].split('|'):
                     if cmplx not in cplxes:
                         cplxes[cmplx] = set()
-                    cplxes[cmplx].add(p[1])
+                    cplxes[cmplx].add(p[0])
     except IOError as e:
         sys.stderr.write("There was an error parsing {}\n".format(os.path.join(MODELSEED_DIR, cf)))
         sys.stderr.write("I/O error({0}): {1}\n".format(e.errno, e.strerror))
@@ -396,12 +404,14 @@ def complexes(cf="SOLRDump/TemplateReactions.tsv", verbose=False):
 
     return cplxes
 
-
-def roles_ec(rf="SOLRDump/ComplexRoles.tsv"):
+def roles_ec(rf="Annotations/Roles.tsv", cf="Annotations/Complexes.tsv"):
     """
     Read the roles and EC and return a hash of the roles and EC where the id
     is the role name or EC number and the value is the set of complex IDs that
     the role is inolved in.
+
+    Roles are first mapped to feature IDs using role annotations, then features
+    are mapped to complex IDs using ModelSEED complex annotations.
 
     One role or EC can be involved in many complexes.
 
@@ -410,34 +420,61 @@ def roles_ec(rf="SOLRDump/ComplexRoles.tsv"):
 
     :param rf: an alternate roles file
     :type rf: str
+    :param cf: an alternate complexes file
+    :type cf: str
     :return: A dict of role name and complex ids that the roles is involved with
     :rtype: dict
-
     """
     rles_ec = {}
     try:
+        rles = {}
         with open(os.path.join(MODELSEED_DIR, rf), 'r') as rin:
             for l in rin:
-                if l.startswith("#") or l.startswith('complex_id'):
+                if l.startswith("#") or l.startswith('id'):
                     # ignore any comment lines
                     continue
                 p = l.strip().split("\t")
-                if p[5] not in rles_ec:
-                    rles_ec[p[5]] = set()
-                rles_ec[p[5]].add(p[0])
+                if p[1] not in rles:
+                    rles[p[1]] = set()
+                rles[p[1]].add(p[0])
 
                 # Try to add EC number if it exists in role name
                 for ecno in re.findall('[\d\-]+\.[\d\-]+\.[\d\-]+\.[\d\-]+', l):
-                    if ecno not in rles_ec:
-                        rles_ec[ecno] = set()
-                    rles_ec[ecno].add(p[0])
+                    if ecno not in rles:
+                        rles[ecno] = set()
+                    rles[ecno].add(p[0])
     except IOError as e:
         sys.exit("There was an error parsing " + rf + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
 
+    try:
+        cplxes = {}
+        with open(os.path.join(MODELSEED_DIR, cf), 'r') as cin:
+            for l in cin:
+                if l.startswith("#") or l.startswith('id'):
+                    # ignore any comment lines
+                    continue
+                p = l.strip().split("\t")
+                if p[0] not in cplxes:
+                    cplxes[p[0]] = set()
+                ftrs = p[5].strip().split("|")
+                for f in ftrs:
+                    f = f.split(";")
+                    cplxes[p[0]].add(f[0])
+    except IOError as e:
+        sys.exit("There was an error parsing " + rf + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
+
+    #Checking the featureID of every role, and matching it to its complexID
+    for r,f in rles.items():
+        for c,v in cplxes.items():
+            for val in v:
+                if val in f:
+                    if r not in rles_ec:
+                        rles_ec[r] = set()
+                    rles_ec[r].add(c)
+
     return rles_ec
 
-
-def roles(rf="SOLRDump/ComplexRoles.tsv"):
+def roles(rf="Annotations/Roles.tsv", cf="Annotations/Complexes.tsv"):
     """
     Read the roles and return a hash of the roles where the id is the
     role name and the value is the set of complex IDs that the role is
@@ -450,25 +487,55 @@ def roles(rf="SOLRDump/ComplexRoles.tsv"):
 
     :param rf: an alternate roles file
     :type rf: str
+    :param cf: an alternate complexes file
+    :type cf: str
     :return: A dict of role name and complex ids that the roles is involved with
     :rtype: dict
 
     """
-    rles = {}
+    roles = {}
     try:
+        rles = {}
         with open(os.path.join(MODELSEED_DIR, rf), 'r') as rin:
             for l in rin:
-                if l.startswith("#") or l.startswith('complex_id'):
+                if l.startswith("#") or l.startswith('id'):
                     # ignore any comment lines
                     continue
                 p = l.strip().split("\t")
-                if p[5] not in rles:
-                    rles[p[5]] = set()
-                rles[p[5]].add(p[0])
+                if p[1] not in rles:
+                    rles[p[1]] = set()
+                rles[p[1]].add(p[0])
+
     except IOError as e:
         sys.exit("There was an error parsing " + rf + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
 
-    return rles
+    try:
+        cplxes = {}
+        with open(os.path.join(MODELSEED_DIR, cf), 'r') as cin:
+            for l in cin:
+                if l.startswith("#") or l.startswith('id'):
+                    # ignore any comment lines
+                    continue
+                p = l.strip().split("\t")
+                if p[0] not in cplxes:
+                    cplxes[p[0]] = set()
+                ftrs = p[5].strip().split("|")
+                for f in ftrs:
+                    f = f.split(";")
+                    cplxes[p[0]].add(f[0])
+    except IOError as e:
+        sys.exit("There was an error parsing " + rf + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
+
+    #Checking the featureID of every role, and matching it to its complexID
+    for r,f in rles.items():
+        for c,v in cplxes.items():
+            for val in v:
+                if val in f:
+                    if r not in roles:
+                        roles[r] = set()
+                    roles[r].add(c)
+
+    return roles
 
 
 def enzymes(verbose=False):
@@ -570,6 +637,7 @@ def compounds_reactions_enzymes(organism_type='', verbose=False):
                 rcts[reactid].add_enzymes({complexid})
 
     return cpds, rcts, enzs
+
 
 
 
