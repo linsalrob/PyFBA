@@ -3,7 +3,10 @@ VERSION 1.3
 Updated parse/model_seed.py to work with reformatted ModelSEED database.
 
 This restores base functionality, but also breaks compatibility with
-many of the accessory and testing scripts.
+many of the accessory and testing scripts. These will be the focus of
+update 2.0 to be released early 2020.
+
+Updated parse/SBML.py to include different biomass equation identifiers.
 
 Added function to obtain InChI keys for compounds in your sbml
 
