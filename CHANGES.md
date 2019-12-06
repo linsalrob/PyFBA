@@ -1,3 +1,37 @@
+# Version 1.3
+
+### Updated parse/model_seed.py to work with reformatted ModelSEED database.
+
+This restores base functionality, but also breaks compatibility with
+many of the accessory and testing scripts. These will be the focus of
+update 2.0 to be released early 2020.
+
+Until the tests are fixed it is recommended to test functionality using updated 
+example code scripts on the included Citrobacter sedlakii model:
+
+```
+python3 example_code/run_fba_sbml3.py -m $PYFBA_MEDIA_DIR/ArgonneLB.txt example_data/Citrobacter/Citrobacter_sedlakii.sbml   
+```
+
+### Updated parse/SBML.py to include different biomass equation identifiers.
+Some SBML files from external sources used different identifiers for the biomass equation.
+
+### Added function to obtain InChI keys for compounds in your sbml.
+
+* example_code/extract_inchi.py
+
+### Added function to convert .gff output from rast into assigned_functions.
+
+* example_code/extract_functions.py
+
+### Added/updated example code compatible with the new database and python3.
+
+* example_code/run_fba_sbml3.py
+* example_code/sbml_to_fba.py
+
+### Updated iPython notebook From_functional_roles_to_gap-filling.ipynb.
+Includes updated information on obtaining assigned_functions and extract_functions.py
+
 # Version 1.2
 
 ### Crucial edit to setup.py file
