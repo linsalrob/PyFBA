@@ -3,7 +3,7 @@
 A replacement parser for the Model SEED biochemistry modules that are available on Github
 at https://github.com/ModelSEED/ModelSEEDDatabase.
 
-The older version used the SOLR dumps to parse the data. This version uses the json
+The older version used the SOLR dumps to parse the data. This version uses json/tsv
 which is a lot cleaner.
 
 We parse compounds from the compounds file in Biochemistry. Locations
@@ -48,7 +48,7 @@ if not os.path.exists(MODELSEED_DIR):
 def template_reactions(modeltype='microbial'):
     """
     Load the template reactions to adjust the model. These are in the Templates directory, and just
-    adjust some of the reactions to be specific for
+    adjust some of the reactions to be specific for each model type
 
     Returns a hash of some altered parameters for the model.
     :param modeltype: which type of model to load e.g. GramNegative, GramPositive, Microbial
@@ -180,7 +180,6 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.tsv', verbose=False
 
     locations = location()
     cpds = compounds()
-    # cpds_by_id = {cpds[c].model_seed_id: cpds[c] for c in cpds}
     cpds_by_id = {}
     for c in cpds:
         cpds_by_id[cpds[c].model_seed_id] = cpds[c]
@@ -220,8 +219,7 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.tsv', verbose=False
                 else:
                     deltaG_error = 0.0
 
-                # we need to split the reaction, but different reactions
-                # have different splits!
+                # we need to split the reaction; different reactions have different splits!
 
                 separator = ""
                 for separator in [" <=> ", " => ", " <= ", " = ", " < ", " > ", "Not found"]:
@@ -256,8 +254,7 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.tsv', verbose=False
 
                 r.direction = pieces[9]
 
-                # we have to rewrite the equation to accomodate
-                # the proper locations
+                # we have to rewrite the equation to accomodate the proper locations
                 newleft = []
                 newright = []
 
@@ -354,7 +351,7 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.tsv', verbose=False
     return cpds, all_reactions
 
 
-def complexes(cf="Templates/Microbial/Reactions.tsv", verbose=False):
+def complexes(cf="Microbial", verbose=False):
     """
     Connection between complexes and reactions. A complex can be
     involved in many reactions.
@@ -379,8 +376,8 @@ def complexes(cf="Templates/Microbial/Reactions.tsv", verbose=False):
 
     cplxes = {}
     try:
-        # @TODO: Make this path specific (Templates/*******/Reactions.tsv)
-        with open(os.path.join(MODELSEED_DIR, cf), 'r') as rin:
+        cfile = f"Templates/{cf}/Reactions.tsv"
+        with open(os.path.join(MODELSEED_DIR, cfile), 'r') as rin:
             for l in rin:
                 if l.startswith("#") or l.startswith('id'):
                     # ignore any comment lines
