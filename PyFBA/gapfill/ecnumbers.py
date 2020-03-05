@@ -4,7 +4,7 @@ import re
 
 MODELSEED_DIR = os.environ['ModelSEEDDatabase']
 
-def suggest_reactions_using_ec(roles, reactions, reactions2run, rf="SOLRDump/Reactions.tsv", verbose=False):
+def suggest_reactions_using_ec(roles, reactions, reactions2run, rf="Biochemistry/reactions.tsv", verbose=False):
     """
     Identify a set of reactions that you should add to your model for growth based on the EC numbers
     that may be found in the role names.

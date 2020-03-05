@@ -21,7 +21,7 @@ elif args.r:
         for l in f:
             roles.update(PyFBA.parse.roles_of_function(l.strip()))
 else:
-    sys.exit('Either -a or -r must be specified')
+    sys.exit('Either -a (an assigned functions file) or -r (a roles file) must be specified')
 
 rc = PyFBA.filters.roles_to_reactions(roles)
 reactions = set()

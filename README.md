@@ -15,7 +15,7 @@ You can [read more about PyFBA](http://linsalrob.github.io/PyFBA/) on our github
 
 ## Installing PyFBA
 
-To use PyFBA you need Python 2.7 or greater, and you need to [install the GNU GLPK](INSTALLATION.md) and a Python
+To use PyFBA you need Python 3.0 or greater, and you need to [install the GNU GLPK](INSTALLATION.md) and a Python
 wrapper for that program, pyGLPK available from [github](https://github.com/bradfordboyle/pyglpk). 
 
 We also leverage the [Model SEED GitHub](https://github.com/ModelSEED/ModelSEEDDatabase.git) repository with all the

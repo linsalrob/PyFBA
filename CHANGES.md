@@ -1,3 +1,17 @@
+# Version 1.4
+
+### Updated the tests in PyFBA/tests to be compatible and successful with the new parser.
+
+All tests will now pass successfully if your installation is working correctly.
+
+### Expanded upon the information and features present in the Jupyter Notebooks.
+
+Added the ability to search an SBML for a metabolite using the Find a Metabolite notebook.
+
+Added information regarding the generation of models from functional role data.
+
+Confirmed that both gap filling and gap generation are still successful using the new parser.
+
 # Version 1.3
 
 ### Updated parse/model_seed.py to work with reformatted ModelSEED database.
