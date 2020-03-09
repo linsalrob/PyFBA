@@ -1,16 +1,27 @@
-# Version 1.4
+# Version 2.0
+
+This version marks the complete functional restoration of PyFBA following the restructuring of the
+ModelSEED Biochemistry database. The new default parser uses json files, which should allow it to 
+maintain function through future changes in the database.
+
+### Repaired and confirmed function of Jupyter Notebooks and scripts in PyFBA/example_code/ 
+All notebooks and example_code scripts are functional with both the json and tsv parsers
+
 
 ### Updated the tests in PyFBA/tests to be compatible and successful with the new parser.
-
 All tests will now pass successfully if your installation is working correctly.
+
+When testing the tsv parser use tsv_tests, as the default json parser has slightly different outputs.
 
 ### Expanded upon the information and features present in the Jupyter Notebooks.
 
-Added the ability to search an SBML for a metabolite using the Find a Metabolite notebook.
+*Added Reaction_fluxes_and_Compound_usage.ipynb
 
-Added information regarding the generation of models from functional role data.
+*Added the Citrobacter/ directory with sample files to the iPythonNotebooks folder.
 
-Confirmed that both gap filling and gap generation are still successful using the new parser.
+*Added the ability to search an SBML for a metabolite using the Find a Metabolite notebook.
+
+*Added information to aid in the generation of models from functional role data.
 
 # Version 1.3
 
@@ -19,13 +30,6 @@ Confirmed that both gap filling and gap generation are still successful using th
 This restores base functionality, but also breaks compatibility with
 many of the accessory and testing scripts. These will be the focus of
 update 2.0 to be released early 2020.
-
-Until the tests are fixed it is recommended to test functionality using updated 
-example code scripts on the included Citrobacter sedlakii model:
-
-```
-python3 example_code/run_fba_sbml3.py -m $PYFBA_MEDIA_DIR/ArgonneLB.txt example_data/Citrobacter/Citrobacter_sedlakii.sbml   
-```
 
 ### Updated parse/SBML.py to include different biomass equation identifiers.
 Some SBML files from external sources used different identifiers for the biomass equation.
