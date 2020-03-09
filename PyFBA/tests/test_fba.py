@@ -45,7 +45,7 @@ class TestFBA(unittest.TestCase):
             model_cpds.add(str(new_comp))
 
         upsec = PyFBA.fba.uptake_and_secretion_reactions(model_cpds, compounds)
-        self.assertEqual(len(upsec), 10)
+        self.assertEqual(len(upsec), 5)
 
         # now remove them and see there is nothing left
         emptyset = PyFBA.fba.remove_uptake_and_secretion_reactions(upsec)
@@ -85,6 +85,7 @@ class TestFBA(unittest.TestCase):
                     reactions2run.add(r)
         media = PyFBA.parse.read_media_file(os.path.join(media_file_loc, 'ArgonneLB.txt'))
         biomass = PyFBA.metabolism.biomass_equation('gram_negative')
+
         status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass, verbose=False)
         self.assertTrue(growth)
         value = float('%0.3f' % value)

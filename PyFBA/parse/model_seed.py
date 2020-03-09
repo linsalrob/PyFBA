@@ -256,7 +256,7 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.json', verbose=Fals
 
                 r.deltaG = deltaG
                 r.deltaG_error = deltaG_error
-                if data[rid]['is_transport'] != '0':
+                if data[rid]['is_transport'] != 0:
                     r.is_transport = True
                 all_reactions[rid] = r
 
@@ -361,7 +361,7 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.json', verbose=Fals
     return cpds, all_reactions
 
 
-def complexes(cf="Templates/Microbial/Reactions.tsv", verbose=False):
+def complexes(cf="Microbial", verbose=False):
     """
     Connection between complexes and reactions. A complex can be
     involved in many reactions.
@@ -386,8 +386,8 @@ def complexes(cf="Templates/Microbial/Reactions.tsv", verbose=False):
 
     cplxes = {}
     try:
-        # @TODO: Make this path specific (Templates/*******/Reactions.tsv)
-        with open(os.path.join(MODELSEED_DIR, cf), 'r') as rin:
+        cfile = f"Templates/{cf}/Reactions.tsv"
+        with open(os.path.join(MODELSEED_DIR, cfile), 'r') as rin:
             for l in rin:
                 if l.startswith("#") or l.startswith('id'):
                     # ignore any comment lines
