@@ -15,13 +15,13 @@ When testing the tsv parser use tsv_tests, as the default json parser has slight
 
 ### Expanded upon the information and features present in the Jupyter Notebooks.
 
-*Added Reaction_fluxes_and_Compound_usage.ipynb
+* Added Reaction_fluxes_and_Compound_usage.ipynb
 
-*Added the Citrobacter/ directory with sample files to the iPythonNotebooks folder.
+* Added the Citrobacter/ directory with sample files to the iPythonNotebooks folder.
 
-*Added the ability to search an SBML for a metabolite using the Find a Metabolite notebook.
+* Added the ability to search an SBML for a metabolite using the Find a Metabolite notebook.
 
-*Added information to aid in the generation of models from functional role data.
+* Added information to aid in the generation of models from functional role data.
 
 # Version 1.3
 
