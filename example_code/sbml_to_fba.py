@@ -39,6 +39,8 @@ for r in rxn:
     else:
         reactions_to_run.add(r)
 
+if biomass_equation == None:
+    biomass_equation = PyFBA.metabolism.biomass_equation()
 
 # get all the compounds from the SBML file. This is a dict of metabolite.Compound objects
 cps = sbml.compounds

@@ -3,7 +3,7 @@
 A replacement parser for the Model SEED biochemistry modules that are available on Github
 at https://github.com/ModelSEED/ModelSEEDDatabase.
 
-The older version used the SOLR dumps to parse the data. This version uses the json
+The older version used the SOLR dumps to parse the data. This version uses json/tsv
 which is a lot cleaner.
 
 We parse compounds from the compounds file in Biochemistry. Locations
@@ -20,6 +20,7 @@ import io
 import json
 
 import PyFBA
+from PyFBA.tools import bcolors
 
 MODELSEED_DIR = ""
 if 'ModelSEEDDatabase' in os.environ:
@@ -47,7 +48,7 @@ if not os.path.exists(MODELSEED_DIR):
 def template_reactions(modeltype='microbial'):
     """
     Load the template reactions to adjust the model. These are in the Templates directory, and just
-    adjust some of the reactions to be specific for
+    adjust some of the reactions to be specific for each model type
 
     Returns a hash of some altered parameters for the model.
     :param modeltype: which type of model to load e.g. GramNegative, GramPositive, Microbial
@@ -90,17 +91,14 @@ def template_reactions(modeltype='microbial'):
 
     return new_enz
 
-
 def compounds(compounds_file=None):
     """
     Load the compounds mapping. This maps from cpd id to name (we use
-    the name in our reactions, but use the cpd id to parse the model
+    the name in our reactions, but use the cpd to parse the model
     seed database to avoid ambiguities.
 
     Optionally, you can provide a compounds file. If not, the default
-    in MODELSEED_DIR/Biochemistry/compounds.json will be used.
-
-    Note that the compounds file must be in json format. See model_seed_tsv for a tab separated parser.
+    in MODELSEED_DIR/Biochemistry/compounds.master.tsv will be used.
 
     :param compounds_file: An optional filename of a compounds file to parse
     :type compounds_file: str
@@ -112,43 +110,29 @@ def compounds(compounds_file=None):
     cpds = {}
 
     if not compounds_file:
-        compounds_file = os.path.join(MODELSEED_DIR, 'Biochemistry/compounds.json')
+        compounds_file = os.path.join(MODELSEED_DIR, 'Biochemistry/compounds.tsv')
 
     try:
-        with open(compounds_file, 'r') as infile:
-            data = json.load(infile)
-
-        for cpd in data:
-            cc = PyFBA.metabolism.Compound(data[cpd]['name'], 'c')
-            cc.model_seed_id = cpd
-            ce = PyFBA.metabolism.Compound(data[cpd]['name'], 'e')
-            ce.model_seed_id = cpd
-
-            for k in data[cpd].keys():
-                if data[cpd][k] == "null" or data[cpd][k] == "none":
-                    data[cpd][k] = None
-
-            for k in ["abbreviation", "abstract_compound", "aliases", "charge", "comprised_of", "deltag", "deltagerr",
-                      "formula", "id", "inchikey", "is_cofactor", "is_core", "is_obsolete", "linked_compound", "mass",
-                      "name", "pka", "pkb", "smiles", "source"]:
-                cc.k = data[cpd][k]
-                ce.k = data[cpd][k]
-
-            # there are some compounds (like D-Glucose and Fe2+) that appear >1x in the table
-            if str(cc) in cpds:
-                cpds[str(cc)].alternate_seed_ids.add(cpd)
-            else:
-                cpds[str(cc)] = cc
-            if str(ce) in cpds:
-                cpds[str(ce)].alternate_seed_ids.add(cpd)
-            else:
-                cpds[str(ce)] = ce
+        with open(compounds_file, 'r') as f:
+            for l in f:
+                if l.startswith('id'):
+                    continue
+                p = l.strip().split("\t")
+                c = PyFBA.metabolism.Compound(p[2], '')
+                c.model_seed_id = p[0]
+                c.abbreviation = p[1]
+                c.formula = p[3]
+                c.mw = p[4]
+                # there are some compounds (like D-Glucose and Fe2+) that appear >1x in the table
+                if str(c) in cpds:
+                    cpds[str(c)].alternate_seed_ids.add(p[0])
+                else:
+                    cpds[str(c)] = c
     except IOError as e:
         sys.exit("There was an error parsing " +
                  compounds_file + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
 
     return cpds
-
 
 def location():
     """Parse or return the codes for the locations. The ModelSEEDDatabase
@@ -170,9 +154,9 @@ def location():
     return all_locations
 
 
-def reactions(organism_type="", rctf='Biochemistry/reactions.json', verbose=False):
+def reactions(organism_type="", rctf='Biochemistry/reactions.tsv', verbose=False):
     """
-    Parse the reaction information in Biochemistry/reactions.json
+    Parse the reaction information in Biochemistry/reactions.tsv
 
     One reaction ID is associated with one equation and thus many
     compounds and parts.
@@ -181,8 +165,7 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.json', verbose=Fals
     messages.
 
     You can supply an alternative reactions file (rctf) if you
-    don't like the default but this must be in json format. See model_seed_tsv.py
-    to parse a tab separated values file.
+    don't like the default.
 
     :param organism_type: The type of organism, eg. microbial, gram_negative, gram_positive
     :type organism_type: str
@@ -197,37 +180,46 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.json', verbose=Fals
 
     locations = location()
     cpds = compounds()
-    # cpds_by_id = {cpds[c].model_seed_id: cpds[c] for c in cpds}
-    cpds_by_id = {"e": {}, "c": {}, "h": {}}
+    cpds_by_id = {}
     for c in cpds:
-        cpds_by_id[cpds[c].location][cpds[c].model_seed_id] = cpds[c]
+        cpds_by_id[cpds[c].model_seed_id] = cpds[c]
         for asi in cpds[c].alternate_seed_ids:
-            cpds_by_id[cpds[c].location][asi] = cpds[c]
+            cpds_by_id[asi] = cpds[c]
 
     all_reactions = {}
 
     try:
         with open(os.path.join(MODELSEED_DIR, rctf), 'r') as rxnf:
-            data = json.load(rxnf)
+            for l in rxnf:
+                if l.startswith('id'):
+                    # ignore the header line
+                    continue
+                if l.startswith("#"):
+                    # ignore any comment lines
+                    continue
 
-        for rid in data:
-            rxn = data[rid]['equation']
+                pieces = l.strip().split("\t")
+                if len(pieces) < 20:
+                    sys.stderr.write("ERROR PARSING REACTION INFO: " + l)
+                    continue
 
-            for k in data[rid].keys():
-                if data[rid][k] == "null" or data[rid][k] == "none":
-                    data[rid][k] = None
+                rid = pieces[0]
 
-                if data[rid]['deltag'] and data[rid]['deltag'] != "null":
-                    deltaG = float(data[rid]['deltag'])
+                rxn = pieces[6]
+                for i in range(len(pieces)):
+                    if pieces[i] == "none" or pieces[i] == "null":
+                        pieces[i] = None
+
+                if pieces[14]:
+                    deltaG = float(pieces[14])
                 else:
                     deltaG = 0.0
-                if data[rid]['deltagerr'] and data[rid]['deltagerr'] != "null":
-                    deltaG_error = float(data[rid]['deltagerr'])
+                if pieces[15]:
+                    deltaG_error = float(pieces[15])
                 else:
                     deltaG_error = 0.0
 
-                # we need to split the reaction, but different reactions
-                # have different splits!
+                # we need to split the reaction; different reactions have different splits!
 
                 separator = ""
                 for separator in [" <=> ", " => ", " <= ", " = ", " < ", " > ", "Not found"]:
@@ -256,14 +248,13 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.json', verbose=Fals
 
                 r.deltaG = deltaG
                 r.deltaG_error = deltaG_error
-                if data[rid]['is_transport'] != 0:
+                if pieces[5] != '0':
                     r.is_transport = True
                 all_reactions[rid] = r
 
-                r.direction = data[rid]['direction']
+                r.direction = pieces[9]
 
-                # we have to rewrite the equation to accomodate
-                # the proper locations
+                # we have to rewrite the equation to accomodate the proper locations
                 newleft = []
                 newright = []
 
@@ -287,14 +278,17 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.json', verbose=Fals
                     # and then we need to create a new compound with the
                     # appropriate location
 
-                    if cmpd in cpds_by_id[loc]:
-                        nc = cpds_by_id[loc][cmpd]
+                    if cmpd in cpds_by_id:
+                        nc = PyFBA.metabolism.Compound(cpds_by_id[cmpd].name, loc)
                     else:
                         if verbose:
                             sys.stderr.write("ERROR: Did not find " + cmpd + " in the compounds file.\n")
                         nc = PyFBA.metabolism.Compound(cmpd, loc)
 
                     ncstr = str(nc)
+
+                    if ncstr in cpds:
+                        nc = copy.copy(cpds[ncstr])
                     nc.add_reactions({rid})
                     cpds[ncstr] = nc
 
@@ -306,8 +300,8 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.json', verbose=Fals
                 # deal with the right side of the equation
                 m = re.findall('\(([\d\.e-]+)\)\s+(.*?)\[(\d+)\]', right)
                 if m == [] and verbose:
-                    sys.stderr.write("ERROR: Could not parse the compounds on the right side of the reaction " +
-                                     rid + ": " + rxn + " >>" + right + "<<\n")
+                        sys.stderr.write("ERROR: Could not parse the compounds on the right side of the reaction " +
+                                         rid + ": " + rxn + " >>" + right + "<<\n")
 
                 for p in m:
                     (q, cmpd, locval) = p
@@ -323,15 +317,16 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.json', verbose=Fals
                     # and then we need to create a new compound with the
                     # appropriate location
 
-                    if cmpd in cpds_by_id[loc]:
-                        nc = cpds_by_id[loc][cmpd]
+                    if cmpd in cpds_by_id:
+                        nc = PyFBA.metabolism.Compound(cpds_by_id[cmpd].name, loc)
                     else:
                         if verbose:
                             sys.stderr.write("ERROR: Did not find " + cmpd + " in the compounds file.\n")
                         nc = PyFBA.metabolism.Compound(cmpd, loc)
 
                     ncstr = str(nc)
-
+                    if ncstr in cpds:
+                        nc = copy.copy(cpds[ncstr])
                     nc.add_reactions({rid})
                     cpds[ncstr] = nc
 
@@ -341,11 +336,6 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.json', verbose=Fals
                     newright.append("(" + str(q) + ") " + nc.name + "[" + loc + "]")
 
                 r.equation = " + ".join(newleft) + " <=> " + " + ".join(newright)
-
-                if data[rid]['aliases']:
-                    r.aliases = data[rid]['aliases'].split(";")
-                else:
-                    r.aliases = None
 
                 all_reactions[rid] = r
     except IOError as e:
