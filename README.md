@@ -7,7 +7,7 @@ PyFBA is a Python flux-balance-analysis package that allows you to build models 
 flux-balance-analysis on that model. The aim of PyFBA is to provide an extensible, python-based platform for
 FBA work.
 
-PyFBA is being developed by Daniel Cuevas, Taylor O'Connell, and Rob Edwards in [Rob's bioinformatics
+PyFBA is being developed by Daniel Cuevas, Taylor O'Connell, Shane Levi, and Rob Edwards in [Rob's bioinformatics
 group](http://edwards.sdsu.edu/research) at [San Diego State University](http://www.sdsu.edu/) together with help from
 Janaka Edirisinghe, Chris Henry, Ross Overbeek and others at [Argonne National Labs](http://www.theseed.org/).
 
