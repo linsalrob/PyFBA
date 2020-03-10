@@ -96,14 +96,14 @@ def parse_stoichiometry(model):
     sm = {x: {} for x in cpdIds}
 
     if verbose:
-        print "Length of 'rxns' list: %d" % len(rxns)
-        print "Length of 'cpds' list: %d" % len(cpds)
+        print("Length of 'rxns' list: {}").format(len(rxns))
+        print("Length of 'cpds' list: {}").format(len(cpds))
 
     # Create the stoichiometric Dictionary
     sm, objFunc = addStoichiometry(sm, rxns, rxnIds, objFunc)
 
     if verbose:
-        print "Number of compounds in sm: %d" % len(sm)
+        print("Number of compounds in sm: ()").format(len(sm))
 
     return cpdIds, rxnIds, sm, objFunc
 
@@ -141,9 +141,9 @@ def createSMatrix(cpdIds, rxnIds, sm, objFunc):
     SMat = [[0.0] * len(rxnIds) for i in cpdIds]
 
     if verbose:
-        print "Number of total compounds: %d" % len(cpdIds)
-        print "Number of total reactions: %d" % len(rxnIds)
-        print "SMat dimensions before fill: %d x %d" % (len(SMat),
+        print("Number of total compounds: {}").format(len(cpdIds))
+        print("Number of total reactions: {}").format(len(rxnIds))
+        print("SMat dimensions before fill: {} x {}").format(len(SMat),
                                                         len(SMat[0]))
 
     # Fill in S matrix
@@ -156,7 +156,7 @@ def createSMatrix(cpdIds, rxnIds, sm, objFunc):
             SMat[cIdx][rIdx] = val
 
     if verbose:
-        print "SMat dimensions after fill: %d x %d" % (len(SMat), len(SMat[0]))
+        print("SMat dimensions after fill: {} x {}").format(len(SMat), len(SMat[0]))
 
     # Load the data
     lp.load(SMat, cpdIds, rxnIds)
@@ -194,7 +194,7 @@ def reaction_bounds(model, rxnIds, media):
         rbounds.append((lb, ub))
 
     if verbose:
-        print "Number of reaction bounds: %d" % len(rbounds)
+        print("Number of reaction bounds: {}").fomat(len(rbounds))
     lp.col_bounds(rbounds)
 
 
@@ -207,7 +207,7 @@ def compound_bounds(cpdIds):
     """
     cbounds = [(0.0, 0.0) for i in cpdIds]
     if verbose:
-        print "Number of compound bounds: %d" % len(cbounds)
+        print("Number of compound bounds: {}").format(len(cbounds))
     lp.row_bounds(cbounds)
 
 

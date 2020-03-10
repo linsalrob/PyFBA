@@ -31,9 +31,9 @@ class TestModelSeedParsing(unittest.TestCase):
         """Test the template parsing is correcting the orientation of reactions"""
         # without template parsing rxn00001 has direction =
         # after GramNegative template parsing rxn00001 has direction >
-        compounds, reactions = PyFBA.parse.model_seed_json.reactions()
+        compounds, reactions = PyFBA.parse.model_seed.reactions()
         self.assertEqual(reactions['rxn00001'].direction, '=')
-        compounds, reactions = PyFBA.parse.model_seed_json.reactions('gram_negative')
+        compounds, reactions = PyFBA.parse.model_seed.reactions('gram_negative')
         self.assertEqual(reactions['rxn00001'].direction, '>')
 
     def test_template_reactions(self):
@@ -41,7 +41,7 @@ class TestModelSeedParsing(unittest.TestCase):
         Test parsing the template reactions in the model seed
         """
 
-        enz = PyFBA.parse.model_seed_json.template_reactions('microbial')
+        enz = PyFBA.parse.model_seed.template_reactions('microbial')
         self.assertGreaterEqual(len(enz), 19000, 'The microbial template has changed. Most likely the model seed has been ' +
                          'updated and the test code is wrong!')
         allkeys = enz.keys()
@@ -55,7 +55,7 @@ class TestModelSeedParsing(unittest.TestCase):
         Test the compounds() method in model seed parsing
         """
 
-        cmps = PyFBA.parse.model_seed_json.compounds()
+        cmps = PyFBA.parse.model_seed.compounds()
         self.assertEqual(len(cmps), 27587, 'The compounds list has changed. Most likely the model seed has been ' +
                          'updated and the test code is wrong!')
 
@@ -64,7 +64,7 @@ class TestModelSeedParsing(unittest.TestCase):
         Test the location strings. These should be hard coded in the parser code
         """
 
-        locs = PyFBA.parse.model_seed_json.location()
+        locs = PyFBA.parse.model_seed.location()
         self.assertEqual(len(locs), 3)
         self.assertEqual(locs['0'], 'c')
         self.assertEqual(locs['1'], 'e')
@@ -72,16 +72,13 @@ class TestModelSeedParsing(unittest.TestCase):
 
     def test_reactions(self):
         """Test parsing the reactions by parse.model_seed"""
-        compounds, reactions = PyFBA.parse.model_seed_json.reactions()
+        compounds, reactions = PyFBA.parse.model_seed.reactions()
         # in the current version of modelseeddatabase (11/16/2015)
         # we have the following data -
         #
         # Note that these numbers are occasionally updated, and so you may need to update the test values.
         # To mitigate this, we use >= in our comparison (in the hope none are deleted!)
-        # self.assertGreaterEqual(len(compounds), 45616)
-        # New compound counts based on the following database commit version
-        # c4ba1c6a2aa81dae6159323c95a4236619c3d9ce
-        self.assertGreaterEqual(len(compounds), 29938)
+        self.assertGreaterEqual(len(compounds), 45616)
         self.assertGreaterEqual(len(reactions), 34696)
         is_transport = 0
         direction = {}
@@ -99,12 +96,12 @@ class TestModelSeedParsing(unittest.TestCase):
 
     def test_complexes(self):
         """Test parsing the complexes by parse.model_seed"""
-        cmplxs = PyFBA.parse.model_seed_json.complexes()
+        cmplxs = PyFBA.parse.model_seed.complexes()
         self.assertGreaterEqual(len(cmplxs), 4183)
 
     def test_roles(self):
         """Test the roles() method in parse.model_seed"""
-        roles = PyFBA.parse.model_seed_json.roles()
+        roles = PyFBA.parse.model_seed.roles()
         # this should have the same number of lines as
         #   wc -l Biochemistry/ModelSEEDDatabase/SOLRDump/ComplexRoles.tsv
         #   4747
@@ -112,16 +109,13 @@ class TestModelSeedParsing(unittest.TestCase):
 
     def test_enzymes(self):
         """Test the enzymes() method in parse.model_seed"""
-        enzs = PyFBA.parse.model_seed_json.enzymes()
-        self.assertEqual(len(enzs), 4067)
+        enzs = PyFBA.parse.model_seed.enzymes()
+        self.assertEqual(len(enzs), 5557)
 
     def test_compounds_enzymes_and_reactions(self):
         """Test retrieving the compounds, enzymes, and reactions"""
-        cpds, rcts, enzs = PyFBA.parse.model_seed_json.compounds_reactions_enzymes()
-        self.assertEqual(len(enzs), 4067)
+        cpds, rcts, enzs = PyFBA.parse.model_seed.compounds_reactions_enzymes()
+        self.assertEqual(len(enzs), 5557)
         self.assertGreaterEqual(len(rcts), 34696)
-        #self.assertGreaterEqual(len(cpds), 45616)
-        # New compound counts based on the following database commit version
-        # c4ba1c6a2aa81dae6159323c95a4236619c3d9ce
-        self.assertGreaterEqual(len(cpds), 29938)
+        self.assertGreaterEqual(len(cpds), 45616)
 

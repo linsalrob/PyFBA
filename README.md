@@ -15,15 +15,13 @@ You can [read more about PyFBA](http://linsalrob.github.io/PyFBA/) on our github
 
 ## Installing PyFBA
 
-To use PyFBA you need Python 2.7 or greater, and you need to [install the GNU GLPK](INSTALLATION.md) and a Python
+To use PyFBA you need Python 3.0 or greater, and you need to [install the GNU GLPK](INSTALLATION.md) and a Python
 wrapper for that program, pyGLPK available from [github](https://github.com/bradfordboyle/pyglpk). 
 
 We also leverage the [Model SEED GitHub](https://github.com/ModelSEED/ModelSEEDDatabase.git) repository with all the
 latest biochemistry tables. 
 
 Our [installation](INSTALLATION.md) page has detailed instructions on installing PyFBA and getting everything running.
-
-Vimalkumar Velayudhan from the [APC Microbiome Institute](http://apc.ucc.ie/) at the [University College](http://www.ucc.ie) in Cork, Ireland has created a [Docker image](https://hub.docker.com/r/vimalkvn/pyfba/) for PyFBA. Instructions are provided on the docker website.
 
 ## Getting Started with PyFBA
 

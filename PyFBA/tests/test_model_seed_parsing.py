@@ -56,7 +56,7 @@ class TestModelSeedParsing(unittest.TestCase):
         """
 
         cmps = PyFBA.parse.model_seed.compounds()
-        self.assertEqual(len(cmps), 27587, 'The compounds list has changed. Most likely the model seed has been ' +
+        self.assertEqual(len(cmps), 55174, 'The compounds list has changed. Most likely the model seed has been ' +
                          'updated and the test code is wrong!')
 
     def test_locations(self):
@@ -78,10 +78,7 @@ class TestModelSeedParsing(unittest.TestCase):
         #
         # Note that these numbers are occasionally updated, and so you may need to update the test values.
         # To mitigate this, we use >= in our comparison (in the hope none are deleted!)
-        # self.assertGreaterEqual(len(compounds), 45616)
-        # New compound counts based on the following database commit version
-        # c4ba1c6a2aa81dae6159323c95a4236619c3d9ce
-        self.assertGreaterEqual(len(compounds), 29938)
+        self.assertGreaterEqual(len(compounds), 45616)
         self.assertGreaterEqual(len(reactions), 34696)
         is_transport = 0
         direction = {}
@@ -113,15 +110,12 @@ class TestModelSeedParsing(unittest.TestCase):
     def test_enzymes(self):
         """Test the enzymes() method in parse.model_seed"""
         enzs = PyFBA.parse.model_seed.enzymes()
-        self.assertEqual(len(enzs), 4067)
+        self.assertEqual(len(enzs), 5557)
 
     def test_compounds_enzymes_and_reactions(self):
         """Test retrieving the compounds, enzymes, and reactions"""
         cpds, rcts, enzs = PyFBA.parse.model_seed.compounds_reactions_enzymes()
-        self.assertEqual(len(enzs), 4067)
+        self.assertEqual(len(enzs), 5557)
         self.assertGreaterEqual(len(rcts), 34696)
-        #self.assertGreaterEqual(len(cpds), 45616)
-        # New compound counts based on the following database commit version
-        # c4ba1c6a2aa81dae6159323c95a4236619c3d9ce
-        self.assertGreaterEqual(len(cpds), 29938)
+        self.assertGreaterEqual(len(cpds), 45616)
 
