@@ -154,7 +154,7 @@ def parse_sbml_file(sbml_file, verbose=False):
     for r in soup.listOfReactions.find_all('reaction'):
         # I am going to split off the location for the reaction.
         # I don't believe we have the same reaction running in two different locations but maybe in plants, etc?
-        if 'biomass' in r['id'].lower():
+        if 'biomass' or 'bio1' in r['id'].lower():
             rxnid = 'biomass_equation'
         elif '_' not in r['id']:
             if verbose:
@@ -163,8 +163,6 @@ def parse_sbml_file(sbml_file, verbose=False):
         elif r['id'].startswith('EX_'):
             ex, rxnid, rxnloc = r['id'].split("_")
             rxnid = 'EX_' + rxnid
-        elif r['id'].startswith('R_'):
-            rex, rxnid, rxnloc = r['id'].split("_")
         else:
             try:
                 rxnid, rxnloc = r['id'].split("_")
@@ -190,10 +188,7 @@ def parse_sbml_file(sbml_file, verbose=False):
         equation = {'left': [], 'right': []}
         for rc in r.find_all('listOfReactants'):
             for sp in rc.find_all('speciesReference'):
-                try:
-                    newcm, cpdname, cpdloc = sp['species'].split("_")
-                except:
-                    cpdname, cpdloc = sp['species'].split("_")
+                cpdname, cpdloc = sp['species'].split("_")
                 try:
                     # cpd = sbml.get_a_compound(Compound(cpdname, cpdloc))
                     cpd = sbml.get_a_compound_by_id(sp['species'])
@@ -214,10 +209,7 @@ def parse_sbml_file(sbml_file, verbose=False):
 
         for rc in r.find_all('listOfProducts'):
             for sp in rc.find_all('speciesReference'):
-                try:
-                    newcm, cpdname, cpdloc = sp['species'].split("_")
-                except:
-                    cpdname, cpdloc = sp['species'].split("_")
+                cpdname, cpdloc = sp['species'].split("_")
                 try:
                     # cpd = sbml.get_a_compound(Compound(cpdname, cpdloc))
                     cpd = sbml.get_a_compound_by_id(sp['species'])
