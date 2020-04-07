@@ -1,3 +1,4 @@
+[![Edwards Lab](https://img.shields.io/badge/Bioinformatics-EdwardsLab-03A9F4)](https://edwards.sdsu.edu/research)
 # PyFBA
 A python implementation of flux balance analysis to model microbial metabolism. [Read more ...](http://linsalrob.github.io/PyFBA/)
 
