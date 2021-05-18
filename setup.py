@@ -48,7 +48,11 @@ setup(
     author_email='raedwards@gmail.com',
     long_description=long_description,
     platforms='any',
-    install_requires=["lxml","python-libsbml"],
+    install_requires=[
+        "lxml",
+        "python-libsbml",
+        "beautifulsoup4",
+    ],
     test_suite = 'nose.collector',
     description='A Python implementation of flux balance analysis',
     tests_require = ['nose'],
