@@ -109,14 +109,22 @@ def compounds(compounds_file=None):
     try:
         with open(compounds_file, 'r') as f:
             for jc in json.load(f):
-                c = PyFBA.metabolism.Compound(jc.name, '')
-                c.model_seed_id = jc.id
-                c.abbreviation = jc.abbreviation
-                c.formula = jc.formula
-                c.mw = jc.mass
+                c = PyFBA.metabolism.Compound(jc['name'], '')
+                c.model_seed_id = jc['id']
+                c.mw = jc['mass']
+                # this should be all the keys (except name and ID)
+                for ck in ["abbreviation", "abstract_compound", 
+                           "aliases", "charge", "comprised_of", "deltag",
+                           "deltagerr", "formula", "id", "inchikey",
+                           "is_cofactor", "is_core", "is_obsolete",
+                           "linked_compound", "mass", "name", "notes",
+                           "pka", "pkb", "smiles", "source"]:
+                    if ck in jc:
+                        c.add_attribute(ck, jc[ck])
+
                 # there are some compounds (like D-Glucose and Fe2+) that appear >1x in the table
                 if str(c) in cpds:
-                    cpds[str(c)].alternate_seed_ids.add(jc.id)
+                    cpds[str(c)].alternate_seed_ids.add(jc['id'])
                 else:
                     cpds[str(c)] = c
     except IOError as e:

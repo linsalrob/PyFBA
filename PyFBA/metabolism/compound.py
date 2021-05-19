@@ -49,7 +49,7 @@ class Compound:
         self.charge = 0
         self.uptake_secretion = False
 
-        self.aliases = []
+        #self.aliases = []
         self.is_cofactor = False
         self.linked_compound = False
         self.notes = ""
@@ -198,3 +198,15 @@ class Compound:
         """
 
         raise NotImplemented("Sorry. Calculate molecular weight has not yet been implemented.")
+
+    def add_attribute(self, key, value):
+        """
+        Add an attribute to this class
+        """
+        setattr(self, key, value)
+
+    def get_attribute(self, key):
+        """
+        Retrieve an attribute
+        """
+        return getattr(self, key)
