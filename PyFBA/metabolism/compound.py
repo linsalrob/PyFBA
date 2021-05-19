@@ -49,6 +49,22 @@ class Compound:
         self.charge = 0
         self.uptake_secretion = False
 
+        self.aliases = []
+        self.is_cofactor = False
+        self.linked_compound = False
+        self.notes = ""
+        self.pka = 0
+        self.pkb = 0
+        self.is_obsolete = False
+        self.smiles = ""
+        self.comprised_of = ""
+        self.abstract_compound = False
+        self.source = ""
+        self.is_core = False
+        self.deltagerr = 0
+        self.deltag = 0
+        self.inchikey = 0
+
     def __eq__(self, other):
         """
         Two compounds are equal if they have the same name and the same location

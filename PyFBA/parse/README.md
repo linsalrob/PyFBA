@@ -10,7 +10,7 @@ folder, and we have parsers for [SBML](http://www.sbml.org/) format files that y
 
 The model SEED parser is broken into three main sections (although there are other components to the parser): 
 *Compounds*, *Reactions*, and *Enzymes*. Each method returns a hash of the data stored with its `str()` function as the
-key and the object as the value. This creates a convenient data structure for both looking up a an object and iterating
+key and the object as the value. This creates a convenient data structure for both looking up an object and iterating
 over those objects.
 
 The method `compounds_reactions_enzymes()` is the primary entry point to the model SEED data, and returns three data

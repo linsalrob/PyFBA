@@ -1,4 +1,9 @@
+
 """
+
+Please note that this is the historic version, and now we have moved to parsing the JSON
+files directly. See model_seed.py
+
 A parser for the SEED biochemistry modules that are available on Github
 at https://github.com/ModelSEED/ModelSEEDDatabase. We have also included
 them in our repo as a submodule.
@@ -7,11 +12,6 @@ We parse compounds from the compounds file in Biochemistry. Locations
 are currently hardcoded because the ModelSeedDirectory does not contain
 a mapping for compartments (the mapping files do not have the integers
 used in the reactions file!).
-
-PLEASE NOTE: This version uses the ModelSeed JSON files, please revert
-to model_seed_solr.py if you want to use the old SOLR datadumps.
-You should be able to do that by changing the functions in __init__.py
-
 """
 
 import copy
@@ -19,7 +19,6 @@ import os
 import re
 import sys
 import io
-import json
 
 import PyFBA
 
@@ -51,8 +50,6 @@ def template_reactions(modeltype='microbial'):
     :return: A hash of the new model parameters that should be used to update the reactions object
     :rtype: dict
     """
-
-    raise NotImplementedError("Error: template reactions has not been implemented from JSON files")
 
     inputfile = ""
     if modeltype.lower() == 'microbial':
@@ -104,19 +101,23 @@ def compounds(compounds_file=None):
     cpds = {}
 
     if not compounds_file:
-        compounds_file = os.path.join(MODELSEED_DIR, 'Biochemistry/compounds.json')
+        compounds_file = os.path.join(MODELSEED_DIR, 'Biochemistry/compounds.master.tsv')
 
     try:
         with open(compounds_file, 'r') as f:
-            for jc in json.load(f):
-                c = PyFBA.metabolism.Compound(jc.name, '')
-                c.model_seed_id = jc.id
-                c.abbreviation = jc.abbreviation
-                c.formula = jc.formula
-                c.mw = jc.mass
+            for li, l in enumerate(f):
+                if li == 0:
+                    # skip the header line
+                    continue
+                p = l.strip().split("\t")
+                c = PyFBA.metabolism.Compound(p[2], '')
+                c.model_seed_id = p[0]
+                c.abbreviation = p[1]
+                c.formula = p[3]
+                c.mw = p[4]
                 # there are some compounds (like D-Glucose and Fe2+) that appear >1x in the table
                 if str(c) in cpds:
-                    cpds[str(c)].alternate_seed_ids.add(jc.id)
+                    cpds[str(c)].alternate_seed_ids.add(p[0])
                 else:
                     cpds[str(c)] = c
     except IOError as e:
