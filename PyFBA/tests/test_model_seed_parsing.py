@@ -33,15 +33,13 @@ class TestModelSeedParsing(unittest.TestCase):
 
     def test_template_working(self):
         """Test the template parsing is correcting the orientation of reactions"""
-        # without template parsing rxn00001 has direction =
-        # after GramNegative template parsing rxn00001 has direction >
-        compounds, reactions = PyFBA.parse.model_seed.reactions()
-        self.assertIn('rxn00001', reactions)
-        self.assertNotIn('rxn39196', reactions)
+        # In core rxn00148 has direction <
+        # after Microbial template parsing rxn00148 has direction =
 
-        compounds, reactions = PyFBA.parse.model_seed.reactions('gram_negative')
-        self.assertIn('rxn00001', reactions)
-        self.assertIn('rxn39196', reactions)
+        compounds, reactions = PyFBA.parse.model_seed.reactions()
+        self.assertEqual(reactions['rxn00148'].direction, '<')
+        compounds, reactions = PyFBA.parse.model_seed.reactions('microbial')
+        self.assertEqual(reactions['rxn00148'].direction, '=')
 
     def test_template_reactions(self):
         """
