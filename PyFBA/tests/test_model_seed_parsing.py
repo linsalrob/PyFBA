@@ -77,13 +77,16 @@ class TestModelSeedParsing(unittest.TestCase):
     def test_reactions(self):
         """Test parsing the reactions by parse.model_seed"""
         compounds, reactions = PyFBA.parse.model_seed.reactions()
-        # in the current version of modelseeddatabase (11/16/2015)
+        # in the current version of modelseeddatabase (May 2021)
         # we have the following data -
         #
         # Note that these numbers are occasionally updated, and so you may need to update the test values.
         # To mitigate this, we use >= in our comparison (in the hope none are deleted!)
-        self.assertGreaterEqual(len(compounds), 45616)
-        self.assertGreaterEqual(len(reactions), 34696)
+        #
+        # Please also see the code in example_code/reaction_statistics.py that will generate an
+        # updated version of these numbers for you
+        self.assertGreaterEqual(len(compounds), 56767)
+        self.assertGreaterEqual(len(reactions), 43774)
         is_transport = 0
         direction = {}
         for r in reactions:
@@ -91,12 +94,12 @@ class TestModelSeedParsing(unittest.TestCase):
                 is_transport += 1
             direction[reactions[r].direction] = direction.get(reactions[r].direction, 0) + 1
 
-        self.assertGreaterEqual(is_transport, 5272)
+        self.assertGreaterEqual(is_transport, 5505)
 
         self.assertEqual(len(direction), 3)
-        self.assertGreaterEqual(direction['<'], 3328)
-        self.assertGreaterEqual(direction['>'], 12760)
-        self.assertGreaterEqual(direction['='], 18608)
+        self.assertGreaterEqual(direction['='], 27676)
+        self.assertGreaterEqual(direction['>'], 12767)
+        self.assertGreaterEqual(direction['<'], 3331)
 
     def test_complexes(self):
         """Test parsing the complexes by parse.model_seed"""
