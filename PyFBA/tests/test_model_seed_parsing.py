@@ -36,12 +36,12 @@ class TestModelSeedParsing(unittest.TestCase):
         # without template parsing rxn00001 has direction =
         # after GramNegative template parsing rxn00001 has direction >
         compounds, reactions = PyFBA.parse.model_seed.reactions()
-        self.assertIn(reactions, 'rxn00001')
-        self.assertNotIn(reactions, 'rxn39196')
+        self.assertIn('rxn00001', reactions)
+        self.assertNotIn('rxn39196', reactions)
 
         compounds, reactions = PyFBA.parse.model_seed.reactions('gram_negative')
-        self.assertIn(reactions, 'rxn00001')
-        self.assertIn(reactions, 'rxn39196')
+        self.assertIn('rxn00001', reactions)
+        self.assertIn('rxn39196', reactions)
 
     def test_template_reactions(self):
         """
