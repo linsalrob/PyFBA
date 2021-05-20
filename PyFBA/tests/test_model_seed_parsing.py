@@ -103,28 +103,11 @@ class TestModelSeedParsing(unittest.TestCase):
         self.assertGreaterEqual(direction['>'], 12767)
         self.assertGreaterEqual(direction['<'], 3331)
 
-    def test_complexes(self):
-        """Test parsing the complexes by parse.model_seed"""
-        cmplxs = PyFBA.parse.model_seed.complexes()
-        self.assertGreaterEqual(len(cmplxs), 4183)
-
-    def test_roles(self):
-        """Test the roles() method in parse.model_seed"""
-        roles = PyFBA.parse.model_seed.roles()
-        # this should have the same number of lines as
-        #   wc -l Biochemistry/ModelSEEDDatabase/SOLRDump/ComplexRoles.tsv
-        #   4747
-        self.assertGreaterEqual(len(roles), 2350)
-
-    def test_enzymes(self):
-        """Test the enzymes() method in parse.model_seed"""
-        enzs = PyFBA.parse.model_seed.enzymes()
-        self.assertEqual(len(enzs), 4067)
 
     def test_compounds_enzymes_and_reactions(self):
         """Test retrieving the compounds, enzymes, and reactions"""
         cpds, rcts, enzs = PyFBA.parse.model_seed.compounds_reactions_enzymes()
-        self.assertEqual(len(enzs), 4067)
-        self.assertGreaterEqual(len(rcts), 34696)
-        self.assertGreaterEqual(len(cpds), 45616)
+        self.assertEqual(len(enzs), 4067, f"THere are {len(enzs)} enzymes")
+        self.assertGreaterEqual(len(rcts), 34696, f"There are {len(rcts)} reactions")
+        self.assertGreaterEqual(len(cpds), 45616, f"There are {len(cpds)} compounds")
 

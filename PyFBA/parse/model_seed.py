@@ -310,7 +310,7 @@ def ftr_to_roles(rf="Annotations/Roles.tsv"):
     """
 
     ftr2role = {}
-    with open(rf, 'r') as f:
+    with open(os.path.join(MODELSEED_DIR, rf), 'r') as f:
         for l in f:
             p = l.strip().split("\t")
             ftr2role[p[0]] = p[1]
@@ -325,7 +325,7 @@ def complex_to_ftr(cf="Annotations/Complexes.tsv"):
     """
 
     cpx2ftr = {}
-    with open(cf, 'r') as f:
+    with open(os.path.join(MODELSEED_DIR, cf), 'r') as f:
         for l in f:
             p = l.strip().split("\t")
             cpx2ftr[p[0]] = set()
