@@ -24,10 +24,9 @@ class Enzyme:
     :type roles_w_pegs: dict
     :ivar reactions: a set of reaction IDs that this enzyme connects to
     :type reactions: set
-    :ivar ec_number: one or more EC numbers associated with this Enzyme. We only store the numeric part (not the EC part)
+    :ivar ec_number: one or more EC numbers associated with this Enzyme. We only store the numeric part (not "EC: ")
     :type ec_number: set
     """
-
 
     def __init__(self, name):
         """
@@ -42,7 +41,7 @@ class Enzyme:
         self.pegs = {}  # a hash that connects Roles to PEGs
         self.roles_w_pegs = {}  # which roles have pegs
         self.reactions = set()  # RIDs that the enzyme connects to
-        self.ec_number = set() # one or more EC numbers associated with this Enzyme. We only store the numeric part (not the EC part)
+        self.ec_number = set()  # one or more EC numbers associated with this Enzyme.
 
     def __eq__(self, other):
         """
@@ -161,7 +160,7 @@ class Enzyme:
 
     def number_of_pegs(self):
         """
-        The number of pegs assocaited with this enzyme.
+        The number of pegs associated with this enzyme.
 
         :rtype: int
         """
@@ -197,7 +196,6 @@ class Enzyme:
             raise TypeError("reaction must be a string not a " + str(type(reaction)))
         self.reactions.add(reaction)
 
-
     def number_of_reactions(self):
         """
         The number of reactions that this enzyme is involved in
@@ -205,7 +203,6 @@ class Enzyme:
         :rtype: int
         """
         return len(self.reactions)
-
 
     def add_ec(self, ecnumber):
         """
@@ -232,5 +229,3 @@ class Enzyme:
         # this simple calculation. We need to know thenumber of pegroles
         # / number of roles - roles with pegs!
         return 1.0 * self.number_of_roles_with_pegs() / self.number_of_roles()
-
-
