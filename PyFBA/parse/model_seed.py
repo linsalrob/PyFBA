@@ -290,7 +290,8 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
 
     # finally, if we need to adjust the organism type based on Template reactions, we shall
     if not organism_type:
-        sys.stderr.write("ERROR: A model type was not specified, and so your Enzyme Complexes are just microbial core")
+        if verbose:
+            sys.stderr.write("ERROR: A model type was not specified, and so your Enzyme Complexes are just microbial core")
         organism_type = "Core"
 
     new_rcts = template_reactions(organism_type)
