@@ -24,7 +24,7 @@ import PyFBA
 from .config import MODELSEED_DIR
 
 
-def template_reactions(modeltype='Microbial'):
+def template_reactions(modeltype):
     """
     Load the template reactions to adjust the model. Returns a hash of some altered parameters for the model
     :param modeltype: which type of model to load e.g. GramNegative, GramPositive, Microbial
@@ -134,7 +134,7 @@ def location():
     return all_locations
 
 
-def reactions(organism_type="", rctf='Biochemistry/reactions.json', verbose=False):
+def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=False):
     """
     Parse the reaction information in Biochemistry/reactions.master.tsv
 
