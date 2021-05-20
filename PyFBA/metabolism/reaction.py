@@ -157,17 +157,17 @@ class Reaction:
 
         :rtype: int
         """
-        return hash(self.name)
+        return hash(self.id)
 
 
     def __str__(self):
         """
-        The string version of the reaction. Currently we return self.name as the str
+        The string version of the reaction.
 
         :rtype: str
         """
 
-        return self.name
+        return f"Reaction {self.id}: {self.readable_name}"
 
 
     def set_direction(self, direction):
