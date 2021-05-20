@@ -385,3 +385,5 @@ def compounds_reactions_enzymes(organism_type='', verbose=False):
         for c in rcts[r].enzymes:
             if c in enzs:
                 enzs[c].add_reaction(rcts[r].id)
+
+    return cpds, rcts, enzs
