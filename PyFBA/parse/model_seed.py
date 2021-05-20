@@ -371,7 +371,10 @@ def compounds_reactions_enzymes(organism_type='', verbose=False):
             continue
         enzs[cmplx] = PyFBA.metabolism.Enzyme(cmplx)
         for ft in c2f[cmplx]:
-            enzs[cmplx].add_roles({f2r[ft]})
+            if ft in f2r:
+                enzs[cmplx].add_roles({f2r[ft]})
+            else:
+                sys.stderr.write(f"Warning: No functional role for {ft}\n")
             for ecno in re.findall(r'[\d-]+\.[\d-]+\.[\d-]+\.[\d-]+', f2r[ft]):
                 enzs[cmplx].add_ec(ecno)
     for r in rcts:
