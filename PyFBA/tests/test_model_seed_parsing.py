@@ -107,7 +107,7 @@ class TestModelSeedParsing(unittest.TestCase):
     def test_compounds_enzymes_and_reactions(self):
         """Test retrieving the compounds, enzymes, and reactions"""
         cpds, rcts, enzs = PyFBA.parse.model_seed.compounds_reactions_enzymes()
-        self.assertEqual(len(enzs), 4067, f"THere are {len(enzs)} enzymes")
-        self.assertGreaterEqual(len(rcts), 34696, f"There are {len(rcts)} reactions")
-        self.assertGreaterEqual(len(cpds), 45616, f"There are {len(cpds)} compounds")
+        self.assertEqual(len(enzs), 9423, f"THere are {len(enzs)} enzymes")
+        self.assertEqual(len(rcts), 43774, f"There are {len(rcts)} reactions")
+        self.assertEqual(len(cpds), 56767, f"There are {len(cpds)} compounds")
 
