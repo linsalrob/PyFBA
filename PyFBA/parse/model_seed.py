@@ -20,27 +20,9 @@ import re
 import sys
 import io
 import json
-
 import PyFBA
 
-MODELSEED_DIR = ""
-if 'ModelSEEDDatabase' in os.environ:
-        MODELSEED_DIR = os.environ['ModelSEEDDatabase']
-else:
-    sys.stderr.write("Please ensure that you install the Model SEED Database somewhere, and set the environment " +
-                     "variable ModelSEEDDatabase to point to that directory.\n" +
-                     " See INSTALLATION.md for more information\n")
-    sys.exit(-1)
-
-if not MODELSEED_DIR:
-    sys.stderr.write("The ModelSEEDDatabase environment variable is not set.\n")
-    sys.stderr.write("Please install the ModelSEEDDatabase, set the variable, and try again")
-    sys.exit(-1)
-
-if not os.path.exists(MODELSEED_DIR):
-    sys.stderr.write("The MODEL SEED directory: {} does not exist.\n".format(MODELSEED_DIR))
-    sys.stderr.write("Please check your installation.\n")
-    sys.exit(-1)
+from .config import MODELSEED_DIR
 
 
 def template_reactions(modeltype='microbial'):
@@ -51,6 +33,7 @@ def template_reactions(modeltype='microbial'):
     :return: A hash of the new model parameters that should be used to update the reactions object
     :rtype: dict
     """
+
 
     raise NotImplementedError("Error: template reactions has not been implemented from JSON files")
 
@@ -75,12 +58,11 @@ def template_reactions(modeltype='microbial'):
     new_enz = {}
     with open(os.path.join(MODELSEED_DIR, inputfile), 'r') as f:
         for l in f:
-            if l.startswith('id'):
-                continue
-            p = l.strip().split("\t")
-            new_enz[p[0]] = {}
-            new_enz[p[0]]['direction'] = p[2]
-            new_enz[p[0]]['enzymes'] = set(p[-1].split("|"))
+            if not l.startswith('id'):
+                p = l.strip().split("\t")
+                new_enz[p[0]] = {}
+                new_enz[p[0]]['direction'] = p[2]
+                new_enz[p[0]]['enzymes'] = set(p[-1].split("|"))
 
     return new_enz
 
@@ -147,12 +129,11 @@ def location():
 
     # 0: cytoplasmic, 1: extracellular, 2: chloroplast
 
-    global all_locations
     all_locations = {'0': 'c', '1': 'e', '2': 'h'}
     return all_locations
 
 
-def reactions(organism_type="", rctf='Biochemistry/reactions.master.tsv', verbose=False):
+def reactions(organism_type="", rctf='Biochemistry/reactions.json', verbose=False):
     """
     Parse the reaction information in Biochemistry/reactions.master.tsv
 
@@ -173,7 +154,6 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.master.tsv', verbos
     :type verbose: bool
     :return: Two components, a dict of the reactions and a dict of all the compounds used in the reactions.
     :rtype: dict, dict
-
     """
 
     locations = location()
@@ -187,72 +167,39 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.master.tsv', verbos
 
     all_reactions = {}
 
-    try:
-        with open(os.path.join(MODELSEED_DIR, rctf), 'r') as rxnf:
-            for l in rxnf:
-                if l.startswith('id'):
-                    # ignore the header line
-                    continue
-                if l.startswith("#"):
-                    # ignore any comment lines
-                    continue
+    with open(os.path.join(MODELSEED_DIR, rctf), 'r') as rxnf:
+        for rxn in json.load(rxnf):
+            r = PyFBA.metabolism.Reaction(rxn['id'])
+            if 'name' in rxn and rxn['name']:
+                r.readable_name = rxn['name']
+            r.model_seed_id = rxn['id']
+            # convert a few 0/1 to True/False
+            if rxn['is_transport']:
+                r.is_transport = True
+            if rxn['is_obsolete']:
+                r.is_obsolete = True
 
-                pieces = l.strip().split("\t")
-                if len(pieces) < 20:
-                    sys.stderr.write("ERROR PARSING REACTION INFO: " + l)
-                    continue
+            for rxnkey in ["abbreviation", "abstract_reaction", "aliases", "code", "compound_ids", "definition",
+                           "deltag", "deltagerr", "direction", "ec_numbers",
+                           "linked_reaction", "notes", "pathways", "reversibility",
+                           "source", "status", "stoichiometry"]:
+                if rxnkey in rxn:
+                    r.add_attribute(rxnkey, rxn[rxnkey])
 
-                rid = pieces[0]
-
-                rxn = pieces[6]
-                for i in range(len(pieces)):
-                    if pieces[i] == "none" or pieces[i] == "null":
-                        pieces[i] = None
-
-                if pieces[14]:
-                    deltaG = float(pieces[14])
-                else:
-                    deltaG = 0.0
-                if pieces[15]:
-                    deltaG_error = float(pieces[15])
-                else:
-                    deltaG_error = 0.0
-
-                # we need to split the reaction, but different reactions
-                # have different splits!
-
-                separator = ""
                 for separator in [" <=> ", " => ", " <= ", " = ", " < ", " > ", "Not found"]:
-                    if separator in rxn:
+                    if separator in rxn['equation']:
                         break
                 if separator == "Not found":
                     if verbose:
-                        sys.stderr.write("WARNING: Could not find a seperator in " + rxn +
+                        sys.stderr.write("WARNING: Could not find a seperator in " + rxn['equation'] +
                                          ". This reaction was skipped. Please check it\n")
                     continue
 
-                left, right = rxn.split(separator)
+                left, right = rxn['equation'].split(separator)
 
                 # check and see we have a valid equation
                 left = left.strip()
                 right = right.strip()
-                if False:
-                    if left == "" or right == "":
-                        if verbose:
-                            sys.stderr.write("One side missing for " + rxn + " ignored\n")
-                        continue
-
-                # create a new reaction object to hold all the information ...
-
-                r = PyFBA.metabolism.Reaction(rid)
-
-                r.deltaG = deltaG
-                r.deltaG_error = deltaG_error
-                if pieces[5] != '0':
-                    r.is_transport = True
-                all_reactions[rid] = r
-
-                r.direction = pieces[9]
 
                 # we have to rewrite the equation to accomodate
                 # the proper locations
@@ -260,10 +207,10 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.master.tsv', verbos
                 newright = []
 
                 # deal with the compounds on the left side of the equation
-                m = re.findall('\(([\d\.e-]+)\)\s+(.*?)\[(\d+)\]', left)
+                m = re.findall(r'\(([\d.e-]+)\)\s+(.*?)\[(\d+)]', left)
                 if m == [] and verbose:
                     sys.stderr.write("ERROR: Could not parse the compounds" + " on the left side of the reaction " +
-                                     rid + ": " + rxn + "\n")
+                                     r.id + ": " + rxn['equation'] + "\n")
 
                 for p in m:
                     (q, cmpd, locval) = p
@@ -290,7 +237,7 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.master.tsv', verbos
 
                     if ncstr in cpds:
                         nc = copy.copy(cpds[ncstr])
-                    nc.add_reactions({rid})
+                    nc.add_reactions({r.id})
                     cpds[ncstr] = nc
 
                     r.add_left_compounds({nc})
@@ -299,10 +246,10 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.master.tsv', verbos
                     newleft.append("(" + str(q) + ") " + nc.name + "[" + loc + "]")
 
                 # deal with the right side of the equation
-                m = re.findall('\(([\d\.e-]+)\)\s+(.*?)\[(\d+)\]', right)
+                m = re.findall(r'\(([\d.e-]+)\)\s+(.*?)\[(\d+)]', right)
                 if m == [] and verbose:
-                        sys.stderr.write("ERROR: Could not parse the compounds on the right side of the reaction " +
-                                         rid + ": " + rxn + " >>" + right + "<<\n")
+                    sys.stderr.write("ERROR: Could not parse the compounds on the right side of the reaction " +
+                                     r.id + ": " + rxn['equation'] + " >>" + right + "<<\n")
 
                 for p in m:
                     (q, cmpd, locval) = p
@@ -328,7 +275,7 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.master.tsv', verbos
                     ncstr = str(nc)
                     if ncstr in cpds:
                         nc = copy.copy(cpds[ncstr])
-                    nc.add_reactions({rid})
+                    nc.add_reactions({r.id})
                     cpds[ncstr] = nc
 
                     r.add_right_compounds({nc})
@@ -338,9 +285,7 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.master.tsv', verbos
 
                 r.equation = " + ".join(newleft) + " <=> " + " + ".join(newright)
 
-                all_reactions[rid] = r
-    except IOError as e:
-        sys.exit("There was an error parsing " + rctf + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
+                all_reactions[r.id] = r
 
     # finally, if we need to adjust the organism type based on Template reactions, we shall
     if organism_type:

@@ -21,26 +21,8 @@ import sys
 import io
 
 import PyFBA
-
-MODELSEED_DIR = ""
-if 'ModelSEEDDatabase' in os.environ:
-        MODELSEED_DIR = os.environ['ModelSEEDDatabase']
-else:
-    sys.stderr.write("Please ensure that you install the Model SEED Database somewhere, and set the environment " +
-                     "variable ModelSEEDDatabase to point to that directory.\n" +
-                     " See INSTALLATION.md for more information\n")
-    sys.exit(-1)
-
-if not MODELSEED_DIR:
-    sys.stderr.write("The ModelSEEDDatabase environment variable is not set.\n")
-    sys.stderr.write("Please install the ModelSEEDDatabase, set the variable, and try again")
-    sys.exit(-1)
-
-if not os.path.exists(MODELSEED_DIR):
-    sys.stderr.write("The MODEL SEED directory: {} does not exist.\n".format(MODELSEED_DIR))
-    sys.stderr.write("Please check your installation.\n")
-    sys.exit(-1)
-
+from .model_seed import location
+from .config import MODELSEED_DIR
 
 def template_reactions(modeltype='microbial'):
     """
@@ -125,24 +107,6 @@ def compounds(compounds_file=None):
                  compounds_file + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
 
     return cpds
-
-
-def location():
-    """Parse or return the codes for the locations. The ModelSEEDDatabase
-    uses codes, and has a compartments file but they do not match up.
-
-    This is currently hardcoded, but is put here so we can rewrite it as
-    if the compartments file is updated
-
-    :return: A dict of location numeric IDs and string IDs
-    :rtype: dict
-    """
-
-    # 0: cytoplasmic, 1: extracellular, 2: chloroplast
-
-    global all_locations
-    all_locations = {'0': 'c', '1': 'e', '2': 'h'}
-    return all_locations
 
 
 def reactions(organism_type="", rctf='Biochemistry/reactions.master.tsv', verbose=False):

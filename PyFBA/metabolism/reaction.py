@@ -57,7 +57,7 @@ class Reaction:
 
     """
 
-    def __init__(self, name):
+    def __init__(self, id):
         """
         Instantiate the reaction
 
@@ -67,7 +67,9 @@ class Reaction:
         :rtype:
         """
 
-        self.name = name
+        self.id = id
+        self.model_seed_id = None
+        self.readable_name = None
         self.description = None
         self.equation = None
         self.direction = None
@@ -560,4 +562,15 @@ class Reaction:
         self.deltaG = -self.deltaG
 
 
+    def add_attribute(self, key, value):
+        """
+        Add an attribute to this class
+        """
+        setattr(self, key, value)
+
+    def get_attribute(self, key):
+        """
+        Retrieve an attribute
+        """
+        return getattr(self, key)
 
