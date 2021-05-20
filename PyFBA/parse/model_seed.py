@@ -382,6 +382,6 @@ def compounds_reactions_enzymes(organism_type='', verbose=False):
             for ecno in re.findall(r'[\d-]+\.[\d-]+\.[\d-]+\.[\d-]+', f2r[ft]):
                 enzs[cmplx].add_ec(ecno)
     for r in rcts:
-        for c in r.enzymes:
+        for c in rcts[r].enzymes:
             if c in enzs:
-                enzs[c].add_reaction(r.id)
+                enzs[c].add_reaction(rcts[r].id)
