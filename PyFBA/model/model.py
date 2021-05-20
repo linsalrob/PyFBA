@@ -75,8 +75,8 @@ class Model:
         """
         if isinstance(rxns, set):
             for r in rxns:
-                if r.name not in self.reactions:
-                    self.reactions[r.name] = r
+                if r.id not in self.reactions:
+                    self.reactions[r.id] = r
                     # Add compounds from new reactions
                     for c in r.all_compounds():
                         if c.name not in self.compounds:
