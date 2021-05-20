@@ -18,14 +18,13 @@ import copy
 import os
 import re
 import sys
-import io
 import json
 import PyFBA
 
 from .config import MODELSEED_DIR
 
 
-def template_reactions(modeltype='microbial'):
+def template_reactions(modeltype='Microbial'):
     """
     Load the template reactions to adjust the model. Returns a hash of some altered parameters for the model
     :param modeltype: which type of model to load e.g. GramNegative, GramPositive, Microbial
@@ -34,16 +33,19 @@ def template_reactions(modeltype='microbial'):
     :rtype: dict
     """
 
-
-    raise NotImplementedError("Error: template reactions has not been implemented from JSON files")
-
     inputfile = ""
-    if modeltype.lower() == 'microbial':
-        inputfile = "Templates/Microbial/Reactions.tsv"
+    if modeltype.lower() == 'core':
+        inputfile = "Templates/Core/Reactions.tsv"
+    elif modeltype.lower() == 'fungi':
+        inputfile = "Templates/Fungi/Reactions.tsv"
     elif modeltype.lower() == 'gramnegative' or modeltype.lower() == 'gram_negative':
         inputfile = "Templates/GramNegative/Reactions.tsv"
     elif modeltype.lower() == 'grampositive' or modeltype.lower() == 'gram_positive':
         inputfile = "Templates/GramPositive/Reactions.tsv"
+    elif modeltype.lower() == 'human':
+        inputfile = "Templates/Human/Reactions.tsv"
+    elif modeltype.lower() == 'microbial':
+        inputfile = "Templates/Microbial/Reactions.tsv"
     elif modeltype.lower() == 'mycobacteria':
         inputfile = "Templates/Mycobacteria/Reactions.tsv"
     elif modeltype.lower() == 'plant':
@@ -52,11 +54,10 @@ def template_reactions(modeltype='microbial'):
         raise NotImplementedError("Parsing data for " + inputfile + " has not been implemented!")
 
     if not os.path.exists(os.path.join(MODELSEED_DIR, inputfile)):
-        raise IOError(os.path.join(MODELSEED_DIR, inputfile) +
-                      " was not found. Please check your model SEED directory (" + MODELSEED_DIR + ")")
+        raise FileExistsError(f"{inputfile} was not found. Please check your model SEED directory {MODELSEED_DIR}")
 
     new_enz = {}
-    with open(os.path.join(MODELSEED_DIR, inputfile), 'r') as f:
+    with open(os.path.join(os.path.join(MODELSEED_DIR, inputfile)), 'r') as f:
         for l in f:
             if not l.startswith('id'):
                 p = l.strip().split("\t")
@@ -165,7 +166,7 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.json', verbose=Fals
         for asi in cpds[c].alternate_seed_ids:
             cpds_by_id[asi] = cpds[c]
 
-    all_reactions = {}
+    all_reactions = {}  # type Dict[Any, Reaction]
 
     with open(os.path.join(MODELSEED_DIR, rctf), 'r') as rxnf:
         for rxn in json.load(rxnf):
@@ -288,202 +289,59 @@ def reactions(organism_type="", rctf='Biochemistry/reactions.json', verbose=Fals
                 all_reactions[r.id] = r
 
     # finally, if we need to adjust the organism type based on Template reactions, we shall
-    if organism_type:
-        new_rcts = template_reactions(organism_type)
-        for r in new_rcts:
-            all_reactions[r].direction = new_rcts[r]['direction']
-            all_reactions[r].enzymes = new_rcts[r]['enzymes']
+    if not organism_type:
+        sys.stderr.write("ERROR: A model type was not specified, and so your Enzyme Complexes are just microbial core")
+        organism_type = "Core"
+
+    new_rcts = template_reactions(organism_type)
+    for r in new_rcts:
+        all_reactions[r].direction = new_rcts[r]['direction']
+        all_reactions[r].enzymes = new_rcts[r]['enzymes']
 
     return cpds, all_reactions
 
 
-def complexes(cf="SOLRDump/TemplateReactions.tsv", verbose=False):
+def ftr_to_roles(rf="Annotations/Roles.tsv"):
     """
-    Connection between complexes and reactions. A complex can be
-    involved in many reactions.
-
-    In addition, many complexes are involved in one reaction, so we have
-    a many:many relationship here
-
-    Read the complex file and return a hash of the complexes where
-    key is the complex id and the value is a set of reactions that the
-    complex is involved in.
-
-    You can provide an optional complexes file (cf) if you don't like
-    the default!
-
-    :param cf: An optional complexes file name
-    :type cf: str
-    :param verbose: Print more output
-    :type verbose: bool
-    :return A dict of the complexes where the key is the complex id and the value is the set of reactions
-    :rtype: dict
+    Read the roles file and create a dictionary of feature_id->role
+    :param rf: the Roles file
+    :return: a dict of feature_ids and roles
     """
 
-    cplxes = {}
-    try:
-        # io.open() to enable the encoding and errors arguments when using Python2
-        # io.open() will read lines as unicode objects instead of str objects
-        # In Python2, unicode objects are equivalent to Python3 str objects
-        with io.open(os.path.join(MODELSEED_DIR, cf), 'r', encoding='utf-8', errors='replace') as rin:
-            for l in rin:
-                # If using Python2, must convert unicode object to str object
-                if sys.version_info.major == 2:
-                    l = l.encode('utf-8', 'replace')
-                if l.startswith("#") or l.startswith('id'):
-                    # ignore any comment lines
-                    continue
-
-                p = l.strip().split("\t")
-                if len(p) < 30:
-                    if verbose:
-                        sys.stderr.write("WARNING: Malformed line in " + cf + ": " + l + "\n")
-                    continue
-                if p[28] == "":
-                    continue
-                for cmplx in p[28].split(';'):
-                    if cmplx not in cplxes:
-                        cplxes[cmplx] = set()
-                    cplxes[cmplx].add(p[1])
-    except IOError as e:
-        sys.stderr.write("There was an error parsing {}\n".format(os.path.join(MODELSEED_DIR, cf)))
-        sys.stderr.write("I/O error({0}): {1}\n".format(e.errno, e.strerror))
-        sys.exit(-1)
-
-    return cplxes
+    ftr2role = {}
+    with open(rf, 'r') as f:
+        for l in f:
+            p = l.strip().split("\t")
+            ftr2role[p[0]] = p[1]
+    return ftr2role
 
 
-def roles_ec(rf="SOLRDump/ComplexRoles.tsv"):
+def complex_to_ftr(cf="Annotations/Complexes.tsv"):
     """
-    Read the roles and EC and return a hash of the roles and EC where the id
-    is the role name or EC number and the value is the set of complex IDs that
-    the role is inolved in.
-
-    One role or EC can be involved in many complexes.
-
-    You can provide an alternate roles file (rf) if you don't like the
-    default.
-
-    :param rf: an alternate roles file
-    :type rf: str
-    :return: A dict of role name and complex ids that the roles is involved with
-    :rtype: dict
-
-    """
-    rles_ec = {}
-    try:
-        with open(os.path.join(MODELSEED_DIR, rf), 'r') as rin:
-            for l in rin:
-                if l.startswith("#") or l.startswith('complex_id'):
-                    # ignore any comment lines
-                    continue
-                p = l.strip().split("\t")
-                if p[5] not in rles_ec:
-                    rles_ec[p[5]] = set()
-                rles_ec[p[5]].add(p[0])
-
-                # Try to add EC number if it exists in role name
-                for ecno in re.findall('[\d\-]+\.[\d\-]+\.[\d\-]+\.[\d\-]+', l):
-                    if ecno not in rles_ec:
-                        rles_ec[ecno] = set()
-                    rles_ec[ecno].add(p[0])
-    except IOError as e:
-        sys.exit("There was an error parsing " + rf + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
-
-    return rles_ec
-
-
-def roles(rf="SOLRDump/ComplexRoles.tsv"):
-    """
-    Read the roles and return a hash of the roles where the id is the
-    role name and the value is the set of complex IDs that the role is
-    inolved in.
-
-    One role can be involved in many complexes.
-
-    You can provide an alternate roles file (rf) if you don't like the
-    default.
-
-    :param rf: an alternate roles file
-    :type rf: str
-    :return: A dict of role name and complex ids that the roles is involved with
-    :rtype: dict
-
-    """
-    rles = {}
-    try:
-        with open(os.path.join(MODELSEED_DIR, rf), 'r') as rin:
-            for l in rin:
-                if l.startswith("#") or l.startswith('complex_id'):
-                    # ignore any comment lines
-                    continue
-                p = l.strip().split("\t")
-                if p[5] not in rles:
-                    rles[p[5]] = set()
-                rles[p[5]].add(p[0])
-    except IOError as e:
-        sys.exit("There was an error parsing " + rf + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
-
-    return rles
-
-
-def enzymes(verbose=False):
-    """
-    Convert each of the roles and complexes into a set of enzymes, and
-    connect them to reactions.
-
-    Return just the enzyme objects.
-
-    You probably want to use compounds_reactions_enzymes, this is partly here
-    as a test case to make sure that enzymes and complexes play well
-    together
-
-    :param verbose: Print more output
-    :type verbose: bool
-    :return: A dict of with complex id as key and reaction id as value
+    Read the complexes file, and create a dict of complex->feature_ids
+    :param cf: the Complexes file
+    :return: a dict of complexes -> feature_ids
     """
 
-    roleset = roles()
-    cmplxset = complexes()
-    enzs = {}
-    cpds, rcts = reactions()
-
-    # for roles the key is the role name and the value is the complex it
-    # is in
-    for rolename in roleset:
-        # what complex is this involved in
-        for complexid in roleset[rolename]:
-            if complexid not in cmplxset:
-                if verbose:
-                    sys.stderr.write("WARNING: " + complexid + " is not in the complexes\n")
+    cpx2ftr = {}
+    with open(cf, 'r') as f:
+        for l in f:
+            p = l.strip().split("\t")
+            cpx2ftr[p[0]] = set()
+            if 'null' == p[5]:
                 continue
+            for ftr in p[5].split('|'):
+                cpx2ftr[p[0]].add(ftr.split(';')[0])
 
-            if complexid not in enzs:
-                enzs[complexid] = PyFBA.metabolism.Enzyme(complexid)
-            enzs[complexid].add_roles({rolename})
-            for ecno in re.findall('[\d\-]+\.[\d\-]+\.[\d\-]+\.[\d\-]+', rolename):
-                enzs[complexid].add_ec(ecno)
-
-    for complexid in cmplxset:
-        if complexid not in enzs:
-            if verbose:
-                sys.stderr.write("WARNING: No roles found that are part" + " of complex " + complexid + "\n")
-            continue
-        for reactid in cmplxset[complexid]:
-            if reactid in rcts:
-                enzs[complexid].add_reaction(reactid)
-                rcts[reactid].add_enzymes({complexid})
-
-    return enzs
+    return cpx2ftr
 
 
 def compounds_reactions_enzymes(organism_type='', verbose=False):
     """
-    Convert each of the roles and complexes into a set of enzymes, and
-    connect them to reactions.
+    Convert each of the roles and complexes into a set of enzymes, and connect them to reactions.
 
-    We return three dicts, the compounds, the enzymes, and the reactions. See the individual methods for the dicts
-    that we return!
+    We return three dicts, the compounds, the reactions, and the enzymes. Compounds and reactions are as above,
+    enzymes are from this method.
 
     :param organism_type: The type of organism, eg. Microbial, Gram_positive, Gram_negative
     :type organism_type:str
@@ -491,42 +349,31 @@ def compounds_reactions_enzymes(organism_type='', verbose=False):
     :type verbose:bool
     :return: The compounds, the reactions, and the enzymes in that order
     :rtype: dict of Compound, dict of Reaction, dict of Enzyme
-
     """
 
-    roleset = roles()
-    cmplxset = complexes()
-    cpds, rcts = reactions(organism_type, verbose=verbose)
+    # The complex (Enzyme) is our key data structure as it connects reactions and roles.
+    # So we need to go from complexes->roles and complexes->reactions
+    # The complex->roles is through the two annotation files
+    # The complex->reactions is through the Templates file
+
+    cpds, rcts = reactions(organism_type, verbose=verbose)  # type
     enzs = {}
 
-    # for roles the key is the role name and the value is the complex it
-    # is in
-    for rolename in roleset:
-        # what complex is this involved in
-        for complexid in roleset[rolename]:
-            if complexid not in cmplxset:
-                if verbose:
-                    sys.stderr.write("WARNING: " + complexid + " is not in the complexes\n")
-                continue
-
-            if complexid not in enzs:
-                enzs[complexid] = PyFBA.metabolism.Enzyme(complexid)
-            enzs[complexid].add_roles({rolename})
-            for ecno in re.findall('[\d\-]+\.[\d\-]+\.[\d\-]+\.[\d\-]+', rolename):
-                enzs[complexid].add_ec(ecno)
-
-    for complexid in cmplxset:
-        if complexid not in enzs:
+    # Set up enzymes with complexes and reactions
+    c2f = complex_to_ftr()
+    f2r = ftr_to_roles()
+    for cmplx in c2f:
+        if cmplx in enzs:
             if verbose:
-                sys.stderr.write("WARNING: No roles found that are part" + " of complex " + complexid + "\n")
+                sys.stderr.write(f"Warning: have duplicate {cmplx} complexes that maybe in more than once. " +
+                                 "Skipped later incantations\n")
             continue
-        for reactid in cmplxset[complexid]:
-            if reactid in rcts:
-                enzs[complexid].add_reaction(reactid)
-                rcts[reactid].add_enzymes({complexid})
-
-    return cpds, rcts, enzs
-
-
-
-
+        enzs[cmplx] = PyFBA.metabolism.Enzyme(cmplx)
+        for ft in c2f[cmplx]:
+            enzs[cmplx].add_roles({f2r[ft]})
+            for ecno in re.findall(r'[\d-]+\.[\d-]+\.[\d-]+\.[\d-]+', f2r[ft]):
+                enzs[cmplx].add_ec(ecno)
+    for r in rcts:
+        for c in r.enzymes:
+            if c in enzs:
+                enzs[c].add_reaction(r.id)
