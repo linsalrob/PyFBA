@@ -84,12 +84,12 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
     if not uptake_secretion:
         uptake_secretion = PyFBA.fba.uptake_and_secretion_reactions(allcpds, compounds)
     for r in uptake_secretion:
-        reactions[uptake_secretion[r].name] = uptake_secretion[r]
+        reactions[uptake_secretion[r].id] = uptake_secretion[r]
         for c in uptake_secretion[r].left_compounds:
             allcpds.add(str(c))
             if str(c) not in sm:
                 sm[str(c)] = {}
-            sm[str(c)][uptake_secretion[r].name] = 0 - uptake_secretion[r].get_left_compound_abundance(c)
+            sm[str(c)][uptake_secretion[r].id] = 0 - uptake_secretion[r].get_left_compound_abundance(c)
 
     # now we need to make this into a matrix sorted by
     # reaction id and by cpds
@@ -97,7 +97,7 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
     cp.sort()
     rc = list(reactions_to_run)
     rc.sort()
-    rc += [uptake_secretion[x].name for x in uptake_secretion]
+    rc += [uptake_secretion[x].id for x in uptake_secretion]
 
     # it is important that we add these at the end
     rc.append("BIOMASS_EQN")
