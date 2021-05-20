@@ -36,9 +36,12 @@ class TestModelSeedParsing(unittest.TestCase):
         # without template parsing rxn00001 has direction =
         # after GramNegative template parsing rxn00001 has direction >
         compounds, reactions = PyFBA.parse.model_seed.reactions()
-        self.assertEqual(reactions['rxn00001'].direction, '=')
+        self.assertIn(reactions, 'rxn00001')
+        self.assertNotIn(reactions, 'rxn39196')
+
         compounds, reactions = PyFBA.parse.model_seed.reactions('gram_negative')
-        self.assertEqual(reactions['rxn00001'].direction, '>')
+        self.assertIn(reactions, 'rxn00001')
+        self.assertIn(reactions, 'rxn39196')
 
     def test_template_reactions(self):
         """
@@ -46,8 +49,7 @@ class TestModelSeedParsing(unittest.TestCase):
         """
 
         enz = PyFBA.parse.model_seed.template_reactions('microbial')
-        self.assertGreaterEqual(len(enz), 19000, 'The microbial template has changed. Most likely the model seed has been ' +
-                         'updated and the test code is wrong!')
+        self.assertGreaterEqual(len(enz), 19000, f"The microbial template has changed and the length is now {len(enz)}")
         allkeys = enz.keys()
         self.assertGreaterEqual(len(allkeys), 19000)
 
