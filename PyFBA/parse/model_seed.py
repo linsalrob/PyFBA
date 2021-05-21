@@ -92,7 +92,7 @@ def compounds(compounds_file=None):
     try:
         with open(compounds_file, 'r') as f:
             for jc in json.load(f):
-                c = PyFBA.metabolism.Compound(jc['name'], '')
+                c = PyFBA.metabolism.Compound(jc['id'], jc['name'], '')
                 c.model_seed_id = jc['id']
                 c.mw = jc['mass']
                 # this should be all the keys (except name and ID)
@@ -228,11 +228,11 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
                     # appropriate location
 
                     if cmpd in cpds_by_id:
-                        nc = PyFBA.metabolism.Compound(cpds_by_id[cmpd].name, loc)
+                        nc = PyFBA.metabolism.Compound(cpds_by_id[cmpd].id, cpds_by_id[cmpd].name, loc)
                     else:
                         if verbose:
                             sys.stderr.write("ERROR: Did not find " + cmpd + " in the compounds file.\n")
-                        nc = PyFBA.metabolism.Compound(cmpd, loc)
+                        nc = PyFBA.metabolism.Compound(cmpd, cmpd, loc)
 
                     ncstr = str(nc)
 
@@ -267,11 +267,11 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
                     # appropriate location
 
                     if cmpd in cpds_by_id:
-                        nc = PyFBA.metabolism.Compound(cpds_by_id[cmpd].name, loc)
+                        nc = PyFBA.metabolism.Compound(cpds_by_id[cmpd].id, cpds_by_id[cmpd].name, loc)
                     else:
                         if verbose:
                             sys.stderr.write("ERROR: Did not find " + cmpd + " in the compounds file.\n")
-                        nc = PyFBA.metabolism.Compound(cmpd, loc)
+                        nc = PyFBA.metabolism.Compound(cmpd, cmpd, loc)
 
                     ncstr = str(nc)
                     if ncstr in cpds:

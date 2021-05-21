@@ -188,13 +188,13 @@ def biomass_equation(biomass_type='standard'):
         sys.exit("ERROR: Do not understand what " + biomass_type + " is for a biomass_equation equation\n")
 
     r = Reaction('biomass_equation')
-    for c in reactants:
-        cpd = Compound(c, 'c')
+    for i,c in enumerate(reactants):
+        cpd = Compound(f"rctn{i}", c, 'c')
         r.add_left_compounds({cpd})
         r.set_left_compound_abundance(cpd, reactants[c])
 
     for c in products:
-        cpd = Compound(c, 'c')
+        cpd = Compound(f"rctn{i}", c, 'c')
         r.add_right_compounds({cpd})
         r.set_right_compound_abundance(cpd, products[c])
 

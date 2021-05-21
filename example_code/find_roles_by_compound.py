@@ -11,7 +11,13 @@ args = parser.parse_args()
 
 compounds, reactions, enzymes = PyFBA.parse.compounds_reactions_enzymes('gramnegative')
 
-generic = PyFBA.metabolism.Compound(args.c, '')
+for c in compounds:
+    if c.name.lower() == args.c.lower():
+        wanted = c
+        break
+
+generic = wanted
+generic.location = ''
 if str(generic) in compounds:
     print("Roles associated with generic compound {}:".format(args.c))
     for r in PyFBA.filters.reactions_to_roles(compounds[str(generic)].reactions):
@@ -19,7 +25,8 @@ if str(generic) in compounds:
 else:
     sys.stderr.write("No compound like {} found\n".format(generic))
 
-intracellular = PyFBA.metabolism.Compound(args.c, 'c')
+intracellular = wanted
+intracellular.location = 'c'
 if str(intracellular) in compounds:
     print("Roles associated with the intracellular compound {}:".format(args.c))
     roles = PyFBA.filters.reactions_to_roles(compounds[str(intracellular)].reactions)
@@ -28,7 +35,8 @@ if str(intracellular) in compounds:
 else:
     sys.stderr.write("No compound like {} found\n".format(intracellular))
 
-extracellular = PyFBA.metabolism.Compound(args.c, 'e')
+extracellular = wanted
+extracellular.location = 'e'
 if str(extracellular) in compounds:
     print("Roles associated with the extracellular compound {}:".format(args.c))
     for r in PyFBA.filters.reactions_to_roles(compounds[str(extracellular)].reactions):

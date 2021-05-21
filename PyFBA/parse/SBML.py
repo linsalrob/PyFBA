@@ -36,10 +36,10 @@ class SBML:
         :rtype: None
         """
         self.compounds[str(cpd)] = cpd
-        if not cpd.abbreviation:
+        if not cpd.id:
             sys.stderr.write("WARNING: No id for " + cpd.name + "\n")
         else:
-            self.compounds_by_id[cpd.abbreviation] = cpd
+            self.compounds_by_id[cpd.id] = cpd
 
     def get_all_compounds(self):
         """
@@ -139,6 +139,7 @@ def parse_sbml_file(sbml_file, verbose=False):
                                         s['compartment'].replace('0', ''))
         cpd.abbreviation = s['id']
         cpd.model_seed_id = s['id'].replace('_c0', '').replace('_e0', '')
+        cpd.id = cpd.model_seed_id
         cpd.charge = s['charge']
         if s['boundaryCondition'] == 'false':
             cpd.uptake_secretion = False

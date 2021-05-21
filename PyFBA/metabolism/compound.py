@@ -26,7 +26,7 @@ class Compound:
 
     """
 
-    def __init__(self, name, location):
+    def __init__(self, id, name, location):
         """
         Initiate the object
 
@@ -37,10 +37,11 @@ class Compound:
         :return:
         :rtype:
         """
+        self.id = id
         self.name = name
         self.location = location
         self.reactions = set()
-        self.model_seed_id = name
+        self.model_seed_id = id
         self.alternate_seed_ids = set()
         self.abbreviation = None
         self.formula = None

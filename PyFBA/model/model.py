@@ -79,8 +79,8 @@ class Model:
                     self.reactions[r.id] = r
                     # Add compounds from new reactions
                     for c in r.all_compounds():
-                        if c.name not in self.compounds:
-                            self.compounds[c.name] = c
+                        if c.id not in self.compounds:
+                            self.compounds[c.id] = c
         else:
             raise TypeError("You need to add a set of reactions to a model")
 
@@ -125,7 +125,7 @@ class Model:
         :type cpd: Compound
         :rtype: bool
         """
-        return cpd.name in self.compounds
+        return cpd.id in self.compounds
 
 
     def number_of_compounds(self):
@@ -202,8 +202,6 @@ class Model:
         # Check if model has a biomass reaction if none was given
         if not biomass_reaction and not self.biomass_reaction:
             raise Exception("Model has no biomass reaction, please supply one to run FBA")
-            return (None, None, None)
-
         elif not biomass_reaction:
             biomass_reaction = self.biomass_reaction
 
