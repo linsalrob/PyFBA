@@ -12,9 +12,9 @@ class SBML:
 
     :ivar model_id: the identifier of the model
     :ivar model_name: the name of the model
-    :ivar reactions: a dictionary of Reaction objects with str(obj) as the key
-    :ivar compounds: a dictionary of Compound objects with str(obj) as the key
-    :ivar compounds_by_id: a dictionary of Compound objects with compound.model_seed_id as the key
+    :ivar reactions: a dictionary of Reaction objects with id as the key
+    :ivar compounds: a dictionary of Compound objects with id as the key
+    :ivar compounds_by_name: a dictionary of Compound objects with compound.model_seed_id as the key
     :ivar compartment: a dictionary of compartments in the model
 
     """
@@ -22,7 +22,7 @@ class SBML:
     def __init__(self):
         self.reactions = {}
         self.compounds = {}
-        self.compounds_by_id = {}
+        self.compounds_by_name = {}
         self.model_id = ""
         self.model_name = ""
         self.compartment = {}
@@ -35,11 +35,16 @@ class SBML:
         :return: None
         :rtype: None
         """
-        self.compounds[str(cpd)] = cpd
-        if not cpd.id:
-            sys.stderr.write("WARNING: No id for " + cpd.name + "\n")
+
+        if cpd.id:
+            self.compounds[cpd.id] = cpd
         else:
-            self.compounds_by_id[cpd.id] = cpd
+            sys.stderr.write("WARNING: No id for {cpd}\n")
+        if cpd.name:
+            self.compounds_by_name[cpd.name] = cpd
+        else:
+            sys.stderr.write("WARNING: No id for {cpd}\n")
+
 
     def get_all_compounds(self):
         """
@@ -48,19 +53,6 @@ class SBML:
         :rtype: list of Compound
         """
         return self.compounds.values()
-
-    def get_a_compound(self, cpd):
-        """
-        Get a single compound with the same str() as the one provided
-        :param cpd: The compound to fetch
-        :type cpd: object.
-        :return: The compound from the model
-        :rtype: Compound
-        """
-        if str(cpd) in self.compounds:
-            return self.compounds[str(cpd)]
-        else:
-            raise ValueError(str(cpd) + " is not present in the model")
 
     def get_a_compound_by_id(self, cpdid):
         """
@@ -73,8 +65,21 @@ class SBML:
 
         if cpdid in self.compounds_by_id:
             return self.compounds_by_id[cpdid]
-        else:
-            raise ValueError(cpdid + " is not present in the model")
+        raise ValueError(cpdid + " is not present in the model")
+
+    def get_a_compound_by_name(self, name):
+        """
+        Get a single compound by its name
+        :param name: the name of the compount
+        :type name: str
+        :return: the compound object
+        :rtype: PyFBA.metabolism.compound.Compound
+        """
+
+        if name in self.compounds_by_name:
+            return self.compounds_by_name[name]
+        raise ValueError(name + " is not present in the model")
+
 
     def add_reaction(self, rxn):
         """
@@ -84,7 +89,8 @@ class SBML:
         :return: None
         :rtype: None
         """
-        self.reactions[str(rxn)] = rxn
+        self.reactions[rxn.id] = rxn
+
 
     def get_all_reactions(self):
         """
@@ -94,9 +100,9 @@ class SBML:
         """
         return self.reactions
 
-    def get_a_reaction(self, rxn):
+    def get_a_reaction(self, rid):
         """
-        Get a single reaction with the same str() as the one provided
+        Get a single reaction with the same id as the one provided
         :param rxn: The reaction to retrieve
         :type rxn: object.
         :return: The reaction object
@@ -104,10 +110,10 @@ class SBML:
 
         """
 
-        if (str(rxn)) in self.reactions:
-            return self.reactions[str(rxn)]
+        if rid in self.reactions:
+            return self.reactions[rid]
         else:
-            raise ValueError(str(rxn) + " is not present in the model")
+            raise ValueError(f"{rid} is not present in the model")
 
 
 def parse_sbml_file(sbml_file, verbose=False):
@@ -135,11 +141,12 @@ def parse_sbml_file(sbml_file, verbose=False):
 
     # add the compounds
     for s in soup.listOfSpecies.find_all('species'):
-        cpd = PyFBA.metabolism.Compound(s['name'].replace('_c0', '').replace('_e0', ''),
+        cpdid = s['id'].replace('_c0', '').replace('_e0', '')
+        cpd = PyFBA.metabolism.Compound(cpdid,
+                                        s['name'].replace('_c0', '').replace('_e0', ''),
                                         s['compartment'].replace('0', ''))
         cpd.abbreviation = s['id']
-        cpd.model_seed_id = s['id'].replace('_c0', '').replace('_e0', '')
-        cpd.id = cpd.model_seed_id
+        cpd.model_seed_id = cpdid
         cpd.charge = s['charge']
         if s['boundaryCondition'] == 'false':
             cpd.uptake_secretion = False
@@ -187,46 +194,37 @@ def parse_sbml_file(sbml_file, verbose=False):
 
         # a hash to build the equation from
         equation = {'left': [], 'right': []}
-        for rc in r.find_all('listOfReactants'):
-            for sp in rc.find_all('speciesReference'):
-                cpdname, cpdloc = sp['species'].split("_")
-                try:
-                    # cpd = sbml.get_a_compound(Compound(cpdname, cpdloc))
-                    cpd = sbml.get_a_compound_by_id(sp['species'])
-                except ValueError:
-                    # the compound is not in the model (but it should be!)
-                    cpdnew = PyFBA.metabolism.Compound(cpdname, cpdloc)
-                    if verbose:
-                        sys.stderr.write("WARNING: {} loc: {}".format(cpdname, cpdloc) +
-                                         " is supposed to be in the model but is not. Added\n")
-                    sbml.add_compound(cpdnew)
-                    cpd = sbml.get_a_compound(PyFBA.metabolism.Compound(cpdname, cpdloc))
+        count = 0
 
-                rxn.add_left_compounds({cpd})
-                rxn.set_left_compound_abundance(cpd, float(sp['stoichiometry']))
-                if cpd.uptake_secretion:
-                    rxn.is_uptake_secretion = True
-                equation['left'].append(" (" + str(sp['stoichiometry']) + ") " + str(cpd))
+        # here we find the reactants and products from the SBML file and
+        # add them to the left and right equation arrays appropriately.
 
-        for rc in r.find_all('listOfProducts'):
-            for sp in rc.find_all('speciesReference'):
-                cpdname, cpdloc = sp['species'].split("_")
-                try:
-                    # cpd = sbml.get_a_compound(Compound(cpdname, cpdloc))
-                    cpd = sbml.get_a_compound_by_id(sp['species'])
-                except ValueError:
-                    # the compound is not in the model (but it should be!)
-                    cpdnew = PyFBA.metabolism.Compound(cpdname, cpdloc)
-                    if verbose:
-                        sys.stderr.write("WARNING: {} is supposed to be in the model but is not.\n".format(cpdnew))
-                    sbml.add_compound(cpdnew)
-                    cpd = sbml.get_a_compound(PyFBA.metabolism.Compound(cpdname, cpdloc))
+        for rp in ['listOfReactants', 'listOfProducts']:
+            for rc in r.find_all(rp):
+                for sp in rc.find_all('speciesReference'):
+                    cpdid, cpdloc = sp['species'].split("_")
+                    try:
+                        cpd = sbml.get_a_compound_by_id(cpdid)
+                    except ValueError:
+                        # the compound is not in the model (but it should be!)
+                        count += 1
+                        cpd = PyFBA.metabolism.Compound(f"smbl{count}", cpdid, cpdloc)
+                        if verbose:
+                            sys.stderr.write(
+                                f"WARNING: {cpdid} loc: {cpdloc} is supposed to be in the model but is not. Added\n")
+                        sbml.add_compound(cpd)
 
-                rxn.add_right_compounds({cpd})
-                rxn.set_right_compound_abundance(cpd, float(sp['stoichiometry']))
-                if cpd.uptake_secretion:
-                    rxn.is_uptake_secretion = True
-                equation['right'].append(" (" + str(sp['stoichiometry']) + ") " + str(cpd))
+                    if cpd.uptake_secretion:
+                        rxn.is_uptake_secretion = True
+
+                    if 'listOfReactants' == rp:
+                        rxn.add_left_compounds({cpd})
+                        rxn.set_left_compound_abundance(cpd, float(sp['stoichiometry']))
+                        equation['left'].append(" (" + str(sp['stoichiometry']) + ") " + str(cpd))
+                    else:
+                        rxn.add_right_compounds({cpd})
+                        rxn.set_right_compound_abundance(cpd, float(sp['stoichiometry']))
+                        equation['right'].append(" (" + str(sp['stoichiometry']) + ") " + str(cpd))
 
         rxn.equation = " + ".join(equation['left']) + " " + rxn.direction + " " + " + ".join(equation['right'])
 
@@ -257,17 +255,22 @@ def correct_media_names(media, cpds):
 
     # correct some of the media names so that they match the compounds in the
     # SBML file. This is why we should use compound IDs and not names!
+    sys.stderr.write("WARNING: This may not be correct. Please check correct_media_names in parse_sbml.py\n")
     newmedia = set()
+    cpdnames = {c.name: c.id for c in cpds}
     for m in media:
-        intracellular_m = copy.copy(m)
+        if m.name in cpdnames:
+            intracellular_m = copy.copy(cpds)
         intracellular_m.location = 'c'
-        if str(intracellular_m) in cpds:
-            newmedia.add(m)
+        for c in cpds:
+            if str(intracellular_m) in cpds:
+                newmedia.add(m)
         else:
             testname = str(intracellular_m).replace('-', '_')
             if testname in cpds:
                 newname = m.name.replace('-', '_')
                 newloc = m.location
+
                 newmedia.add(PyFBA.metabolism.Compound(newname, newloc))
             else:
                 testname = str(intracellular_m).replace('+', '')
