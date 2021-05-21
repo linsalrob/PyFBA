@@ -26,10 +26,12 @@ class Compound:
 
     """
 
-    def __init__(self, id, name, location):
+    def __init__(self, cpd_id, name, location):
         """
         Initiate the object
 
+        :param cpd_id: The id of the compound
+        :type cpd_id: str
         :param name: The name of the compound
         :type name: str
         :param location: The location of the compound
@@ -37,7 +39,7 @@ class Compound:
         :return:
         :rtype:
         """
-        self.id = id
+        self.id = cpd_id
         self.name = name
         self.location = location
         self.reactions = set()
@@ -71,9 +73,9 @@ class Compound:
         :rtype: bool
         """
         if isinstance(other, Compound):
-            return (self.name, self.location) == (other.name, other.location)
+            return self.id == other.id or (self.name, self.location) == (other.name, other.location)
         else:
-            return NotImplemented
+            raise NotImplemented(f"Comparing a Compound with {type(other)} has not been implemented")
     
     def __cmp__(self, other):
         """
@@ -90,7 +92,7 @@ class Compound:
             else:
                 return 1
         else:
-            return NotImplemented
+            raise NotImplemented(f"Comparing a Compound with {type(other)} has not been implemented")
 
     def __ne__(self, other):
         """
@@ -101,9 +103,10 @@ class Compound:
         :return: If they are not equal
         :rtype: bool
         """
-        result = self.__eq__(other)
-        if result is NotImplemented:
-            return result
+        try:
+            result = self.__eq__(other)
+        except NotImplemented:
+            return True
         return not result
 
     def __hash__(self):
@@ -112,15 +115,14 @@ class Compound:
 
         :rtype: int
         """
-        return hash((self.name, self.location))
+        return hash((self.id, self.name, self.location))
 
     def __str__(self):
         """
         The to string function.
         :rtype: str
         """
-        return self.name + " (location: " + self.location + ")"
-
+        return f"{self.id}: {self.name} (location: {self.location})"
 
     def add_reactions(self, rxns):
         """
@@ -135,7 +137,6 @@ class Compound:
         else:
             raise TypeError("You need to add a set of reactions to a compound")
 
-
     def has_reaction(self, rxn):
         """
         Is this compound involved in this reaction?
@@ -147,7 +148,6 @@ class Compound:
         """
         return rxn in self.reactions
 
-
     def number_of_reactions(self):
         """
         How many reactions is this compound involved in?
@@ -156,7 +156,6 @@ class Compound:
         """
         return len(self.reactions)
 
-
     def all_reactions(self):
         """
         Return a set of all the reactions that this compound is involved in
@@ -164,7 +163,6 @@ class Compound:
         :rtype: int
         """
         return self.reactions
-
 
     def is_common(self, rct_limit=COMMON_REACTION_LIMIT):
         """
