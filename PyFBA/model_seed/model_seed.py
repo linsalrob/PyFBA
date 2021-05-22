@@ -1,7 +1,7 @@
 """
 
 """
-
+import PyFBA
 
 class ModelSeed:
     """
@@ -24,8 +24,26 @@ class ModelSeed:
         else:
             self.reactions = {}
         self.enzymes = enzymes
+        self.compounds_by_name = {}
+        self.last_compound_by_name_sz = 0
 
     def reset(self):
         self.compounds = None
         self.reactions = {}
         self.enzymes = None
+
+    def get_compound_by_name(self, name) -> PyFBA.metabolism.Compound:
+        """
+        Retrieve a compound by its name. We use self.last_compound_by_name_sz to see if compounds has changed
+        :param name: The name to look through
+        :return: the compound if found or None
+        """
+
+        if self.last_compound_by_name_sz != len(self.compounds):
+            for c in self.compounds:
+                self.compounds_by_name[self.compounds[c].name] = c
+            self.last_compound_by_name_sz = len(self.compounds)
+
+        if name in self.compounds_by_name:
+            return self.compounds_by_name[name]
+        return None
