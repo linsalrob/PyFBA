@@ -94,7 +94,7 @@ def compounds(compounds_file=None, verbose=False) -> Dict[str, PyFBA.metabolism.
     if not compounds_file:
         compounds_file = os.path.join(MODELSEED_DIR, 'Biochemistry/compounds.json')
 
-    ModelSeed().compounds = {}
+    cpds = {}
 
     try:
         if verbose:
@@ -114,10 +114,12 @@ def compounds(compounds_file=None, verbose=False) -> Dict[str, PyFBA.metabolism.
                     if ck in jc:
                         c.add_attribute(ck, jc[ck])
 
-                ModelSeed().compounds[jc['id']] = c
+                cpds[jc['id']] = c
     except IOError as e:
         sys.exit("There was an error parsing " +
                  compounds_file + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
+
+    ModelSeed().compounds = cpds
 
     return ModelSeed().compounds
 
