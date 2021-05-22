@@ -1,10 +1,7 @@
-import os
+import setuptools
 from distutils.core import setup
 from setuptools.command.test import test as TestCommand
 
-import sys
-
-import PyFBA
 import io
 
 # this is taken from https://www.jeffknupp.com/blog/2013/08/16/open-sourcing-a-python-project-the-right-way/ and
@@ -46,8 +43,7 @@ class NoseTestCommand(TestCommand):
 setup(
     name='PyFBA',
     version=get_version(),
-    packages=['PyFBA', 'PyFBA.lp', 'PyFBA.fba', 'PyFBA.parse', 'PyFBA.tests', 'PyFBA.filters', 'PyFBA.gapfill',
-              'PyFBA.metabolism', 'PyFBA.model'],
+    packages=setuptools.find_packages(),
     url='http://linsalrob.github.io/PyFBA/',
     license='The MIT License (MIT)',
     author='Rob Edwards',
