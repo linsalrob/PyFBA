@@ -62,7 +62,7 @@ class TestModelSeedParsing(unittest.TestCase):
         """
 
         cmps = PyFBA.parse.model_seed.compounds()
-        self.assertEqual(len(cmps), 33992, 'The compounds list has changed. Most likely the model seed has been ' +
+        self.assertGreaterEqual(len(cmps), 34000, 'The compounds list has changed. Most likely the model seed has been ' +
                          'updated and the test code is wrong!')
 
     def test_locations(self):
@@ -100,29 +100,29 @@ class TestModelSeedParsing(unittest.TestCase):
 
         self.assertEqual(len(direction), 3)
         self.assertGreaterEqual(direction['='], 27676)
-        self.assertGreaterEqual(direction['>'], 12767)
+        self.assertGreaterEqual(direction['>'], 10000)
         self.assertGreaterEqual(direction['<'], 3331)
 
 
     def test_enzymes(self):
         """ Test just the enzymes methods"""
         enzs = PyFBA.parse.model_seed.enzymes()
-        self.assertEqual(len(enzs), 9423, f"THere are {len(enzs)} enzymes")
+        self.assertGreaterEqual(len(enzs), 7000, f"THere are {len(enzs)} enzymes")
 
     def test_complexes(self):
         """ Test getting the complexes back"""
         cmplx = PyFBA.parse.model_seed.complexes()
-        self.assertEqual(len(cmplx), 9423, f"THere are {len(cmplx)} enzymes")
+        self.assertGreaterEqual(len(cmplx), 7000, f"THere are {len(cmplx)} enzymes")
 
     def test_roles(self):
         """ Test getting the complexes back"""
         rles = PyFBA.parse.model_seed.roles()
-        self.assertEqual(len(rles), 9423, f"THere are {len(rles)} enzymes")
+        self.assertGreaterEqual(len(rles), 7000, f"THere are {len(rles)} enzymes")
 
     def test_compounds_enzymes_and_reactions(self):
         """Test retrieving the compounds, enzymes, and reactions"""
         cpds, rcts, enzs = PyFBA.parse.model_seed.compounds_reactions_enzymes()
         self.assertEqual(len(enzs), 9423, f"THere are {len(enzs)} enzymes")
         self.assertEqual(len(rcts), 43774, f"There are {len(rcts)} reactions")
-        self.assertEqual(len(cpds), 56767, f"There are {len(cpds)} compounds")
+        self.assertEqual(len(cpds), 34117, f"There are {len(cpds)} compounds")
 
