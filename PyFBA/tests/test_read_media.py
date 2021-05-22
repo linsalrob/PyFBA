@@ -27,8 +27,12 @@ class TestReadMedia(unittest.TestCase):
             return
         media = PyFBA.parse.read_media_file(os.path.join(media_file_loc, 'ArgonneLB.txt'))
         self.assertEqual(len(media), 65)
-        gluc = PyFBA.metabolism.CompoundWithLocation('cpd00027', 'D-Glucose', 'e')
-        self.assertIn(gluc, media)
+        testm = None
+        for m in  media:
+            if m.name == 'D-Glucose':
+                testm = m
+                break
+        self.assertIn(testm, media)
 
 
 if __name__ == '__main__':
