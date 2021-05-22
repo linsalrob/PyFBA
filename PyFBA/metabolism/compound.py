@@ -209,6 +209,9 @@ class CompoundWithLocation(Compound):
     :ivar location: the location of the compound.
     """
 
+    def calculate_molecular_weight(self):
+        pass
+
     def __init__(self, cpd_id, name, location):
         """
         Initiate the object
@@ -222,7 +225,7 @@ class CompoundWithLocation(Compound):
         :return:
         :rtype:
         """
-        super().__init__(cpd_id, name, location)
+        super().__init__(cpd_id, name)
         self.location = location
 
     def __eq__(self, other):
