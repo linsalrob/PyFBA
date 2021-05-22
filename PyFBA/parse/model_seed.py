@@ -27,6 +27,7 @@ import PyFBA
 from .config import MODELSEED_DIR
 from PyFBA.model_seed import ModelSeed
 
+modelseedstore = ModelSeed()
 
 def template_reactions(modeltype):
     """
@@ -88,13 +89,15 @@ def compounds(compounds_file=None, verbose=False) -> Dict[str, PyFBA.metabolism.
 
     """
 
-    if ModelSeed().compounds:
-        return ModelSeed().compounds
+    global modelseedstore
+
+    if modelseedstore.compounds:
+        return modelseedstore.compounds
 
     if not compounds_file:
         compounds_file = os.path.join(MODELSEED_DIR, 'Biochemistry/compounds.json')
 
-    cpds = {}
+    modelseedstore.compounds = {}
 
     try:
         if verbose:
@@ -114,14 +117,12 @@ def compounds(compounds_file=None, verbose=False) -> Dict[str, PyFBA.metabolism.
                     if ck in jc:
                         c.add_attribute(ck, jc[ck])
 
-                cpds[jc['id']] = c
+                modelseedstore.compounds[jc['id']] = c
     except IOError as e:
         sys.exit("There was an error parsing " +
                  compounds_file + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
 
-    ModelSeed().compounds = cpds
-
-    return ModelSeed().compounds
+    return modelseedstore.compounds
 
 
 def location() -> Dict[str, str]:
@@ -174,6 +175,7 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
         return ModelSeed().reactions[organism_type]
 
     cpds = compounds(verbose=verbose)
+    sys.stderr.write(f"GOT {len(cpds)} compounds")
     locations = location()
 
     # cpds_by_id = {cpds[c].model_seed_id: cpds[c] for c in cpds}
