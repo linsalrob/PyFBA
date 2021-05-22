@@ -191,7 +191,7 @@ class TestReaction(unittest.TestCase):
             self.cwla
         )
         self.assertFalse(self.reaction.opposite_sides(self.cwla, self.cwlb))
-        self.assertFalse(self.reaction.opposite_sides(self.cwlc, self.cwld))
+        self.assertFalse(self.reaction.opposite_sides(self.cwlc, self.cwlc))
         self.assertTrue(self.reaction.opposite_sides(self.cwla, self.cwlc))
         self.assertTrue(self.reaction.opposite_sides(self.cwlb, self.cwlc))
 
@@ -276,23 +276,21 @@ class TestReaction(unittest.TestCase):
 
     def test_reverse_reaction(self):
         """Convert everything from the left side to the right side and vice versa"""
-        self.reaction.add_left_compounds({'a', 'b', 'c'})
-        self.reaction.add_right_compounds({'x', 'y', 'z'})
-        self.reaction.set_left_compound_abundance('a', 1)
-        self.reaction.set_left_compound_abundance('b', 2)
-        self.reaction.set_left_compound_abundance('c', 3)
-        self.reaction.set_right_compound_abundance('x', 7)
-        self.reaction.set_right_compound_abundance('y', 8)
-        self.reaction.set_right_compound_abundance('z', 9)
+        self.reaction.add_left_compounds({self.cwla, self.cwlb})
+        self.reaction.add_right_compounds({self.cwlc, self.cwld})
+        self.reaction.set_left_compound_abundance(self.cwla, 1)
+        self.reaction.set_left_compound_abundance(self.cwlb, 2)
+        self.reaction.set_right_compound_abundance(self.cwlc, 7)
+        self.reaction.set_right_compound_abundance(self.cwld, 8)
         self.reaction.set_probability_right_to_left(10)
         self.reaction.set_probability_left_to_right(20)
 
         self.reaction.reverse_reaction()
 
-        self.assertEqual(self.reaction.left_compounds, {'x', 'y', 'z'})
-        self.assertEqual(self.reaction.right_compounds, {'a', 'b', 'c'})
-        self.assertEqual(self.reaction.get_left_compound_abundance('y'), 8)
-        self.assertEqual(self.reaction.get_right_compound_abundance('b'), 2)
+        self.assertEqual(self.reaction.left_compounds, {self.cwla, self.cwlb})
+        self.assertEqual(self.reaction.right_compounds, {self.cwlc, self.cwld})
+        self.assertEqual(self.reaction.get_left_compound_abundance(self.cwld), 8)
+        self.assertEqual(self.reaction.get_right_compound_abundance(self.cwlb), 2)
         self.assertEqual(self.reaction.get_probability_right_to_left(), 20)
         self.assertEqual(self.reaction.get_probability_left_to_right(), 10)
 
