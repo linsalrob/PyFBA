@@ -225,7 +225,7 @@ class CompoundWithLocation(Compound):
         :rtype:
         """
         super().__init__(compound.id, compound.name)
-        for it in super():
+        for it in compound:
             self.add_attribute(*it)
         self.location = location
 
