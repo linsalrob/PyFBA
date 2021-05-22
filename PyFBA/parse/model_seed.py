@@ -14,7 +14,6 @@ You should be able to do that by changing the functions in __init__.py
 
 """
 
-import copy
 import os
 import re
 import sys
@@ -28,6 +27,7 @@ from .config import MODELSEED_DIR
 from PyFBA.model_seed import ModelSeed
 
 modelseedstore = ModelSeed()
+
 
 def template_reactions(modeltype):
     """
@@ -104,7 +104,7 @@ def compounds(compounds_file=None, verbose=False) -> Dict[str, PyFBA.metabolism.
             sys.stderr.write(f"Parsing compounds in {compounds_file}\n")
         with open(compounds_file, 'r') as f:
             for jc in json.load(f):
-                c = PyFBA.metabolism.Compound(jc['id'], jc['name'], '')
+                c = PyFBA.metabolism.Compound(jc['id'], jc['name'])
                 c.model_seed_id = jc['id']
                 c.mw = jc['mass']
                 # this should be all the keys (except name and ID)
@@ -240,11 +240,11 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
 
                         cpdbyname = modelseedstore.get_compound_by_name(cmpd)
                         if cpdbyname:
-                            nc = PyFBA.metabolism.Compound(cpdbyname.id, cpdbyname.name, loc)
+                            nc = PyFBA.metabolism.CompoundWithLocation.from_compound(cpdbyname, loc)
                         else:
                             if verbose:
                                 sys.stderr.write("ERROR: Did not find " + cmpd + " in the known compounds.\n")
-                            nc = PyFBA.metabolism.Compound(cmpd, cmpd, loc)
+                            nc = PyFBA.metabolism.CompoundWithLocation(cmpd, cmpd, loc)
 
                         nc.add_reactions({r.id})
 

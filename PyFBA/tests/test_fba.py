@@ -55,10 +55,13 @@ class TestFBA(unittest.TestCase):
     def test_create_sm(self):
         """Test the stoichiometric matrix"""
 
-        reactions2run = list(self.__class__.reactions.keys())[0:20]
+        reactions2run = set(list(self.__class__.reactions.keys())[0:20])
         biomass_equation = PyFBA.metabolism.biomass_equation('gram_negative')
-        cp, rc, reactions = PyFBA.fba.create_stoichiometric_matrix(reactions2run, self.__class__.reactions,
-                                                             self.__class__.compounds, set(), biomass_equation)
+        cp, rc, reactions = PyFBA.fba.create_stoichiometric_matrix(reactions_to_run=reactions2run,
+                                                                   reactions=self.__class__.reactions,
+                                                                   compounds=self.__class__.compounds,
+                                                                   media=set(),
+                                                                   biomass_equation=biomass_equation)
         # this allows some wiggle room as the data changes
         self.assertGreaterEqual(len(cp), 100)
         self.assertLessEqual(len(cp), 150)
