@@ -75,7 +75,7 @@ class Compound:
         if isinstance(other, Compound):
             return self.id == other.id or (self.name, self.location) == (other.name, other.location)
         else:
-            raise NotImplemented(f"Comparing a Compound with {type(other)} has not been implemented")
+            raise NotImplementedError(f"Comparing a Compound with {type(other)} has not been implemented")
     
     def __cmp__(self, other):
         """
@@ -92,7 +92,7 @@ class Compound:
             else:
                 return 1
         else:
-            raise NotImplemented(f"Comparing a Compound with {type(other)} has not been implemented")
+            raise NotImplementedError(f"Comparing a Compound with {type(other)} has not been implemented")
 
     def __ne__(self, other):
         """
@@ -105,7 +105,7 @@ class Compound:
         """
         try:
             result = self.__eq__(other)
-        except NotImplemented:
+        except NotImplementedError:
             return True
         return not result
 
@@ -191,7 +191,7 @@ class Compound:
         :rtype: float
         """
 
-        raise NotImplemented("Sorry. Calculate molecular weight has not yet been implemented.")
+        raise NotImplementedError("Sorry. Calculate molecular weight has not yet been implemented.")
 
     def add_attribute(self, key, value):
         """

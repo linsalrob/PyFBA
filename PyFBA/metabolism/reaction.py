@@ -116,7 +116,7 @@ class Reaction:
                     (other.right_compounds, other.left_compounds)
                     )
         else:
-            raise NotImplemented(f"Comparing Reaction with {type(other)} is not implemented")
+            raise NotImplementedError(f"Comparing Reaction with {type(other)} is not implemented")
 
     def __cmp__(self, other):
         """
@@ -133,7 +133,7 @@ class Reaction:
             else:
                 return 1
         else:
-            raise NotImplemented(f"Comparing Reaction with {type(other)} is not implemented")
+            raise NotImplementedError(f"Comparing Reaction with {type(other)} is not implemented")
 
     def __ne__(self, other):
         """
@@ -146,7 +146,7 @@ class Reaction:
 
         try:
             result = self.__eq__(other)
-        except NotImplemented:
+        except NotImplementedError:
             return True
         return not result
 
