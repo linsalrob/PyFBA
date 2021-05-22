@@ -10,11 +10,14 @@ class TestCompound(unittest.TestCase):
 
     def setUp(self):
         """This method is called before every test_ method"""
-        self.compound = PyFBA.metabolism.Compound("t1", "test compound", 'c')
+        self.compound = PyFBA.metabolism.Compound("t1", "test compound")
+        self.compound.abbreviation = "Cool"
+        self.compound.add_attribute('What', "Everything")
+        self.compound_with_loc = PyFBA.metabolism.CompoundWithLocation(self.compound, "extracellular")
 
     def test_equals(self):
         """Test that our equals function works"""
-        othercompound = PyFBA.metabolism.Compound("t2", "test compound", 'c')
+        othercompound = PyFBA.metabolism.Compound("t2", "test compound")
         self.assertEqual(self.compound, othercompound)
         othercompound.name = "Another compound"
         self.assertNotEqual(self.compound, othercompound)
@@ -23,9 +26,6 @@ class TestCompound(unittest.TestCase):
         """Test that our hash function works"""
         self.assertEqual(hash(self.compound), hash(("t1", "test compound", 'c')))
 
-    def test_location(self):
-        """Test the location of a compound"""
-        self.assertEqual(self.compound.location, 'c')
 
     def test_in_reactions(self):
         """Test which reactions the compound is in"""
@@ -42,3 +42,19 @@ class TestCompound(unittest.TestCase):
             self.compound.add_reactions,
             "A reaction"
         )
+
+    def test_abbreviation(self):
+        """ Did we get the new abbreviation?"""
+        self.assertEqual(self.compound.abbreviation, "Cool")
+
+    def test_adding_attributes(self):
+        """ Did we add the new attributes"""
+        self.assertEqual(self.compound.get_attribute("What"), "Everything")
+
+    def test_compound_with_location(self):
+        """Test the location of a compound"""
+        self.assertEqual(self.compound_with_loc.location, 'extracellular')
+
+    def test_comp_with_loc_copied(self):
+        """Test we copied all attributes properly"""
+        self.assertEqual(self.compound_with_loc.get_attribute("What"), "Everything")
