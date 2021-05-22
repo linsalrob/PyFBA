@@ -1,5 +1,5 @@
 import sys
-from .compound import Compound
+from .compound import CompoundWithLocation
 from .reaction import Reaction
 
 
@@ -189,12 +189,12 @@ def biomass_equation(biomass_type='standard'):
 
     r = Reaction('biomass_equation', 'biomass_equation')
     for i,c in enumerate(reactants):
-        cpd = Compound(f"rctn{i}", c, 'c')
+        cpd = CompoundWithLocation(f"rctn{i}", c, 'c')
         r.add_left_compounds({cpd})
         r.set_left_compound_abundance(cpd, reactants[c])
 
     for c in products:
-        cpd = Compound(f"rctn{i}", c, 'c')
+        cpd = CompoundWithLocation(f"rctn{i}", c, 'c')
         r.add_right_compounds({cpd})
         r.set_right_compound_abundance(cpd, products[c])
 
