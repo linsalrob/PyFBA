@@ -10,13 +10,13 @@ class TestReaction(unittest.TestCase):
 
     def setUp(self):
         """This method is called before every test_ method"""
-        self.reaction = PyFBA.metabolism.Reaction("test reaction")
+        self.reaction = PyFBA.metabolism.Reaction("test0001", "test reaction")
 
     def test_reaction_name(self):
         """The name should be a string and not the null string"""
-        name = self.reaction.name
-        self.assertIsInstance(name, str)
-        self.assertEqual(name, "test reaction")
+        rid = self.reaction.id
+        self.assertIsInstance(rid, str)
+        self.assertEqual(rid, "test0001")
 
     def test_reaction_left_compounds(self):
         """Left compounds are a set of compounds that are on the left of the reaction."""

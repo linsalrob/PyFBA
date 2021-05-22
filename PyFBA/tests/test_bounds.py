@@ -15,18 +15,18 @@ class TestBounds(unittest.TestCase):
         newfba = lp.load([[1,2,3,4,5,6]])
 
         # make up some reactions
-        ra = PyFBA.metabolism.Reaction('reaction A')
+        ra = PyFBA.metabolism.Reaction('rA', 'reaction A')
         ra.direction = '>'
-        rb = PyFBA.metabolism.Reaction('reaction B')
+        rb = PyFBA.metabolism.Reaction('rB', 'reaction B')
         rb.direction = '<'
-        rc = PyFBA.metabolism.Reaction('reaction C')
+        rc = PyFBA.metabolism.Reaction('rC', 'reaction C')
         rc.direction = '='
-        rd = PyFBA.metabolism.Reaction('reaction US')
+        rd = PyFBA.metabolism.Reaction('rUS', 'reaction US')
         rd.direction = '='
         rd.is_uptake_secretion = True
-        re = PyFBA.metabolism.Reaction('biomass_equation')
+        re = PyFBA.metabolism.Reaction('biomass_equation', 'biomass_equation')
         re.direction = '>'
-        rf = PyFBA.metabolism.Reaction('reaction US Media')
+        rf = PyFBA.metabolism.Reaction('rUSM', 'reaction US Media')
         rf.direction = '='
         rf.is_uptake_secretion = True
         rf.add_left_compounds({media_compound})
