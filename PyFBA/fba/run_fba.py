@@ -3,14 +3,15 @@ import sys
 from PyFBA import lp
 import PyFBA
 
-def run_fba(compounds, reactions, reactions_to_run, media, biomass_equation, uptake_secretion={}, verbose=False):
+def run_fba(compounds, reactions, reactions_to_run, media, biomass_equation, uptake_secretion=None, verbose=False):
     """
     Run an fba for a set of data. We required the reactions object,
     a list of reactions to run, the media, and the biomass_equation equation.
 
     With all of these we run the fba and return:
 
-    :param uptake_secretion: A hash of uptake and secretion reactions that should be added to the model. Calculated if not provided.
+    :param uptake_secretion: A hash of uptake and secretion reactions that should be added to the model.
+    Calculated if not provided.
     :type uptake_secretion: dict of Reaction
     :param compounds: The dict of all compounds
     :type compounds: dict
@@ -29,8 +30,8 @@ def run_fba(compounds, reactions, reactions_to_run, media, biomass_equation, upt
 
     """
 
-    cp, rc, reactions = PyFBA.fba.create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, biomass_equation,
-                                                     uptake_secretion, verbose=False)
+    cp, rc, reactions = PyFBA.fba.create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media,
+                                                               biomass_equation, uptake_secretion, verbose=False)
 
     rbvals = PyFBA.fba.reaction_bounds(reactions, rc, media)
     PyFBA.fba.compound_bounds(cp)
