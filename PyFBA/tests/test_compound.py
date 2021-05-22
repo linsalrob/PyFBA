@@ -13,7 +13,7 @@ class TestCompound(unittest.TestCase):
         self.compound = PyFBA.metabolism.Compound("t1", "test compound")
         self.compound.abbreviation = "Cool"
         self.compound.add_attribute('What', "Everything")
-        self.compound_with_loc = PyFBA.metabolism.CompoundWithLocation(self.compound, "extracellular")
+        self.compound_with_loc = PyFBA.metabolism.CompoundWithLocation.from_compound(self.compound, "extracellular")
 
     def test_equals(self):
         """Test that our equals function works"""

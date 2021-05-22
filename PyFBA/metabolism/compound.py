@@ -213,7 +213,7 @@ class CompoundWithLocation(Compound):
     :ivar location: the location of the compound.
     """
 
-    def __init__(self, compound, location):
+    def __init__(self, cpid, cpname, location):
         """
         Initiate the object
 
@@ -224,10 +224,17 @@ class CompoundWithLocation(Compound):
         :return:
         :rtype:
         """
-        super().__init__(compound.id, compound.name)
-        for it in compound:
-            self.add_attribute(*it)
+        super().__init__(cpid, cpname)
         self.location = location
+
+    @classmethod
+    def from_compound(cls, compound, location):
+        """Initialize this object from another compound"""
+        cpd = cls(compound.id, compound.name, location)
+        for it in compound:
+            cpd.add_attribute(*it)
+        cpd.location = location
+        return cpd
 
     def __eq__(self, other):
         """
