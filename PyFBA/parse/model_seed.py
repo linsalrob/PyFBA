@@ -171,21 +171,16 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
             sys.stderr.write("ERROR: A model type was not specified, and so using microbial core")
         organism_type = "Core"
 
-    if organism_type in ModelSeed().reactions:
-        return ModelSeed().reactions[organism_type]
+    global modelseedstore
+
+    if organism_type in modelseedstore.reactions:
+        return modelseedstore.reactions[organism_type]
 
     cpds = compounds(verbose=verbose)
     sys.stderr.write(f"GOT {len(cpds)} compounds")
     locations = location()
 
-    # cpds_by_id = {cpds[c].model_seed_id: cpds[c] for c in cpds}
-    cpds_by_id = {}
-    for c in cpds:
-        cpds_by_id[ModelSeed().compounds[c].model_seed_id] = ModelSeed().compounds[c]
-        for asi in ModelSeed().compounds[c].alternate_seed_ids:
-            cpds_by_id[asi] = ModelSeed().compounds[c]
-
-    ModelSeed().reactions[organism_type] = {}  # type Dict[Any, Reaction]
+    modelseedstore.reactions[organism_type] = {}  # type Dict[Any, Reaction]
 
     with open(os.path.join(MODELSEED_DIR, rctf), 'r') as rxnf:
         for rxn in json.load(rxnf):
@@ -217,103 +212,63 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
 
                 left, right = rxn['equation'].split(separator)
 
-                # check and see we have a valid equation
-                left = left.strip()
-                right = right.strip()
+                # we parse out the two sides and compare them.
+                # we do left and store in new[0] and right and store in new[1] and then rejoin
+                new = [[],[]]
+                for i, side in enumerate(left, right):
+                    side = side.strip()
+                    if not side:
+                        continue
 
-                # we have to rewrite the equation to accomodate
-                # the proper locations
-                newleft = []
-                newright = []
+                    # deal with the compounds on the left side of the equation
+                    m = re.findall(r'\(([\d.e-]+)\)\s+(.*?)\[(\d+)]', side)
+                    if m == [] and verbose:
+                        sys.stderr.write("ERROR: Could not parse the compounds from {side}\n")
 
-                # deal with the compounds on the left side of the equation
-                m = re.findall(r'\(([\d.e-]+)\)\s+(.*?)\[(\d+)]', left)
-                if m == [] and verbose:
-                    sys.stderr.write("ERROR: Could not parse the compounds" + " on the left side of the reaction " +
-                                     r.id + ": " + rxn['equation'] + "\n")
+                    for p in m:
+                        (q, cmpd, locval) = p
 
-                for p in m:
-                    (q, cmpd, locval) = p
+                        if locval in locations:
+                            loc = locations[locval]
+                        else:
+                            if verbose:
+                                sys.stderr.write("WARNING: Could not get a location for {locval}\n")
+                            loc = locval
 
-                    if locval in locations:
-                        loc = locations[locval]
-                    else:
-                        if verbose:
-                            sys.stderr.write("WARNING: Could not get a location " + " for " + locval + "\n")
-                        loc = locval
+                        # we first look up to see whether we have the compound
+                        # and then we need to create a new compound with the
+                        # appropriate location
 
-                    # we first look up to see whether we have the compound
-                    # and then we need to create a new compound with the
-                    # appropriate location
+                        cpdbyname = modelseedstore.compounds_by_name(cmpd)
+                        if cpdbyname:
+                            nc = PyFBA.metabolism.Compound(cpdbyname.id, cpdbyname.name, loc)
+                        else:
+                            if verbose:
+                                sys.stderr.write("ERROR: Did not find " + cmpd + " in the known compounds.\n")
+                            nc = PyFBA.metabolism.Compound(cmpd, cmpd, loc)
 
-                    if cmpd in cpds_by_id:
-                        nc = PyFBA.metabolism.Compound(cpds_by_id[cmpd].id, cpds_by_id[cmpd].name, loc)
-                    else:
-                        if verbose:
-                            sys.stderr.write("ERROR: Did not find " + cmpd + " in the compounds file.\n")
-                        nc = PyFBA.metabolism.Compound(cmpd, cmpd, loc)
+                        nc.add_reactions({r.id})
 
-                    ncstr = str(nc)
+                        if i == 0:
+                            r.add_left_compounds({nc})
+                            r.set_left_compound_abundance(nc, float(q))
+                        else:
+                            r.add_right_compounds({nc})
+                            r.set_right_compound_abundance(nc, float(q))
 
-                    if ncstr in ModelSeed().compounds:
-                        nc = copy.copy(ModelSeed().compounds[ncstr])
-                    nc.add_reactions({r.id})
-                    ModelSeed().compounds[ncstr] = nc
+                        new[i].append("(" + str(q) + ") " + nc.name + "[" + loc + "]")
 
-                    r.add_left_compounds({nc})
-                    r.set_left_compound_abundance(nc, float(q))
+                r.equation = " + ".join(new[0]) + " <=> " + " + ".join(new[1])
 
-                    newleft.append("(" + str(q) + ") " + nc.name + "[" + loc + "]")
-
-                # deal with the right side of the equation
-                m = re.findall(r'\(([\d.e-]+)\)\s+(.*?)\[(\d+)]', right)
-                if m == [] and verbose:
-                    sys.stderr.write("ERROR: Could not parse the compounds on the right side of the reaction " +
-                                     r.id + ": " + rxn['equation'] + " >>" + right + "<<\n")
-
-                for p in m:
-                    (q, cmpd, locval) = p
-
-                    if locval in locations:
-                        loc = locations[locval]
-                    else:
-                        if verbose:
-                            sys.stderr.write("WARNING: Could not get a location " + " for " + locval + "\n")
-                        loc = locval
-
-                    # we first look up to see whether we have the compound
-                    # and then we need to create a new compound with the
-                    # appropriate location
-
-                    if cmpd in cpds_by_id:
-                        nc = PyFBA.metabolism.Compound(cpds_by_id[cmpd].id, cpds_by_id[cmpd].name, loc)
-                    else:
-                        if verbose:
-                            sys.stderr.write("ERROR: Did not find " + cmpd + " in the compounds file.\n")
-                        nc = PyFBA.metabolism.Compound(cmpd, cmpd, loc)
-
-                    ncstr = str(nc)
-                    if ncstr in ModelSeed().compounds:
-                        nc = copy.copy(ModelSeed().compounds[ncstr])
-                    nc.add_reactions({r.id})
-                    ModelSeed().compounds[ncstr] = nc
-
-                    r.add_right_compounds({nc})
-                    r.set_right_compound_abundance(nc, float(q))
-
-                    newright.append("(" + str(q) + ") " + nc.name + "[" + loc + "]")
-
-                r.equation = " + ".join(newleft) + " <=> " + " + ".join(newright)
-
-                ModelSeed().reactions[organism_type][r.id] = r
+                modelseedstore.reactions[organism_type][r.id] = r
 
     # finally, if we need to adjust the organism type based on Template reactions, we shall
     new_rcts = template_reactions(organism_type)
     for r in new_rcts:
-        ModelSeed().reactions[organism_type][r].direction = new_rcts[r]['direction']
-        ModelSeed().reactions[organism_type][r].enzymes = new_rcts[r]['enzymes']
+        modelseedstore.reactions[organism_type][r].direction = new_rcts[r]['direction']
+        modelseedstore.reactions[organism_type][r].enzymes = new_rcts[r]['enzymes']
 
-    return ModelSeed().reactions[organism_type]
+    return modelseedstore.reactions[organism_type]
 
 
 def ftr_to_roles(rf="Annotations/Roles.tsv") -> Dict[str, str]:
@@ -375,36 +330,38 @@ def enzymes(organism_type="", verbose=False) -> Dict[str, PyFBA.metabolism.Enzym
     # The complex->roles is through the two annotation files
     # The complex->reactions is through the Templates file
 
-    if ModelSeed().enzymes:
-        return ModelSeed().enzymes
+    global modelseedstore
+
+    if modelseedstore.enzymes:
+        return modelseedstore.enzymes
 
     rcts = reactions(organism_type, verbose=verbose)
 
-    ModelSeed().enzymes = {}
+    modelseedstore.enzymes = {}
 
     # Set up enzymes with complexes and reactions
     c2f = complex_to_ftr()
     f2r = ftr_to_roles()
     for cmplx in c2f:
-        if cmplx in ModelSeed().enzymes:
+        if cmplx in modelseedstore.enzymes:
             if verbose:
                 sys.stderr.write(f"Warning: have duplicate {cmplx} complexes that maybe in more than once. " +
                                  "Skipped later incantations\n")
             continue
-        ModelSeed().enzymes[cmplx] = PyFBA.metabolism.Enzyme(cmplx)
+        modelseedstore.enzymes[cmplx] = PyFBA.metabolism.Enzyme(cmplx)
         for ft in c2f[cmplx]:
             if ft in f2r:
-                ModelSeed().enzymes[cmplx].add_roles({f2r[ft]})
+                modelseedstore.enzymes[cmplx].add_roles({f2r[ft]})
             else:
                 sys.stderr.write(f"Warning: No functional role for {ft}\n")
             for ecno in re.findall(r'[\d-]+\.[\d-]+\.[\d-]+\.[\d-]+', f2r[ft]):
-                ModelSeed().enzymes[cmplx].add_ec(ecno)
+                modelseedstore.enzymes[cmplx].add_ec(ecno)
     for r in rcts:
         for c in rcts[r].enzymes:
-            if c in ModelSeed().enzymes:
-                ModelSeed().enzymes[c].add_reaction(rcts[r].id)
+            if c in modelseedstore.enzymes:
+                modelseedstore.enzymes[c].add_reaction(rcts[r].id)
 
-    return ModelSeed().enzymes
+    return modelseedstore.enzymes
 
 
 def compounds_reactions_enzymes(organism_type='', verbose=False) -> (Dict[str, PyFBA.metabolism.Compound],
