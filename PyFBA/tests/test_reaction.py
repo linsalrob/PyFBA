@@ -287,8 +287,8 @@ class TestReaction(unittest.TestCase):
 
         self.reaction.reverse_reaction()
 
-        self.assertEqual(self.reaction.left_compounds, {self.cwla, self.cwlb})
-        self.assertEqual(self.reaction.right_compounds, {self.cwlc, self.cwld})
+        self.assertEqual(self.reaction.left_compounds, {self.cwlc, self.cwld})
+        self.assertEqual(self.reaction.right_compounds, {self.cwla, self.cwlb})
         self.assertEqual(self.reaction.get_left_compound_abundance(self.cwld), 8)
         self.assertEqual(self.reaction.get_right_compound_abundance(self.cwlb), 2)
         self.assertEqual(self.reaction.get_probability_right_to_left(), 20)
