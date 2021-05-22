@@ -37,7 +37,7 @@ class SuggestionTest(unittest.TestCase):
 
     def test_media(self):
         """Test suggestions based on a media"""
-        toy_media = {PyFBA.metabolism.Compound('NH3', 'e')}
+        toy_media = {PyFBA.metabolism.Compound('cpd00013', 'NH3', 'e')}
         suggested = PyFBA.gapfill.suggest_from_media(self.__class__.compounds, self.__class__.reactions, {}, toy_media)
         self.assertEqual(len(suggested), 13)
 

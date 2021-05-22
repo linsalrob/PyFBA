@@ -10,18 +10,18 @@ class TestCompound(unittest.TestCase):
 
     def setUp(self):
         """This method is called before every test_ method"""
-        self.compound = PyFBA.metabolism.Compound("test compound", 'c')
+        self.compound = PyFBA.metabolism.Compound("t1", "test compound", 'c')
 
     def test_equals(self):
         """Test that our equals function works"""
-        othercompound = PyFBA.metabolism.Compound("test compound", 'c')
+        othercompound = PyFBA.metabolism.Compound("t2", "test compound", 'c')
         self.assertEqual(self.compound, othercompound)
         othercompound.name = "Another compound"
         self.assertNotEqual(self.compound, othercompound)
 
     def test_hash(self):
         """Test that our hash function works"""
-        self.assertEqual(hash(self.compound), hash(("test compound", 'c')))
+        self.assertEqual(hash(self.compound), hash(("t1", "test compound", 'c')))
 
     def test_location(self):
         """Test the location of a compound"""
