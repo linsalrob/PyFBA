@@ -215,7 +215,7 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
                 # we parse out the two sides and compare them.
                 # we do left and store in new[0] and right and store in new[1] and then rejoin
                 new = [[],[]]
-                for i, side in enumerate(left, right):
+                for i, side in enumerate([left, right]):
                     side = side.strip()
                     if not side:
                         continue
