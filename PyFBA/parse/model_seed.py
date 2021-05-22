@@ -403,7 +403,7 @@ def roles(organism_type='', verbose=False) -> Dict[str, Set[str]]:
     rls = {}
     for e in enz:
         for r in enz[e].roles:
-            if r not in roles:
+            if r not in rls:
                 rls[r] = set()
             rls[r].add(e)
     return rls
