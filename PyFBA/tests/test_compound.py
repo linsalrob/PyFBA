@@ -26,7 +26,6 @@ class TestCompound(unittest.TestCase):
         """Test that our hash function works"""
         self.assertEqual(hash(self.compound), hash(("t1", "test compound", 'c')))
 
-
     def test_in_reactions(self):
         """Test which reactions the compound is in"""
         self.compound.add_reactions({"a", "b", "c"})
