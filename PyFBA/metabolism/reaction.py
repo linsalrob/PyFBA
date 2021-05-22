@@ -29,7 +29,8 @@ class Reaction:
     =        Bidirectional
     ======   ===========================
 
-    :ivar name: The name of the reaction
+    :ivar rctn_id: The reaction ID
+    :ivar readable_name: The name of the reaction
     :ivar description: A description of the reaction
     :ivar equation: The reaction equation
     :ivar direction: The direction of the reaction (<, =, >, or ?)
@@ -57,22 +58,22 @@ class Reaction:
 
     """
 
-    def __init__(self, id):
+    def __init__(self, rctn_id, readable_name=None, description=None, equation=None, direction=None):
         """
-        Instantiate the reaction
+        Instantiate a reaction
 
-        :param name: The name of the reaction
-        :type name: str
-        :return:
-        :rtype:
+        :param rctn_id: the reaction id
+        :param readable_name: a human readable name. This was refactored from name to make it more unique
+        :param description: a description of the reaction
+        :param equation: the equation for the reaction
+        :param direction: the direction of the reaction
         """
-
-        self.id = id
-        self.model_seed_id = None
-        self.readable_name = None
-        self.description = None
-        self.equation = None
-        self.direction = None
+        self.id = rctn_id
+        self.model_seed_id = rctn_id
+        self.readable_name = readable_name
+        self.description = description
+        self.equation = equation
+        self.direction = direction
         self.left_compounds = set()
         self.left_abundance = {}
         self.right_compounds = set()
@@ -101,7 +102,6 @@ class Reaction:
         right products, but not necessarily the same names or reactions.
         Note that we don't care whether the left and right (the 
         directionality) is the same in our two comparisons
-
         :param other: The other reaction
         :type other: Reaction
         :return: Boolean
@@ -109,17 +109,18 @@ class Reaction:
         """
 
         if isinstance(other, Reaction):
-            return ((self.left_compounds, self.right_compounds) ==
+            return (self.id == other.id or
+                    (self.left_compounds, self.right_compounds) ==
                     (other.left_compounds, other.right_compounds) or
                     (self.left_compounds, self.right_compounds) ==
-                    (other.right_compounds, other.left_compounds))
+                    (other.right_compounds, other.left_compounds)
+                    )
         else:
-            return NotImplemented
+            raise NotImplemented(f"Comparing Reaction with {type(other)} is not implemented")
 
     def __cmp__(self, other):
         """
         Compare whether two things are the same
-
         :param other: The other reaction
         :type other: Reaction
         :return: an integer, zero if they are the same
@@ -132,43 +133,37 @@ class Reaction:
             else:
                 return 1
         else:
-            return NotImplemented
-
+            raise NotImplemented(f"Comparing Reaction with {type(other)} is not implemented")
 
     def __ne__(self, other):
         """
         Are these not equal?
-
         :param other: The other reaction
         :type other: Reaction
         :return: Boolean
         :rtype: bool
         """
 
-        result = self.__eq__(other)
-        if result is NotImplemented:
-            return result
+        try:
+            result = self.__eq__(other)
+        except NotImplemented:
+            return True
         return not result
-
 
     def __hash__(self):
         """
         The hash function is based on the name of the reaction.
-
         :rtype: int
         """
         return hash(self.id)
 
-
     def __str__(self):
         """
         The string version of the reaction.
-
         :rtype: str
         """
 
-        return f"Reaction {self.id}: {self.readable_name}"
-
+        return f"{self.id}: {self.readable_name}"
 
     def set_direction(self, direction):
         """
@@ -192,13 +187,12 @@ class Reaction:
     def add_left_compounds(self, cmpds):
         """
         The compounds on the left are a set of compounds that the reaction typically uses as substrates.
-
         :param cmpds: The compounds that should be added
         :type cmpds: set
         """
 
         if isinstance(cmpds, set):
-                self.left_compounds.update(cmpds)
+            self.left_compounds.update(cmpds)
         else:
             raise TypeError("Compounds must be a set")
 
@@ -293,7 +287,6 @@ class Reaction:
     def number_of_right_compounds(self):
         """
         The number of compounds on the right side of the equation.
-
         :rtype: int
         """
         return len(self.right_compounds)
@@ -301,7 +294,6 @@ class Reaction:
     def all_compounds(self):
         """
         Get all the compounds involved in this reaction.
-
         :return: A set of all the compounds
         :rtype: set
         """
@@ -310,7 +302,6 @@ class Reaction:
     def number_of_compounds(self):
         """
         Get the total number of compounds involved in this reaction.
-
         :rtype: int
         """
         return len(self.all_compounds())
@@ -318,7 +309,6 @@ class Reaction:
     def has(self, cmpd):
         """
         Does this reaction have a compound? Just returns true if the compound is present somewhere in the reaction.
-
         :param cmpd: The compound to test for
         :type cmpd: Compound
         :rtype: bool
@@ -328,7 +318,6 @@ class Reaction:
     def opposite_sides(self, cmpd1, cmpd2):
         """
         Are these two compounds on opposite sides of the reaction?
-
         :param cmpd1: The first compound
         :type cmpd1: Compound
         :param cmpd2: The second compound
@@ -349,7 +338,6 @@ class Reaction:
     def set_probability_left_to_right(self, p):
         """
         Set the probability of the reaction running left to right. Note you can also access this as reaction.pLR
-
         :param p: The probablity
         :type p: float
 
@@ -364,7 +352,6 @@ class Reaction:
     def get_probability_left_to_right(self):
         """
         Get the probability of the reaction running left to right. Note you can also access this as reaction.pLR
-
         :return: The probablity
         :rtype p: float
         """
@@ -373,7 +360,6 @@ class Reaction:
     def set_probability_right_to_left(self, p):
         """
         Set the probability of the reaction running right to left Note you can also access this as reaction.pRL
-
         :param p: The probablity
         :type p: float
         """
@@ -387,12 +373,10 @@ class Reaction:
     def get_probability_right_to_left(self):
         """
         Get the probability of the reaction running right to left. Note you can also access this as reaction.pRL
-
         :return: The probablity
         :rtype p: float
         """
         return self.pRL
-
 
     def add_enzymes(self, enz):
         """
@@ -409,7 +393,6 @@ class Reaction:
     def has_enzyme(self, enz):
         """
         Check whether an enzyme is involved in this reaction.
-
         :param enz: An Enzyme object
         :type enz: Enzyme
         :return: Whether we have this enzyme
@@ -420,7 +403,6 @@ class Reaction:
     def all_enzymes(self):
         """
         Get all the enzymes involved in this reaction. Returns a set of complex IDs.
-
         :rtype: set
         """
         return self.enzymes
@@ -428,7 +410,6 @@ class Reaction:
     def number_of_enzymes(self):
         """
         Gets the number of enzymes involved in this reaction.
-
         :rtype: int
         """
         return len(self.enzymes)
@@ -436,7 +417,6 @@ class Reaction:
     def add_pegs(self, pegs):
         """
         Add one or more pegs to this reaction. Pegs must be a set.
-
         :param pegs: The pegs to add to the reaction
         :type pegs: set
         """
@@ -448,7 +428,6 @@ class Reaction:
     def has_peg(self, peg):
         """
         Check whether a peg is involved in this reaction.
-
         :param peg: The peg to check for
         :type peg: str
         :rtype: bool
@@ -459,7 +438,6 @@ class Reaction:
         """
         Set the value for delta G (Gibbs free energy) for this reaction. Recall -ve deltaG means the reaction is
         favorable.
-
         :param dg: The delta G of the reaction
         :type dg: float
         """
@@ -473,7 +451,6 @@ class Reaction:
     def get_deltaG(self):
         """
         Get the value for delta G (Gibbs free energy) for this reaction.
-
         :rtype: float
         """
         return self.deltaG
@@ -481,11 +458,11 @@ class Reaction:
     def check_input_output(self):
         """
         Check whether this reaction is an input or output reaction.
-
         This is called when we ask is_input_reaction / is_output_reaction and both inp and outp are False
         """
 
         # do we have external compounds on the left ... then it is an input reaction
+
         for c in self.left_compounds:
             if c.location == 'e':
                 self.inp = True
@@ -529,7 +506,6 @@ class Reaction:
     def is_output_reaction(self):
         """
         Is this an output reaction?
-
         :rtype: bool
         """
         if self.inp is False and self.outp is False:
@@ -561,7 +537,6 @@ class Reaction:
         (self.pLR, self.pRL) = (self.pRL, self.pLR)
         self.deltaG = -self.deltaG
 
-
     def add_attribute(self, key, value):
         """
         Add an attribute to this class
@@ -573,4 +548,3 @@ class Reaction:
         Retrieve an attribute
         """
         return getattr(self, key)
-
