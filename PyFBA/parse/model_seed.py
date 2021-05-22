@@ -73,7 +73,7 @@ def template_reactions(modeltype):
     return new_enz
 
 
-def compounds(compounds_file=None, verbose=False) -> Dict[str, PyFBA.metabolism.Compound]:
+def compounds(compounds_file='Biochemistry/compounds.json', verbose=False) -> Dict[str, PyFBA.metabolism.Compound]:
     """
     Load the compounds mapping that connects ID to compound objects
 
@@ -94,15 +94,12 @@ def compounds(compounds_file=None, verbose=False) -> Dict[str, PyFBA.metabolism.
     if modelseedstore.compounds:
         return modelseedstore.compounds
 
-    if not compounds_file:
-        compounds_file = os.path.join(MODELSEED_DIR, 'Biochemistry/compounds.json')
-
     modelseedstore.compounds = {}
 
     try:
         if verbose:
             sys.stderr.write(f"Parsing compounds in {compounds_file}\n")
-        with open(compounds_file, 'r') as f:
+        with open(os.path.join(MODELSEED_DIR, compounds_file), 'r') as f:
             for jc in json.load(f):
                 c = PyFBA.metabolism.Compound(jc['id'], jc['name'])
                 c.model_seed_id = jc['id']
