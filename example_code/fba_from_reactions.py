@@ -25,6 +25,8 @@ if __name__ == '__main__':
             r = l.strip()
             if r in reactions:
                 reactions2run.add(r)
+            else:
+                sys.stderr.write(f"Reaction {r} not found")
 
     media = PyFBA.parse.read_media_file(args.m)
     biomass_equation = PyFBA.metabolism.biomass_equation('gramnegative')
