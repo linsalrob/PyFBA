@@ -35,7 +35,7 @@ class Compound:
         self.id = cpd_id
         self.name = name
         self.reactions = set()
-        self.model_seed_id = id
+        self.model_seed_id = self.id
         self.alternate_seed_ids = set()
         self.abbreviation = None
         self.formula = None
