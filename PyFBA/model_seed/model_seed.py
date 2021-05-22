@@ -2,6 +2,7 @@
 
 """
 
+
 class ModelSeed:
     """
      A class to hold model seed objects so that we only need to parse them once.
