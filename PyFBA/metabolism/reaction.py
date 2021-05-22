@@ -1,5 +1,7 @@
 import sys
 
+import PyFBA.metabolism
+
 
 class Reaction:
     """
@@ -34,10 +36,10 @@ class Reaction:
     :ivar description: A description of the reaction
     :ivar equation: The reaction equation
     :ivar direction: The direction of the reaction (<, =, >, or ?)
-    :ivar left_compounds: A set of compounds on the left side of the reaction
-    :ivar left_abundance: A dict of the compounds on the left and their abundance
-    :ivar right_compounds: The set of compounds on the right side of the equation
-    :ivar right_abundance: A dict of the compounds on the right and their abundance
+    :ivar left_compounds: A set of CompoundWithLocations on the left side of the reaction
+    :ivar left_abundance: A dict of the CompoundWithLocations on the left and their abundance
+    :ivar right_compounds: The set of CompoundWithLocations on the right side of the equation
+    :ivar right_abundance: A dict of the CompoundWithLocations on the right and their abundance
     :ivar lower_bound: The lower bound for the reaction
     :ivar upper_bound: The upper bound for the reaction
     :ivar pLR: The probability the reaction proceeds left to right
@@ -74,9 +76,9 @@ class Reaction:
         self.description = description
         self.equation = equation
         self.direction = direction
-        self.left_compounds = set()
+        self.left_compounds = set()  # type: set[PyFBA.metabolism.CompoundWithLocation]
         self.left_abundance = {}
-        self.right_compounds = set()
+        self.right_compounds = set()  # type: set[PyFBA.metabolism.CompoundWithLocation]
         self.right_abundance = {}
         self.lower_bound = None
         self.upper_bound = None
@@ -188,26 +190,32 @@ class Reaction:
         """
         The compounds on the left are a set of compounds that the reaction typically uses as substrates.
         :param cmpds: The compounds that should be added
-        :type cmpds: set
+        :type cmpds: set[PyFBA.metabolism.CompoundWithLocation]
         """
 
         if isinstance(cmpds, set):
+            # choose one element. next(iter(cmpds)) does not remove the element
+            if not isinstance(next(iter(cmpds)), PyFBA.metabolism.CompoundWithLocation):
+                raise TypeError("Starting with v.2 reactions need PyFBA.metabolism.CompoundWithLocation objects")
             self.left_compounds.update(cmpds)
+        elif isinstance(cmpds, PyFBA.metabolism.CompoundWithLocation):
+            # add a single compound
+            self.left_compounds.add(cmpds)
         else:
-            raise TypeError("Compounds must be a set")
+            raise TypeError("Compounds must be a set of CompoundWithLocation")
 
     def set_left_compound_abundance(self, cmpd, abundance):
         """
         Set the abundance of a compound on the left side of the equation.
 
         :param cmpd: The compound to set the abundance for
-        :type cmpd: Compound
+        :type cmpd: PyFBA.metabolism.CompoundWithLocation
         :param abundance: The amount of that abundance
-        :type abundance: float
+        :type abundance: float | int
         """
 
         if cmpd not in self.left_compounds:
-            raise KeyError(cmpd + " is not in left compounds. Please add it before trying to set the abundance")
+            raise KeyError(f"{cmpd} is not in left compounds. Please add it before trying to set the abundance")
         if isinstance(abundance, float):
             self.left_abundance[cmpd] = abundance
         elif isinstance(abundance, int):
@@ -220,7 +228,7 @@ class Reaction:
         Get the abundance of the compound on the left side of the equation.
 
         :param cmpd: The compound to get the abundance of
-        :type cmpd: Compound
+        :type cmpd: PyFBA.metabolism.CompoundWithLocation
         :return: The compounds abundance
         :rtype: float
         """
@@ -228,7 +236,7 @@ class Reaction:
         if cmpd in self.left_abundance:
             return self.left_abundance[cmpd]
         else:
-            raise KeyError("You do not have " + cmpd + " on the left hand side of the equation")
+            raise KeyError(f"You do not have {cmpd} on the left hand side of the equation")
 
     def number_of_left_compounds(self):
         """
@@ -243,24 +251,30 @@ class Reaction:
         The compounds on the right are a set of compounds that the reaction typically uses as substrates.
 
         :param cmpds: The compounds that should be added
-        :type cmpds: set
+        :type cmpds: set[PyFBA.metabolism.CompoundWithLocation]
         """
         if isinstance(cmpds, set):
+            # choose one element. next(iter(cmpds)) does not remove the element
+            if not isinstance(next(iter(cmpds)), PyFBA.metabolism.CompoundWithLocation):
+                raise TypeError("Starting with v.2 reactions need PyFBA.metabolism.CompoundWithLocation objects")
             self.right_compounds.update(cmpds)
+        elif isinstance(cmpds, PyFBA.metabolism.CompoundWithLocation):
+            # add a single compound
+            self.right_compounds.add(cmpds)
         else:
-            raise TypeError("Compounds must be a set")
+            raise TypeError("Compounds must be a set of CompoundWithLocation")
 
     def set_right_compound_abundance(self, cmpd, abundance):
         """
         Set the abundance of a compound on the right side of the equation
 
         :param cmpd: The compound to set the abundance for
-        :type cmpd: Compound
+        :type cmpd: PyFBA.metabolism.CompoundWithLocation
         :param abundance: The amount of that abundance
-        :type abundance: float
+        :type abundance: float | int
         """
         if cmpd not in self.right_compounds:
-            raise KeyError(cmpd + " is not in right compounds. " + " Please add it before trying to set the abundance")
+            raise KeyError(f"{cmpd} is not in right compounds. " + " Please add it before trying to set the abundance")
         if isinstance(abundance, float):
             self.right_abundance[cmpd] = abundance
         elif isinstance(abundance, int):
