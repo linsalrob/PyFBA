@@ -8,7 +8,7 @@ class TestBounds(unittest.TestCase):
         '''Testing the assertion of row bounds and the logic'''
 
         # define a media compound
-        media_compound = PyFBA.metabolism.Compound("m0011", 'Media', 'e')
+        media_compound = PyFBA.metabolism.CompoundWithLocation("m0011", 'Media', 'e')
         media = {media_compound}
 
         # define an FBA matrix of the right size
@@ -47,9 +47,9 @@ class TestBounds(unittest.TestCase):
         '''Testing the assertion of column bounds'''
         # define an FBA matrix of the right size
         newfba = lp.load([[1, 2, 3, 4, 5, 6], [1, 2, 3, 4, 5, 6], [1, 2, 3, 4, 5, 6]])
-        ca = PyFBA.metabolism.Compound("c1", "A", "e")
-        cb = PyFBA.metabolism.Compound("c2", "B", "c")
-        cc = PyFBA.metabolism.Compound("c3", "C", "h")
+        ca = PyFBA.metabolism.CompoundWithLocation("c1", "A", "e")
+        cb = PyFBA.metabolism.CompoundWithLocation("c2", "B", "c")
+        cc = PyFBA.metabolism.CompoundWithLocation("c3", "C", "h")
         compounds = {ca, cb, cc}
         col_bounds = PyFBA.fba.compound_bounds(compounds)
         self.assertEqual(col_bounds[ca], (0, 0))
