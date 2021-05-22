@@ -23,6 +23,12 @@ def read(*filenames, **kwargs):
 
 long_description = read('README.txt', 'CHANGES.txt')
 
+def get_version():
+    with open("VERSION", 'r') as f:
+        v = f.readline().strip()
+        return v
+
+
 # Allow nosetests for our python setup.py test framework
 
 # Inspired by the example at https://pytest.org/latest/goodpractises.html
@@ -39,7 +45,7 @@ class NoseTestCommand(TestCommand):
 
 setup(
     name='PyFBA',
-    version=PyFBA.__version__,
+    version=get_version(),
     packages=['PyFBA', 'PyFBA.lp', 'PyFBA.fba', 'PyFBA.parse', 'PyFBA.tests', 'PyFBA.filters', 'PyFBA.gapfill',
               'PyFBA.metabolism', 'PyFBA.model'],
     url='http://linsalrob.github.io/PyFBA/',
