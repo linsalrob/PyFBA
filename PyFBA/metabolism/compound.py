@@ -213,9 +213,6 @@ class CompoundWithLocation(Compound):
     :ivar location: the location of the compound.
     """
 
-    def calculate_molecular_weight(self):
-        pass
-
     def __init__(self, compound, location):
         """
         Initiate the object
@@ -292,3 +289,8 @@ class CompoundWithLocation(Compound):
         :rtype: str
         """
         return f"{self.id}: {self.name} (location: {self.location})"
+
+    def calculate_molecular_weight(self):
+        # this is here because the subclass should implement unimplemented methods otherwise it is abstract
+        # and I don't want to!
+        raise NotImplementedError("Sorry. Calculate molecular weight has not yet been implemented.")
