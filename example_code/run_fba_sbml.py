@@ -9,7 +9,7 @@ for OSX and Linux.
 This is intended as a demonstration of the pieces and parts that you need
 in place to get FBA running with GLPK.
 
-To get a sbml file, I suggest that you build a model at http://kbase.us,
+To get a sbml file, I suggest that you build a model at https://kbase.us,
 and run it there, and then you can download the model and use this code
 to run it. We have also provided sample data sets with this code in the
 models/Citrobacter folder.
@@ -28,165 +28,152 @@ import PyFBA.lp as lp
 import argparse
 
 
-def parse_sbml_file(sbmlf):
-    """Parse a sbml file and return a sbml object"""
-    doc = libsbml.SBMLReader().readSBML(sbmlf)
-    if doc.getNumErrors() > 0:
+def parse_sbml_file(sbmlfile):
+    """
+    Parse a sbml file and return a sbml object
+    :param sbmlfile: The file to parse
+    :return: the parsed lbsbml object
+    """
+    sbml_doc = libsbml.SBMLReader().readSBML(sbmlfile)
+    if sbml_doc.getNumErrors() > 0:
         sys.stderr.write("Errors occurred when reading the document\n")
         sys.exit(1)
+    return sbml_doc
 
-    return doc
 
-
-def parse_media_file(mediaf):
+def parse_media_file(mediafile):
     """
-    Get the present media compounds.
-
-    Parameters:
-        mediaf: filepath to the tab-delimited media file.
-
-    Returns:
-        media: dictionary with first level of keys as compound IDs. The values
-               are another dictionary of compound name, formula, and charge.
+    Get the media compounds present
+    :param mediafile: filepath to the tab-delimited media file.
+    :return: dictionary with first level of keys as compound IDs. The values are another dictionary of
+    compound name, formula, and charge.
     """
-    media = {}
-    with open(mediaf, "r") as f:
-        for li, l in enumerate(f):
+
+    readmedia = {}
+    with open(mediafile, "r") as f:
+        for li, ls in enumerate(f):
             # Skip header line
             if li == 0:
                 continue
-            l = l.rstrip("\n")
-            cpdId, name, formula, charge = l.split("\t")
-            media[cpdId] = {"name": name,
-                            "formula": formula,
-                            "charge": charge}
-    return media
+            ls = ls.rstrip("\n")
+            cpid, name, formula, charge = ls.split("\t")
+            readmedia[cpid] = {"name": name, "formula": formula, "charge": charge}
+    return readmedia
 
 
-def parse_stoichiometry(model):
+def parse_stoichiometry(mdl):
     """
-    Get the stoichiometry from the models and load it into the
-    FBA object.
-
-    Parameters:
-        model: the parsed SBML object of the model
-
-    Returns:
-        cpIds: a list of all compound ids
-        rxnIds: a list of all reaction ids
-        sm: stoichiometric dictionary
-            {cpdId: {rxnId: coefficient}}
+    Get the stoichiometry from the models and load it into the FBA object.
+    :param mdl: the parsed SBML object of the model
+    :return: cpIds: a list of all compound ids; rctnids: a list of all reaction ids; sm: stoichiometric matrix;
+    objective function
     """
 
-    sm = {}  # Compound to reactions
-    cpds = []  # Compound objects
-    cpdIds = []  # Compound IDs
-    rxns = []  # Reaction objects
-    rxnIds = []  # Reaction IDs
-    objFunc = []  # Objective function
+    rctnids = []  # Reaction IDs
+    obfunc = []  # Objective function
 
     # Grab all reaction and compound objects
-    rxns = model.getListOfReactions()
+    rxns = mdl.getListOfReactions()
 
     # Only get compounds with boundary condition set to false
     # These are not to be used in the stoichiometric matrix
-    cpds = [s for s in model.getListOfSpecies()
+    cpds = [s for s in mdl.getListOfSpecies()
             if not s.getBoundaryCondition()]
-    cpdIds = [s.getId() for s in cpds]
-    sm = {x: {} for x in cpdIds}
+    cpids = [s.getId() for s in cpds]
+    stm = {x: {} for x in cpids}
 
     if verbose:
-        print "Length of 'rxns' list: %d" % len(rxns)
-        print "Length of 'cpds' list: %d" % len(cpds)
+        print(f"Length of 'rxns' list: {len(rxns)}")
+        print(f"Length of 'cpds' list: {len(cpds)}")
 
     # Create the stoichiometric Dictionary
-    sm, objFunc = addStoichiometry(sm, rxns, rxnIds, objFunc)
+    stm, obfunc = add_stoichiometry(stm, rxns, rctnids, obfunc)
 
     if verbose:
-        print "Number of compounds in sm: %d" % len(sm)
+        print(f"Number of compounds in stiochometric matrix: {len(stm)}")
 
-    return cpdIds, rxnIds, sm, objFunc
+    return cpids, rctnids, stm, obfunc
 
 
-def addStoichiometry(sm, rxns, rxnIds, objFunc):
+def add_stoichiometry(stm, rxns, rctnids, obfunc):
     """Add stoichiometry information to matrix"""
     for r in rxns:
         rid = r.getId()
-        rxnIds.append(rid)
+        rctnids.append(rid)
         for sp in r.getListOfReactants():
-            spName = sp.getSpecies()
+            species_name = sp.getSpecies()
             # Be sure to skip boundary compounds
-            if spName not in sm:
+            if species_name not in stm:
                 continue
-            sm[spName][rid] = -float(sp.getStoichiometry())
+            stm[species_name][rid] = -float(sp.getStoichiometry())
         for sp in r.getListOfProducts():
-            spName = sp.getSpecies()
+            species_name = sp.getSpecies()
             # Be sure to skip boundary compounds
-            if spName not in sm:
+            if species_name not in stm:
                 continue
-            sm[spName][rid] = float(sp.getStoichiometry())
+            stm[species_name][rid] = float(sp.getStoichiometry())
 
         # Add objective function value
         rk = r.getKineticLaw()
         coeff = float(rk.getParameter("OBJECTIVE_COEFFICIENT").getValue())
-        objFunc.append(coeff)
+        obfunc.append(coeff)
 
-    return sm, objFunc
+    return stm, obfunc
 
 
-def createSMatrix(cpdIds, rxnIds, sm, objFunc):
-    """Create the SMatrix with the fba module"""
+def create_smatrix(cpids, rctnids, stm, obfunc):
+    """Create the stiochiomatrix with the fba module"""
     # Use stoichiometric Dictionary to create S matrix
     # Preallocate size of array
-    SMat = [[0.0] * len(rxnIds) for i in cpdIds]
+    st_mat = [[0.0] * len(rctnids) for i in cpids]
 
     if verbose:
-        print "Number of total compounds: %d" % len(cpdIds)
-        print "Number of total reactions: %d" % len(rxnIds)
-        print "SMat dimensions before fill: %d x %d" % (len(SMat),
-                                                        len(SMat[0]))
+        print(f"Number of total compounds: {len(cpids)}")
+        print(f"Number of total reactions: {len(rctnids)}")
+        print(f"Stiochiomatrix dimensions before fill: {len(st_mat)} x {len(st_mat[0])}")
 
     # Fill in S matrix
-    for cIdx, c in enumerate(cpdIds):
-        for rIdx, r in enumerate(rxnIds):
+    for cidx, c in enumerate(cpids):
+        for ridx, r in enumerate(rctnids):
             try:
-                val = sm[c][r]
+                val = stm[c][r]
             except KeyError:
                 val = 0.0
-            SMat[cIdx][rIdx] = val
+            st_mat[cidx][ridx] = val
 
     if verbose:
-        print "SMat dimensions after fill: %d x %d" % (len(SMat), len(SMat[0]))
+        print(f"Stiochiomatrix dimensions after fill: fill: {len(st_mat)} x {len(st_mat[0])}")
 
     # Load the data
-    lp.load(SMat, cpdIds, rxnIds)
+    lp.load(st_mat, cpids, rctnids)
 
     # Objective function
-    lp.objective_coefficients(objFunc)
+    lp.objective_coefficients(obfunc)
 
-    return cpdIds, rxnIds
+    return cpids, rctnids
 
 
-def reaction_bounds(model, rxnIds, media):
+def reaction_bounds(mdl, rctnids, rmedia):
     """
     Extract bounds for each reaction that are present in the SBML file.
 
     Parameters:
-        model: SBML model
-        rxnIds: List of reaction IDs from the model
-        media: Media dictionary of compound IDs and other info. Value is None
+        mdl: SBML model
+        rctnids: List of reaction IDs from the model
+        rmedia: Media dictionary of compound IDs and other info. Value is None
                if a media file was not given.
     """
     # Generate list of external media compounds
-    if media:
-        mediaList = [m + "_e0" for m in media.keys()]
+    media_list = []
+    if rmedia:
+        media_list = [m + "_e0" for m in rmedia.keys()]
     rbounds = []
-    for rIdx in rxnIds:
-        r = model.getReaction(rIdx)
+    for ridx in rctnids:
+        r = mdl.getReaction(ridx)
         rk = r.getKineticLaw()
         # Check if this is an exchange reaction
-        # Need to make sure compound is present in media
-        if "EX" in rIdx and media and rIdx.split("EX_")[-1] not in mediaList:
+        # Need to make sure compound is present in rmedia
+        if "EX" in ridx and rmedia and ridx.split("EX_")[-1] not in media_list:
             lb = 0.0
         else:
             lb = float(rk.getParameter("LOWER_BOUND").getValue())
@@ -194,20 +181,20 @@ def reaction_bounds(model, rxnIds, media):
         rbounds.append((lb, ub))
 
     if verbose:
-        print "Number of reaction bounds: %d" % len(rbounds)
+        print(f"Number of reaction bounds: {len(rbounds)}")
     lp.col_bounds(rbounds)
 
 
-def compound_bounds(cpdIds):
+def compound_bounds(cpids):
     """
     This is the zero flux vector.
 
     Parameters:
-        cpdIds: List of compound IDs from the model
+        cpids: List of compound IDs from the model
     """
-    cbounds = [(0.0, 0.0) for i in cpdIds]
+    cbounds = [(0.0, 0.0) for i in cpids]
     if verbose:
-        print "Number of compound bounds: %d" % len(cbounds)
+        print(f"Number of compound bounds: {len(cbounds)}")
     lp.row_bounds(cbounds)
 
 
@@ -232,11 +219,11 @@ if __name__ == '__main__':
     else:
         media = None
 
-    cpdIds, rxnIds, sm, objFunc = parse_stoichiometry(model)
-    cpdIds, rxnIds = createSMatrix(cpdIds, rxnIds, sm, objFunc)
+    compound_ids, reaction_ids, stiochio_m, objFunc = parse_stoichiometry(model)
+    compound_ids, reaction_ids = create_smatrix(compound_ids, reaction_ids, stiochio_m, objFunc)
 
-    reaction_bounds(model, rxnIds, media)
-    compound_bounds(cpdIds)
+    reaction_bounds(model, reaction_ids, media)
+    compound_bounds(compound_ids)
 
     status, value = lp.solve()
     print("Solved the FBA with status: {}".format(status))
