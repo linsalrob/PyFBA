@@ -239,7 +239,7 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
                         # and then we need to create a new compound with the
                         # appropriate location
 
-                        cpdbyname = modelseedstore.compounds_by_name(cmpd)
+                        cpdbyname = modelseedstore.get_compound_by_name(cmpd)
                         if cpdbyname:
                             nc = PyFBA.metabolism.Compound(cpdbyname.id, cpdbyname.name, loc)
                         else:
