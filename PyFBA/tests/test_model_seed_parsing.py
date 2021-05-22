@@ -36,9 +36,9 @@ class TestModelSeedParsing(unittest.TestCase):
         # In core rxn00148 has direction <
         # after Microbial template parsing rxn00148 has direction =
 
-        compounds, reactions = PyFBA.parse.model_seed.reactions()
+        reactions = PyFBA.parse.model_seed.reactions()
         self.assertEqual(reactions['rxn00148'].direction, '<')
-        compounds, reactions = PyFBA.parse.model_seed.reactions('microbial')
+        reactions = PyFBA.parse.model_seed.reactions('microbial')
         self.assertEqual(reactions['rxn00148'].direction, '=')
 
     def test_template_reactions(self):
@@ -78,7 +78,7 @@ class TestModelSeedParsing(unittest.TestCase):
 
     def test_reactions(self):
         """Test parsing the reactions by parse.model_seed"""
-        compounds, reactions = PyFBA.parse.model_seed.reactions()
+        reactions = PyFBA.parse.model_seed.reactions()
         # in the current version of modelseeddatabase (May 2021)
         # we have the following data -
         #
@@ -87,7 +87,7 @@ class TestModelSeedParsing(unittest.TestCase):
         #
         # Please also see the code in example_code/reaction_statistics.py that will generate an
         # updated version of these numbers for you
-        self.assertGreaterEqual(len(compounds), 56767)
+
         self.assertGreaterEqual(len(reactions), 43774)
         is_transport = 0
         direction = {}
