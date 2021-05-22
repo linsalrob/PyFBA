@@ -20,6 +20,7 @@ def uptake_and_secretion_reactions(model_compounds, compounds):
     """
 
     uptake_sec_reactions = {}
+    count = 0
     for c in model_compounds:
         if compounds[c].location == 'e' or compounds[c].name == 'Biomass':
             # this is an uptake or secretion reaction
@@ -30,7 +31,8 @@ def uptake_and_secretion_reactions(model_compounds, compounds):
             # this is similar name that they use in the model seed
             # us_reaction = Reaction('us_001', "EX_" + us_leftside.model_seed_id + "_" + us_leftside.location + "0")
             # but we normally use a different name
-            us_reaction = PyFBA.metabolism.Reaction('us_001', "UPTAKE_SECRETION_REACTION " + us_leftside.model_seed_id)
+            us_reaction = PyFBA.metabolism.Reaction(f"us_{count}", "UPTAKE_SECRETION_REACTION {count}")
+            count += 1
             us_reaction.equation = '(1) + ' + str(us_leftside) + " <=> (1) + " + str(us_rightside)
             us_reaction.add_left_compounds({us_leftside})
             us_reaction.set_left_compound_abundance(us_leftside, 1)
