@@ -34,7 +34,8 @@ class TestFBA(unittest.TestCase):
 
     def test_external_reactions(self):
         """Testing the fba external reactions"""
-        compounds, reactions = PyFBA.parse.model_seed.reactions()
+        compounds = PyFBA.parse.model_seed.compounds()
+        reactions = PyFBA.parse.model_seed.reactions()
         # create a few external compounds
         cpds = list(compounds.keys())[0:10]
         model_cpds = set()
