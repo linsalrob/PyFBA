@@ -112,6 +112,10 @@ class Compound:
         """
         return f"{self.id}: {self.name}"
 
+    def __iter__(self):
+        for i in self.__dict__.items():
+            yield i
+
     def add_reactions(self, rxns):
         """
         Add a reaction that this compound is involved in. You  can add a set of reactions. See the note above about the
@@ -212,20 +216,20 @@ class CompoundWithLocation(Compound):
     def calculate_molecular_weight(self):
         pass
 
-    def __init__(self, cpd_id, name, location):
+    def __init__(self, compound, location):
         """
         Initiate the object
 
-        :param cpd_id: The id of the compound
-        :type cpd_id: str
-        :param name: The name of the compound
-        :type name: str
+        :param compound: the parent compound. Note you should create this first if it doesn't exist!
+        :type cpd_id: PyFBA.metabolism.Compound
         :param location: The location of the compound
         :type location: str
         :return:
         :rtype:
         """
-        super().__init__(cpd_id, name)
+        super().__init__(compound.id, compound.name)
+        for it in super():
+            self.add_attribute(*it)
         self.location = location
 
     def __eq__(self, other):
