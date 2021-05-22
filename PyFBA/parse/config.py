@@ -7,7 +7,9 @@ import sys
 
 
 MODELSEED_DIR = ""
-if 'ModelSEEDDatabase' in os.environ:
+if os.path.exists('Biochemistry/ModelSEEDDatabase'):
+    MODELSEED_DIR = 'Biochemistry/ModelSEEDDatabase'
+elif 'ModelSEEDDatabase' in os.environ:
         MODELSEED_DIR = os.environ['ModelSEEDDatabase']
 else:
     sys.stderr.write("Please ensure that you install the Model SEED Database somewhere, and set the environment " +
@@ -24,3 +26,5 @@ if not os.path.exists(MODELSEED_DIR):
     sys.stderr.write("The MODEL SEED directory: {} does not exist.\n".format(MODELSEED_DIR))
     sys.stderr.write("Please check your installation.\n")
     sys.exit(-1)
+
+sys.stderr.write(f"We are using {MODELSEED_DIR} for our data\n")
