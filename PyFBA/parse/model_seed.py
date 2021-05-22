@@ -62,9 +62,9 @@ def template_reactions(modeltype):
 
     new_enz = {}
     with open(os.path.join(os.path.join(MODELSEED_DIR, inputfile)), 'r') as f:
-        for l in f:
-            if not l.startswith('id'):
-                p = l.strip().split("\t")
+        for li in f:
+            if not li.startswith('id'):
+                p = li.strip().split("\t")
                 new_enz[p[0]] = {}
                 new_enz[p[0]]['direction'] = p[2]
                 new_enz[p[0]]['enzymes'] = set(p[-1].split("|"))
@@ -81,20 +81,24 @@ def compounds(compounds_file=None, verbose=False) -> Dict[str, PyFBA.metabolism.
 
     :param compounds_file: An optional filename of a compounds file to parse
     :type compounds_file: str
+    :parma verbose: more output
+    :type verbose: bool
     :return: A hash of compounds with the str(compound) as the key and the compound object as the value
     :rtype: dict
 
     """
 
-    if ModelSeed.compounds:
-        return ModelSeed.compounds
+    if ModelSeed().compounds:
+        return ModelSeed().compounds
 
     if not compounds_file:
         compounds_file = os.path.join(MODELSEED_DIR, 'Biochemistry/compounds.json')
 
-    ModelSeed.compounds = {}
+    ModelSeed().compounds = {}
 
     try:
+        if verbose:
+            sys.stderr.write(f"Parsing compounds in {compounds_file}\n")
         with open(compounds_file, 'r') as f:
             for jc in json.load(f):
                 c = PyFBA.metabolism.Compound(jc['id'], jc['name'], '')
@@ -110,12 +114,12 @@ def compounds(compounds_file=None, verbose=False) -> Dict[str, PyFBA.metabolism.
                     if ck in jc:
                         c.add_attribute(ck, jc[ck])
 
-                ModelSeed.compounds[jc['id']] = c
+                ModelSeed().compounds[jc['id']] = c
     except IOError as e:
         sys.exit("There was an error parsing " +
                  compounds_file + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
 
-    return ModelSeed.compounds
+    return ModelSeed().compounds
 
 
 def location() -> Dict[str, str]:
@@ -164,8 +168,8 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
             sys.stderr.write("ERROR: A model type was not specified, and so using microbial core")
         organism_type = "Core"
 
-    if organism_type in ModelSeed.reactions:
-        return ModelSeed.reactions[organism_type]
+    if organism_type in ModelSeed().reactions:
+        return ModelSeed().reactions[organism_type]
 
     cpds = compounds(verbose=verbose)
     locations = location()
@@ -173,11 +177,11 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
     # cpds_by_id = {cpds[c].model_seed_id: cpds[c] for c in cpds}
     cpds_by_id = {}
     for c in cpds:
-        cpds_by_id[ModelSeed.compounds[c].model_seed_id] = ModelSeed.compounds[c]
-        for asi in ModelSeed.compounds[c].alternate_seed_ids:
-            cpds_by_id[asi] = ModelSeed.compounds[c]
+        cpds_by_id[ModelSeed().compounds[c].model_seed_id] = ModelSeed().compounds[c]
+        for asi in ModelSeed().compounds[c].alternate_seed_ids:
+            cpds_by_id[asi] = ModelSeed().compounds[c]
 
-    ModelSeed.reactions[organism_type] = {}  # type Dict[Any, Reaction]
+    ModelSeed().reactions[organism_type] = {}  # type Dict[Any, Reaction]
 
     with open(os.path.join(MODELSEED_DIR, rctf), 'r') as rxnf:
         for rxn in json.load(rxnf):
@@ -247,10 +251,10 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
 
                     ncstr = str(nc)
 
-                    if ncstr in ModelSeed.compounds:
-                        nc = copy.copy(ModelSeed.compounds[ncstr])
+                    if ncstr in ModelSeed().compounds:
+                        nc = copy.copy(ModelSeed().compounds[ncstr])
                     nc.add_reactions({r.id})
-                    ModelSeed.compounds[ncstr] = nc
+                    ModelSeed().compounds[ncstr] = nc
 
                     r.add_left_compounds({nc})
                     r.set_left_compound_abundance(nc, float(q))
@@ -285,10 +289,10 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
                         nc = PyFBA.metabolism.Compound(cmpd, cmpd, loc)
 
                     ncstr = str(nc)
-                    if ncstr in ModelSeed.compounds:
-                        nc = copy.copy(ModelSeed.compounds[ncstr])
+                    if ncstr in ModelSeed().compounds:
+                        nc = copy.copy(ModelSeed().compounds[ncstr])
                     nc.add_reactions({r.id})
-                    ModelSeed.compounds[ncstr] = nc
+                    ModelSeed().compounds[ncstr] = nc
 
                     r.add_right_compounds({nc})
                     r.set_right_compound_abundance(nc, float(q))
@@ -297,15 +301,15 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
 
                 r.equation = " + ".join(newleft) + " <=> " + " + ".join(newright)
 
-                ModelSeed.reactions[organism_type][r.id] = r
+                ModelSeed().reactions[organism_type][r.id] = r
 
     # finally, if we need to adjust the organism type based on Template reactions, we shall
     new_rcts = template_reactions(organism_type)
     for r in new_rcts:
-        ModelSeed.reactions[organism_type][r].direction = new_rcts[r]['direction']
-        ModelSeed.reactions[organism_type][r].enzymes = new_rcts[r]['enzymes']
+        ModelSeed().reactions[organism_type][r].direction = new_rcts[r]['direction']
+        ModelSeed().reactions[organism_type][r].enzymes = new_rcts[r]['enzymes']
 
-    return ModelSeed.reactions[organism_type]
+    return ModelSeed().reactions[organism_type]
 
 
 def ftr_to_roles(rf="Annotations/Roles.tsv") -> Dict[str, str]:
@@ -317,15 +321,15 @@ def ftr_to_roles(rf="Annotations/Roles.tsv") -> Dict[str, str]:
 
     ftr2role = {}
     with open(os.path.join(MODELSEED_DIR, rf), 'r') as f:
-        for l in f:
-            if l.startswith('id'):
+        for li in f:
+            if li.startswith('id'):
                 continue
-            p = l.strip().split("\t")
+            p = li.strip().split("\t")
             ftr2role[p[0]] = p[1]
     return ftr2role
 
 
-def complex_to_ftr(cf="Annotations/Complexes.tsv") -> Dict[str, str]:
+def complex_to_ftr(cf="Annotations/Complexes.tsv") -> Dict[str, set]:
     """
     Read the complexes file, and create a dict of complex->feature_ids
     :param cf: the Complexes file
@@ -334,10 +338,10 @@ def complex_to_ftr(cf="Annotations/Complexes.tsv") -> Dict[str, str]:
 
     cpx2ftr = {}
     with open(os.path.join(MODELSEED_DIR, cf), 'r') as f:
-        for l in f:
-            if l.startswith('id'):
+        for li in f:
+            if li.startswith('id'):
                 continue
-            p = l.strip().split("\t")
+            p = li.strip().split("\t")
             cpx2ftr[p[0]] = set()
             if 'null' == p[5]:
                 continue
@@ -367,37 +371,37 @@ def enzymes(organism_type="", verbose=False) -> Dict[str, PyFBA.metabolism.Enzym
     # The complex->roles is through the two annotation files
     # The complex->reactions is through the Templates file
 
-    if ModelSeed.enzymes:
-        return ModelSeed.enzymes
+    if ModelSeed().enzymes:
+        return ModelSeed().enzymes
 
-    cpds = compounds(verbose=verbose)
     rcts = reactions(organism_type, verbose=verbose)
 
-    ModelSeed.enzymes = {}
+    ModelSeed().enzymes = {}
 
     # Set up enzymes with complexes and reactions
     c2f = complex_to_ftr()
     f2r = ftr_to_roles()
     for cmplx in c2f:
-        if cmplx in ModelSeed.enzymes:
+        if cmplx in ModelSeed().enzymes:
             if verbose:
                 sys.stderr.write(f"Warning: have duplicate {cmplx} complexes that maybe in more than once. " +
                                  "Skipped later incantations\n")
             continue
-        ModelSeed.enzymes[cmplx] = PyFBA.metabolism.Enzyme(cmplx)
+        ModelSeed().enzymes[cmplx] = PyFBA.metabolism.Enzyme(cmplx)
         for ft in c2f[cmplx]:
             if ft in f2r:
-                ModelSeed.enzymes[cmplx].add_roles({f2r[ft]})
+                ModelSeed().enzymes[cmplx].add_roles({f2r[ft]})
             else:
                 sys.stderr.write(f"Warning: No functional role for {ft}\n")
             for ecno in re.findall(r'[\d-]+\.[\d-]+\.[\d-]+\.[\d-]+', f2r[ft]):
-                ModelSeed.enzymes[cmplx].add_ec(ecno)
+                ModelSeed().enzymes[cmplx].add_ec(ecno)
     for r in rcts:
         for c in rcts[r].enzymes:
-            if c in ModelSeed.enzymes:
-                ModelSeed.enzymes[c].add_reaction(rcts[r].id)
+            if c in ModelSeed().enzymes:
+                ModelSeed().enzymes[c].add_reaction(rcts[r].id)
 
-    return ModelSeed.enzymes
+    return ModelSeed().enzymes
+
 
 def compounds_reactions_enzymes(organism_type='', verbose=False) -> (Dict[str, PyFBA.metabolism.Compound],
                                                                      Dict[str, PyFBA.metabolism.Reaction],
@@ -414,6 +418,7 @@ def compounds_reactions_enzymes(organism_type='', verbose=False) -> (Dict[str, P
         enzymes(organism_type=organism_type, verbose=verbose)
     )
 
+
 def complexes(organism_type='', verbose=False) -> Dict[str, Set[PyFBA.metabolism.Reaction]]:
     """
     Generate a list of the complexes in the SEED data. Connection between complexes and reactions. A complex can be
@@ -422,7 +427,8 @@ def complexes(organism_type='', verbose=False) -> Dict[str, Set[PyFBA.metabolism
     """
 
     enz = enzymes(organism_type=organism_type, verbose=verbose)
-    return {e:enz[e].reactions for e in enz}
+    return {e: enz[e].reactions for e in enz}
+
 
 def roles(organism_type='', verbose=False) -> Dict[str, Set[str]]:
     """
@@ -433,10 +439,10 @@ def roles(organism_type='', verbose=False) -> Dict[str, Set[str]]:
     :return: a dict of role->complexes
     """
     enz = enzymes(organism_type=organism_type, verbose=verbose)
-    roles = {}
+    rls = {}
     for e in enz:
         for r in enz[e].roles:
             if r not in roles:
-                roles[r] = set()
-            roles[r].add(e)
-    return roles
+                rls[r] = set()
+            rls[r].add(e)
+    return rls
