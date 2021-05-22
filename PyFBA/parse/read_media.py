@@ -6,7 +6,7 @@ import PyFBA
 
 def read_media_file(mediaf):
     """
-    Read a media file and return a set with the media added. If the environment variable PYFBA_MEDIA_DIR
+    Read a media file and return a set of compounds with the media added. If the environment variable PYFBA_MEDIA_DIR
     is set, we will look in there for mediaf if we can not find it.
         
     Returns a set of compounds that are in the media.
@@ -23,7 +23,8 @@ def read_media_file(mediaf):
         if 'PYFBA_MEDIA_DIR' in os.environ and os.path.exists(os.path.join(os.environ['PYFBA_MEDIA_DIR'], mediaf)):
             mediaf = os.path.join(os.environ['PYFBA_MEDIA_DIR'], mediaf)
         else:
-            raise IOError("Media file {} can not be found\nPlease set the environment variable PYFBA_MEDIA_DIR to point to a directory with all the media files".format(mediaf))
+            raise IOError(f"Media file {mediaf} can not be found\nSet the environment variable PYFBA_MEDIA_DIR" +
+                          " to point to a directory with all the media files")
 
     with open(mediaf, 'r') as f:
         for li, l in enumerate(f):
@@ -34,7 +35,7 @@ def read_media_file(mediaf):
             if len(p) < 2:
                 sys.stderr.write("Skipped line {} as it does not have enough columns\n".format(l.strip()))
                 continue
-            c = PyFBA.metabolism.Compound(f"Media{li}", p[1], 'e')
+            c = PyFBA.metabolism.CompoundWithLocation(f"Media{li:03}", p[1], 'e')
             media.add(c)
     
     return media
