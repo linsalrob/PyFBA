@@ -62,7 +62,7 @@ class TestModelSeedParsing(unittest.TestCase):
         """
 
         cmps = PyFBA.parse.model_seed.compounds()
-        self.assertEqual(len(cmps), 33845, 'The compounds list has changed. Most likely the model seed has been ' +
+        self.assertEqual(len(cmps), 33992, 'The compounds list has changed. Most likely the model seed has been ' +
                          'updated and the test code is wrong!')
 
     def test_locations(self):
