@@ -7,5 +7,8 @@ import PyFBA.metabolism
 import PyFBA.parse
 import PyFBA.model
 import PyFBA.model_seed
+from .version import __version__
 
-__version__ = 1.2
+all = [
+    '__version__'
+    ]
