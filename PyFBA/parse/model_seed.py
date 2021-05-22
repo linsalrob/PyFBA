@@ -177,7 +177,6 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
         return modelseedstore.reactions[organism_type]
 
     cpds = compounds(verbose=verbose)
-    sys.stderr.write(f"GOT {len(cpds)} compounds")
     locations = location()
 
     modelseedstore.reactions[organism_type] = {}  # type Dict[Any, Reaction]
