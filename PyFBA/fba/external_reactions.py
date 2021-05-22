@@ -31,7 +31,7 @@ def uptake_and_secretion_reactions(model_compounds, compounds):
             # this is similar name that they use in the model seed
             # us_reaction = Reaction('us_001', "EX_" + us_leftside.model_seed_id + "_" + us_leftside.location + "0")
             # but we normally use a different name
-            us_reaction = PyFBA.metabolism.Reaction(f"us_{count}", "UPTAKE_SECRETION_REACTION {count}")
+            us_reaction = PyFBA.metabolism.Reaction(f"upsr_{count}", "UPTAKE_SECRETION_REACTION {count}")
             count += 1
             us_reaction.equation = '(1) + ' + str(us_leftside) + " <=> (1) + " + str(us_rightside)
             us_reaction.add_left_compounds({us_leftside})
@@ -56,9 +56,10 @@ def remove_uptake_and_secretion_reactions(reactions):
     :rtype: dict
     """
 
+    # TODO We need to modify the jupyter SBML notebook so that it adds an ID with upsr_{count} to the id
     toremove = set()
     for r in reactions:
-        if r.startswith("UPTAKE_SECRETION_REACTION"):
+        if r.startswith('upsr_'):
             toremove.add(r)
 
     for r in toremove:
