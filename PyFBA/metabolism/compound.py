@@ -6,15 +6,12 @@ class Compound:
     """
     A compound is the essential metabolic compound that is involved in a reaction.
 
-    A compound has at the very minimum a name and a location. The location is typically one of:
-       * e: extracellular
-       * c: cytoplasmic
-       * h: chloroplast
-       * p: periplasm
+    The compound by itself does not have a location. See PyFBA.metabolism.CompoundWithLocation for that detail.
+    This abstraction allows us to create Compound objects and then create separate objects with a location
+    that are required for the FBA
 
     Other variables associated with the Compound class:
     :ivar name: the name of the  compound
-    :ivar location: the location of the compound.
     :ivar reactions: a set of reaction objects that this compound is connected to
     :ivar model_seed_id: the compound id from the model seed.
     :ivar abbreviation: a short name for the compound
@@ -22,26 +19,21 @@ class Compound:
     :ivar mw: the molecular weight of the compound
     :ivar common: Boolean: this is a common compound. This means the coompound is in > COMMON_REACTION_LIMIT reactions
     :ivar charge: the charge associated with the compound
-    :ivar uptake_secretion: The compound is involved in uptake from the media or secretion back to the media
 
     """
 
-    def __init__(self, cpd_id, name, location):
+    def __init__(self, cpd_id, name):
         """
         Initiate the object
-
         :param cpd_id: The id of the compound
         :type cpd_id: str
         :param name: The name of the compound
         :type name: str
-        :param location: The location of the compound
-        :type location: str
         :return:
         :rtype:
         """
         self.id = cpd_id
         self.name = name
-        self.location = location
         self.reactions = set()
         self.model_seed_id = id
         self.alternate_seed_ids = set()
@@ -50,8 +42,6 @@ class Compound:
         self.mw = 0
         self.common = False
         self.charge = 0
-        self.uptake_secretion = False
-
         self.is_cofactor = False
         self.linked_compound = False
         self.pka = 0
@@ -59,13 +49,11 @@ class Compound:
         self.is_obsolete = False
         self.abstract_compound = False
         self.is_core = False
-        self.deltagerr = 0
-        self.deltag = 0
         self.inchikey = 0
 
     def __eq__(self, other):
         """
-        Two compounds are equal if they have the same name and the same location
+        Two compounds are equal if they have the same id or the same name
 
         :param other: The other compound
         :type other: Compound
@@ -73,7 +61,7 @@ class Compound:
         :rtype: bool
         """
         if isinstance(other, Compound):
-            return self.id == other.id or (self.name, self.location) == (other.name, other.location)
+            return self.id == other.id or self.name == other.name
         else:
             raise NotImplementedError(f"Comparing a Compound with {type(other)} has not been implemented")
     
@@ -115,14 +103,14 @@ class Compound:
 
         :rtype: int
         """
-        return hash((self.id, self.name, self.location))
+        return hash((self.id, self.name))
 
     def __str__(self):
         """
         The to string function.
         :rtype: str
         """
-        return f"{self.id}: {self.name} (location: {self.location})"
+        return f"{self.id}: {self.name}"
 
     def add_reactions(self, rxns):
         """
@@ -204,3 +192,96 @@ class Compound:
         Retrieve an attribute
         """
         return getattr(self, key)
+
+
+class CompoundWithLocation(Compound):
+    """
+    Compounds can have several locations:
+
+    A compound has at the very minimum a name and a location. The location is typically one of:
+       * e: extracellular
+       * c: cytoplasmic
+       * h: chloroplast
+       * p: periplasm
+
+    We extend the Compound class to add a location, and override a few of the methods
+
+    :ivar location: the location of the compound.
+    """
+
+    def __init__(self, cpd_id, name, location):
+        """
+        Initiate the object
+
+        :param cpd_id: The id of the compound
+        :type cpd_id: str
+        :param name: The name of the compound
+        :type name: str
+        :param location: The location of the compound
+        :type location: str
+        :return:
+        :rtype:
+        """
+        super().__init__(cpd_id, name, location)
+        self.location = location
+
+    def __eq__(self, other):
+        """
+        Two compounds are equal if they have the same name and the same location
+
+        :param other: The other compound
+        :type other: Compound
+        :return: If they are equal
+        :rtype: bool
+        """
+        if isinstance(other, CompoundWithLocation):
+            return self.id == other.id or (self.name, self.location) == (other.name, other.location)
+        else:
+            raise NotImplementedError(f"Comparing a Compound with {type(other)} has not been implemented")
+
+    def __cmp__(self, other):
+        """
+        Compare whether two things are the same.
+
+        :param other: The other compound
+        :type other: Compound
+        :return: An int, zero if they are the same
+        :rtype: int
+        """
+        if isinstance(other, CompoundWithLocation):
+            if __eq__(other):
+                return 0
+            else:
+                return 1
+        else:
+            raise NotImplementedError(f"Comparing a Compound with {type(other)} has not been implemented")
+
+    def __ne__(self, other):
+        """
+        Are these not equal?
+
+        :param other: The other compound
+        :type other: Compound
+        :return: If they are not equal
+        :rtype: bool
+        """
+        try:
+            result = self.__eq__(other)
+        except NotImplementedError:
+            return True
+        return not result
+
+    def __hash__(self):
+        """
+        The hash function is based on the name of the compound.
+
+        :rtype: int
+        """
+        return hash((self.id, self.name, self.location))
+
+    def __str__(self):
+        """
+        The to string function.
+        :rtype: str
+        """
+        return f"{self.id}: {self.name} (location: {self.location})"
