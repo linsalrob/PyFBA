@@ -19,9 +19,13 @@ import os
 import re
 import sys
 import json
+
+from typing import Dict, Set
+
 import PyFBA
 
 from .config import MODELSEED_DIR
+from PyFBA.model_seed import ModelSeed
 
 
 def template_reactions(modeltype):
@@ -68,11 +72,9 @@ def template_reactions(modeltype):
     return new_enz
 
 
-def compounds(compounds_file=None):
+def compounds(compounds_file=None, verbose=False) -> Dict[str, PyFBA.metabolism.Compound]:
     """
-    Load the compounds mapping. This maps from cpd id to name (we use
-    the name in our reactions, but use the cpd to parse the model
-    seed database to avoid ambiguities.
+    Load the compounds mapping that connects ID to compound objects
 
     Optionally, you can provide a compounds file. If not, the default
     in MODELSEED_DIR/Biochemistry/compounds.master.tsv will be used.
@@ -84,10 +86,13 @@ def compounds(compounds_file=None):
 
     """
 
-    cpds = {}
+    if ModelSeed.compounds:
+        return ModelSeed.compounds
 
     if not compounds_file:
         compounds_file = os.path.join(MODELSEED_DIR, 'Biochemistry/compounds.json')
+
+    ModelSeed.compounds = {}
 
     try:
         with open(compounds_file, 'r') as f:
@@ -105,19 +110,15 @@ def compounds(compounds_file=None):
                     if ck in jc:
                         c.add_attribute(ck, jc[ck])
 
-                # there are some compounds (like D-Glucose and Fe2+) that appear >1x in the table
-                if str(c) in cpds:
-                    cpds[str(c)].alternate_seed_ids.add(jc['id'])
-                else:
-                    cpds[str(c)] = c
+                ModelSeed.compounds[jc['id']] = c
     except IOError as e:
         sys.exit("There was an error parsing " +
                  compounds_file + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
 
-    return cpds
+    return ModelSeed.compounds
 
 
-def location():
+def location() -> Dict[str, str]:
     """Parse or return the codes for the locations. The ModelSEEDDatabase
     uses codes, and has a compartments file but they do not match up.
 
@@ -134,7 +135,8 @@ def location():
     return all_locations
 
 
-def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=False):
+def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=False) \
+        -> Dict[str, PyFBA.metabolism.Reaction]:
     """
     Parse the reaction information in Biochemistry/reactions.master.tsv
 
@@ -153,20 +155,29 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
     :type rctf: str
     :param verbose: Print more output
     :type verbose: bool
-    :return: Two components, a dict of the reactions and a dict of all the compounds used in the reactions.
-    :rtype: dict, dict
+    :return: a dict of the reactions
+    :rtype: dict
     """
 
+    if not organism_type:
+        if verbose:
+            sys.stderr.write("ERROR: A model type was not specified, and so using microbial core")
+        organism_type = "Core"
+
+    if organism_type in ModelSeed.reactions:
+        return ModelSeed.reactions[organism_type]
+
+    cpds = compounds(verbose=verbose)
     locations = location()
-    cpds = compounds()
+
     # cpds_by_id = {cpds[c].model_seed_id: cpds[c] for c in cpds}
     cpds_by_id = {}
     for c in cpds:
-        cpds_by_id[cpds[c].model_seed_id] = cpds[c]
-        for asi in cpds[c].alternate_seed_ids:
-            cpds_by_id[asi] = cpds[c]
+        cpds_by_id[ModelSeed.compounds[c].model_seed_id] = ModelSeed.compounds[c]
+        for asi in ModelSeed.compounds[c].alternate_seed_ids:
+            cpds_by_id[asi] = ModelSeed.compounds[c]
 
-    all_reactions = {}  # type Dict[Any, Reaction]
+    ModelSeed.reactions[organism_type] = {}  # type Dict[Any, Reaction]
 
     with open(os.path.join(MODELSEED_DIR, rctf), 'r') as rxnf:
         for rxn in json.load(rxnf):
@@ -236,10 +247,10 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
 
                     ncstr = str(nc)
 
-                    if ncstr in cpds:
-                        nc = copy.copy(cpds[ncstr])
+                    if ncstr in ModelSeed.compounds:
+                        nc = copy.copy(ModelSeed.compounds[ncstr])
                     nc.add_reactions({r.id})
-                    cpds[ncstr] = nc
+                    ModelSeed.compounds[ncstr] = nc
 
                     r.add_left_compounds({nc})
                     r.set_left_compound_abundance(nc, float(q))
@@ -274,10 +285,10 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
                         nc = PyFBA.metabolism.Compound(cmpd, cmpd, loc)
 
                     ncstr = str(nc)
-                    if ncstr in cpds:
-                        nc = copy.copy(cpds[ncstr])
+                    if ncstr in ModelSeed.compounds:
+                        nc = copy.copy(ModelSeed.compounds[ncstr])
                     nc.add_reactions({r.id})
-                    cpds[ncstr] = nc
+                    ModelSeed.compounds[ncstr] = nc
 
                     r.add_right_compounds({nc})
                     r.set_right_compound_abundance(nc, float(q))
@@ -286,23 +297,18 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
 
                 r.equation = " + ".join(newleft) + " <=> " + " + ".join(newright)
 
-                all_reactions[r.id] = r
+                ModelSeed.reactions[organism_type][r.id] = r
 
     # finally, if we need to adjust the organism type based on Template reactions, we shall
-    if not organism_type:
-        if verbose:
-            sys.stderr.write("ERROR: A model type was not specified, and so your Enzyme Complexes are just microbial core")
-        organism_type = "Core"
-
     new_rcts = template_reactions(organism_type)
     for r in new_rcts:
-        all_reactions[r].direction = new_rcts[r]['direction']
-        all_reactions[r].enzymes = new_rcts[r]['enzymes']
+        ModelSeed.reactions[organism_type][r].direction = new_rcts[r]['direction']
+        ModelSeed.reactions[organism_type][r].enzymes = new_rcts[r]['enzymes']
 
-    return cpds, all_reactions
+    return ModelSeed.reactions[organism_type]
 
 
-def ftr_to_roles(rf="Annotations/Roles.tsv"):
+def ftr_to_roles(rf="Annotations/Roles.tsv") -> Dict[str, str]:
     """
     Read the roles file and create a dictionary of feature_id->role
     :param rf: the Roles file
@@ -319,7 +325,7 @@ def ftr_to_roles(rf="Annotations/Roles.tsv"):
     return ftr2role
 
 
-def complex_to_ftr(cf="Annotations/Complexes.tsv"):
+def complex_to_ftr(cf="Annotations/Complexes.tsv") -> Dict[str, str]:
     """
     Read the complexes file, and create a dict of complex->feature_ids
     :param cf: the Complexes file
@@ -341,7 +347,7 @@ def complex_to_ftr(cf="Annotations/Complexes.tsv"):
     return cpx2ftr
 
 
-def compounds_reactions_enzymes(organism_type='', verbose=False):
+def enzymes(organism_type="", verbose=False) -> Dict[str, PyFBA.metabolism.Enzyme]:
     """
     Convert each of the roles and complexes into a set of enzymes, and connect them to reactions.
 
@@ -353,7 +359,7 @@ def compounds_reactions_enzymes(organism_type='', verbose=False):
     :param verbose:Print more output
     :type verbose:bool
     :return: The compounds, the reactions, and the enzymes in that order
-    :rtype: dict of Compound, dict of Reaction, dict of Enzyme
+    :rtype: dict of Enzymes
     """
 
     # The complex (Enzyme) is our key data structure as it connects reactions and roles.
@@ -361,29 +367,76 @@ def compounds_reactions_enzymes(organism_type='', verbose=False):
     # The complex->roles is through the two annotation files
     # The complex->reactions is through the Templates file
 
-    cpds, rcts = reactions(organism_type, verbose=verbose)  # type
-    enzs = {}
+    if ModelSeed.enzymes:
+        return ModelSeed.enzymes
+
+    cpds = compounds(verbose=verbose)
+    rcts = reactions(organism_type, verbose=verbose)
+
+    ModelSeed.enzymes = {}
 
     # Set up enzymes with complexes and reactions
     c2f = complex_to_ftr()
     f2r = ftr_to_roles()
     for cmplx in c2f:
-        if cmplx in enzs:
+        if cmplx in ModelSeed.enzymes:
             if verbose:
                 sys.stderr.write(f"Warning: have duplicate {cmplx} complexes that maybe in more than once. " +
                                  "Skipped later incantations\n")
             continue
-        enzs[cmplx] = PyFBA.metabolism.Enzyme(cmplx)
+        ModelSeed.enzymes[cmplx] = PyFBA.metabolism.Enzyme(cmplx)
         for ft in c2f[cmplx]:
             if ft in f2r:
-                enzs[cmplx].add_roles({f2r[ft]})
+                ModelSeed.enzymes[cmplx].add_roles({f2r[ft]})
             else:
                 sys.stderr.write(f"Warning: No functional role for {ft}\n")
             for ecno in re.findall(r'[\d-]+\.[\d-]+\.[\d-]+\.[\d-]+', f2r[ft]):
-                enzs[cmplx].add_ec(ecno)
+                ModelSeed.enzymes[cmplx].add_ec(ecno)
     for r in rcts:
         for c in rcts[r].enzymes:
-            if c in enzs:
-                enzs[c].add_reaction(rcts[r].id)
+            if c in ModelSeed.enzymes:
+                ModelSeed.enzymes[c].add_reaction(rcts[r].id)
 
-    return cpds, rcts, enzs
+    return ModelSeed.enzymes
+
+def compounds_reactions_enzymes(organism_type='', verbose=False) -> (Dict[str, PyFBA.metabolism.Compound],
+                                                                     Dict[str, PyFBA.metabolism.Reaction],
+                                                                     Dict[str, PyFBA.metabolism.Enzyme]):
+    """
+    A somewhat deprecated function, maintained for compatibility. Return three dicts, compounds, reactions, functions
+    :param organism_type: The type of organism (e.g. Microbial, GramNegative)
+    :param verbose: more output
+    :return: dict, dict, dict
+    """
+    return (
+        compounds(verbose=verbose),
+        reactions(organism_type=organism_type, verbose=verbose),
+        enzymes(organism_type=organism_type, verbose=verbose)
+    )
+
+def complexes(organism_type='', verbose=False) -> Dict[str, Set[PyFBA.metabolism.Reaction]]:
+    """
+    Generate a list of the complexes in the SEED data. Connection between complexes and reactions. A complex can be
+    involved in many reactions.
+    :return: a dict with key is complex and value is all reactions
+    """
+
+    enz = enzymes(organism_type=organism_type, verbose=verbose)
+    return {e:enz[e].reactions for e in enz}
+
+def roles(organism_type='', verbose=False) -> Dict[str, Set[str]]:
+    """
+    Return a hash of the roles where the id is the role name and the value is the set of complex IDs that the role is
+    inolved in
+    :param organism_type: limit to a type of organism
+    :param verbose: more output
+    :return: a dict of role->complexes
+    """
+    enz = enzymes(organism_type=organism_type, verbose=verbose)
+    roles = {}
+    for e in enz:
+        for r in enz[e].roles:
+            if r not in roles:
+                roles[r] = set()
+            roles[r].add(e)
+    return roles
