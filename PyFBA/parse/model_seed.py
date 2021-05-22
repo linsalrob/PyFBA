@@ -406,3 +406,13 @@ def roles(organism_type='', verbose=False) -> Dict[str, Set[str]]:
                 rls[r] = set()
             rls[r].add(e)
     return rls
+
+def reset_cache():
+    """
+    Reset the cache of modelseed data to force reparsing it
+    """
+
+    global modelseedstore
+    modelseedstore = ModelSeed()
+    modelseedstore.reset()
+
