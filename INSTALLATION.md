@@ -70,6 +70,12 @@ clear. We will have detailed installation instructions shortly.
 You need to install [PyGLPK](https://github.com/bradfordboyle/pyglpk). Make sure that you install [this fork of
 PyGLPK](https://github.com/bradfordboyle/pyglpk) as the original has not worked for quite some time!
 
+The easiest way to do this is to use the built in git hook to pip:
+
+```pythonstub
+pip install git+https://github.com/bradfordboyle/pyglpk
+```
+
 ## Install the ModelSEEDDatabase
 
 We rely on the [Model SEED](http://www.theseed.org/models) to provide the biochemistry tables that we use (although we 
