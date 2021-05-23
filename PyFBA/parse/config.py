@@ -5,6 +5,9 @@ Define the modelseed variable.
 import os
 import sys
 
+"""
+
+This has now been abstracted into PyFBA.__init__.py to avoid redundancy
 
 MODELSEED_DIR = ""
 if os.path.exists('Biochemistry/ModelSEEDDatabase'):
@@ -28,3 +31,6 @@ if not os.path.exists(MODELSEED_DIR):
     sys.exit(-1)
 
 sys.stderr.write(f"We are using {MODELSEED_DIR} for our data\n")
+
+"""
+
