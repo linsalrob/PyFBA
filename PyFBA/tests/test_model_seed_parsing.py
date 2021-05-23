@@ -5,7 +5,9 @@ import unittest
 import PyFBA
 
 MODELSEED_DIR = ""
-if 'ModelSEEDDatabase' in os.environ:
+if os.path.exists('Biochemistry/ModelSEEDDatabase'):
+    MODELSEED_DIR = 'Biochemistry/ModelSEEDDatabase'
+elif 'ModelSEEDDatabase' in os.environ:
         MODELSEED_DIR = os.environ['ModelSEEDDatabase']
 else:
     sys.stderr.write("Please ensure that you install the Model SEED Database somewhere, and set the environment " +
