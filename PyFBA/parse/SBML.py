@@ -5,7 +5,7 @@ import sys
 from bs4 import BeautifulSoup
 
 import PyFBA
-
+from PyFBA import log_and_message
 
 class SBML:
     """A SBML object representing the model data.
@@ -21,7 +21,8 @@ class SBML:
 
     def __init__(self):
         self.reactions = {}
-        self.compounds = {}
+        self.compounds = set()
+        self.compounds_by_id = {}
         self.compounds_by_name = {}
         self.model_id = ""
         self.model_name = ""
@@ -31,49 +32,44 @@ class SBML:
         """
         Add a compound to the model
         :param cpd: The compound to be added as a Compound object
-        :type cpd: object.
+        :type cpd: PyFBA.metabolism.CompoundWithLocation
         :return: None
         :rtype: None
         """
-
-        if cpd.id:
-            self.compounds[cpd.id] = cpd
-        else:
-            sys.stderr.write("WARNING: No id for {cpd}\n")
-        if cpd.name:
-            self.compounds_by_name[cpd.name] = cpd
-        else:
-            sys.stderr.write("WARNING: No id for {cpd}\n")
-
+        # we just store these based on the compound, then we don't worry about location, etc.
+        # The hash takes care of that
+        self.compounds.add(cpd)
+        self.compounds_by_id[cpd.id] = cpd
+        self.compounds_by_name[cpd.name] = cpd
 
     def get_all_compounds(self):
         """
         Get the compounds in the model
-        :return: A list of the compounds in this model
-        :rtype: list of Compound
+        :return: A set of the compounds in this model
+        :rtype: set[PyFBA.metabolism.CompoundWithLocation]
         """
-        return self.compounds.values()
+        return self.compounds
 
-    def get_a_compound_by_id(self, cpdid):
+    def get_a_compound_by_id(self, cpdid) -> PyFBA.metabolism.CompoundWithLocation:
         """
         Get a single compound by the id of the compound
         :param cpdid: compound id
         :type cpdid: str
         :return: The compound from the model
-        :rtype: Compound
+        :rtype: PyFBA.metabolism.CompoundWithLocation
         """
 
         if cpdid in self.compounds_by_id:
             return self.compounds_by_id[cpdid]
         raise ValueError(cpdid + " is not present in the model")
 
-    def get_a_compound_by_name(self, name):
+    def get_a_compound_by_name(self, name) -> PyFBA.metabolism.CompoundWithLocation:
         """
         Get a single compound by its name
         :param name: the name of the compount
         :type name: str
         :return: the compound object
-        :rtype: PyFBA.metabolism.compound.Compound
+        :rtype: PyFBA.metabolism.CompoundWithLocation
         """
 
         if name in self.compounds_by_name:
@@ -98,7 +94,7 @@ class SBML:
         :return: A set of the reactions in the model
         :rtype: set of Reaction
         """
-        return self.reactions
+        return set(self.reactions.values())
 
     def get_a_reaction(self, rid):
         """
@@ -142,7 +138,7 @@ def parse_sbml_file(sbml_file, verbose=False):
     # add the compounds
     for s in soup.listOfSpecies.find_all('species'):
         cpdid = s['id'].replace('_c0', '').replace('_e0', '')
-        cpd = PyFBA.metabolism.Compound(cpdid,
+        cpd = PyFBA.metabolism.CompoundWithLocation(cpdid,
                                         s['name'].replace('_c0', '').replace('_e0', ''),
                                         s['compartment'].replace('0', ''))
         cpd.abbreviation = s['id']
@@ -208,10 +204,13 @@ def parse_sbml_file(sbml_file, verbose=False):
                     except ValueError:
                         # the compound is not in the model (but it should be!)
                         count += 1
-                        cpd = PyFBA.metabolism.Compound(f"smbl{count}", cpdid, cpdloc)
+                        cpd = PyFBA.metabolism.CompoundWithLocation(f"smbl{count}", cpdid, cpdloc)
                         if verbose:
-                            sys.stderr.write(
-                                f"WARNING: {cpdid} loc: {cpdloc} is supposed to be in the model but is not. Added\n")
+                            log_and_message(
+                                f"WARNING: {cpdid} loc: {cpdloc} is supposed to be in the model but is not. Added\n",
+                                c = "RED",
+                                stderr=True
+                            )
                         sbml.add_compound(cpd)
 
                     if cpd.uptake_secretion:
@@ -271,13 +270,13 @@ def correct_media_names(media, cpds):
                 newname = m.name.replace('-', '_')
                 newloc = m.location
 
-                newmedia.add(PyFBA.metabolism.Compound(newname, newloc))
+                newmedia.add(PyFBA.metabolism.CompoundWithLocation(newname, newloc))
             else:
                 testname = str(intracellular_m).replace('+', '')
                 if testname in cpds:
                     newname = m.name.replace('+', '')
                     newloc = m.location
-                    newmedia.add(PyFBA.metabolism.Compound(newname, newloc))
+                    newmedia.add(PyFBA.metabolism.CompoundWithLocation(newname, newloc))
                 else:
                     newmedia.add(m)
     return newmedia
