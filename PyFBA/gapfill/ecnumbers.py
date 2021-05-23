@@ -2,7 +2,7 @@ import os
 import sys
 import re
 
-MODELSEED_DIR = os.environ['ModelSEEDDatabase']
+from PyFBA import MODELSEED_DIR
 
 def suggest_reactions_using_ec(roles, reactions, reactions2run, rf="SOLRDump/Reactions.tsv", verbose=False):
     """
