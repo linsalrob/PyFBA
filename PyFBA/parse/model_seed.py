@@ -18,12 +18,14 @@ import os
 import re
 import sys
 import json
+import pkg_resources
 
 from typing import Dict, Set
 
 import PyFBA
 
-from .config import MODELSEED_DIR
+from PyFBA import MODELSEED_DIR
+
 from PyFBA.model_seed import ModelSeed
 
 modelseedstore = ModelSeed()
@@ -57,6 +59,9 @@ def template_reactions(modeltype):
         inputfile = "Templates/Plant/Reactions.tsv"
     else:
         raise NotImplementedError("Parsing data for " + inputfile + " has not been implemented!")
+
+    if not pkg_resources.resource_exists:
+        pass
 
     if not os.path.exists(os.path.join(MODELSEED_DIR, inputfile)):
         raise FileExistsError(f"{inputfile} was not found. Please check your model SEED directory {MODELSEED_DIR}")
