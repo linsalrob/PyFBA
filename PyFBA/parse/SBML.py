@@ -268,6 +268,7 @@ def correct_media_names(media, sbml, cpds):
         if intracellular_m in cpds:
            newmedia.add(m)
         else:
+            # TODO This refactoring may not be working. Look for L-Histidine -> L_Histidine and Mn2+ -> Mn2
             testname = str(intracellular_m).replace('-', '_')
             if testname in cpds:
                 newname = m.name.replace('-', '_')
