@@ -157,7 +157,7 @@ class Reaction:
         The hash function is based on the name of the reaction.
         :rtype: int
         """
-        return hash(self.id)
+        return hash((self.id, self.readable_name))
 
     def __str__(self):
         """
