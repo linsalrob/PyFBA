@@ -48,6 +48,7 @@ class Compound:
         self.pkb = 0
         self.is_obsolete = False
         self.abstract_compound = False
+        self.uptake_secretion = False
         self.is_core = False
         self.inchikey = 0
 
