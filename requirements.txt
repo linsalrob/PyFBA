@@ -1,5 +1,6 @@
-glpk>=0.4.6
-beautifulsoup4>=4.2.1
-python-libsbml>=5.11.4
+glpk
+beautifulsoup4
+python-libsbml
 lxml
 nose
+jupyter
