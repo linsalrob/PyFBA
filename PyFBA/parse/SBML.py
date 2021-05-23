@@ -239,7 +239,7 @@ def parse_sbml_file(sbml_file, verbose=False):
     return sbml
 
 
-def correct_media_names(media, cpds):
+def correct_media_names(media, sbml, cpds):
     """
     Correct the names in media files so they match names in the SBML files. Basically replacing '-' with '_'
     or '+' with ' '
@@ -256,27 +256,29 @@ def correct_media_names(media, cpds):
     # SBML file. This is why we should use compound IDs and not names!
     sys.stderr.write("WARNING: This may not be correct. Please check correct_media_names in parse_sbml.py\n")
     newmedia = set()
-    cpdnames = {c.name: c.id for c in cpds}
     for m in media:
-        if m.name in cpdnames:
-            intracellular_m = copy.copy(cpds)
-        intracellular_m.location = 'c'
-        for c in cpds:
-            if str(intracellular_m) in cpds:
-                newmedia.add(m)
+        if m.name in sbml.compounds_by_name:
+            media_component = sbml.compounds_by_name[m.name]
+            log_and_message(f"Found media component {media_component}\n", "GREEN", stdout=True)
+        else:
+            log_and_message(f"Can't find a compound for media component {m.name}\n", "PINK", stderr=True)
+            media_component = PyFBA.metabolism.Compound(m.name, m.name)
+
+        intracellular_m = PyFBA.metabolism.CompoundWithLocation.from_compound(media_component, 'c')
+        if intracellular_m in cpds:
+           newmedia.add(m)
         else:
             testname = str(intracellular_m).replace('-', '_')
             if testname in cpds:
                 newname = m.name.replace('-', '_')
                 newloc = m.location
-
-                newmedia.add(PyFBA.metabolism.CompoundWithLocation(newname, newloc))
+                newmedia.add(PyFBA.metabolism.CompoundWithLocation(newname, newname, newloc))
             else:
                 testname = str(intracellular_m).replace('+', '')
                 if testname in cpds:
                     newname = m.name.replace('+', '')
                     newloc = m.location
-                    newmedia.add(PyFBA.metabolism.CompoundWithLocation(newname, newloc))
+                    newmedia.add(PyFBA.metabolism.CompoundWithLocation(newname, newname, newloc))
                 else:
                     newmedia.add(m)
     return newmedia
