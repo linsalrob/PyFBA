@@ -27,7 +27,11 @@ def uptake_and_secretion_reactions(model_compounds, compounds):
             # we need to add a new compound like this with a false location
             us_leftside = compounds[c]
             us_rightside = copy.copy(us_leftside)
-            #TODO I think this should be cytoplasmic, and I don't understand the rationale of it being 'b'
+            # The uptake and secretion compounds typically have reaction bounds that allow them to be consumed
+            # (i.e. diffuse away from the cell) but not produced. However, our media components can also increase
+            # in concentration (i.e. diffuse to the cell) and thus the bounds are set higher. Whenever you change the
+            # growth media, you also need to adjust the reaction bounds to ensure that the media can be consumed!
+            # the b is for bounday and is secretion away from the cell
             us_rightside.location = 'b'
             # this is similar name that they use in the model seed
             # us_reaction = Reaction('us_001', "EX_" + us_leftside.model_seed_id + "_" + us_leftside.location + "0")
