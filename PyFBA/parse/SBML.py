@@ -112,6 +112,45 @@ class SBML:
             raise ValueError(f"{rid} is not present in the model")
 
 
+    def correct_media(self, media):
+        """
+        Correct media components for anything added from the SBML file. Note we have a separate method
+        for this that will also work with a set of compounds
+        :param media: a set of media compounds
+        :type media: set(PyFBA.metabolism.CompoundWithLocation)
+        :return: a set of media compounds with corrected names
+        :rtype: set(PyFBA.metabolism.CompoundWithLocation)
+        """
+
+        newmedia = set()
+        for m in media:
+            if m.name in self.compounds_by_name:
+                media_component = self.compounds_by_name[m.name]
+                media_component.location = 'e'
+                newmedia.add(media_component)
+                continue
+
+            testname = m.name.replace('-', '_')
+            if testname in self.compounds_by_name:
+                media_component = self.compounds_by_name[testname]
+                media_component.location = 'e'
+                newmedia.add(media_component)
+                continue
+
+            testname = m.name.replace('+', '')
+            if testname in self.compounds_by_name:
+                media_component = self.compounds_by_name[testname]
+                media_component.location = 'e'
+                newmedia.add(media_component)
+                continue
+
+            log_and_message(f"Even after checking - and + can't find a compound for media " +
+                            f"component {m.name}\n", "PINK", stderr=True)
+            newmedia.add(m)
+
+        return newmedia
+
+
 def parse_sbml_file(sbml_file, verbose=False):
     """
     Parse an SBML file and return an SBML object.
@@ -137,7 +176,7 @@ def parse_sbml_file(sbml_file, verbose=False):
 
     # add the compounds
     for s in soup.listOfSpecies.find_all('species'):
-        cpdid = s['id'].replace('_c0', '').replace('_e0', '')
+        cpdid = s['id'].replace('_c0', '').replace('_e0', '').replace("_b", '')
         cpd = PyFBA.metabolism.CompoundWithLocation(cpdid,
                                         s['name'].replace('_c0', '').replace('_e0', ''),
                                         s['compartment'].replace('0', ''))
@@ -147,6 +186,7 @@ def parse_sbml_file(sbml_file, verbose=False):
         if s['boundaryCondition'] == 'false':
             cpd.uptake_secretion = False
         elif s['boundaryCondition'] == 'true':
+            print(f"Boundary for {cpdid}")
             cpd.uptake_secretion = True
         else:
             if verbose:
@@ -176,11 +216,12 @@ def parse_sbml_file(sbml_file, verbose=False):
                 continue
 
         rxn = PyFBA.metabolism.Reaction(rxnid)
+
         if rxn in sbml.get_all_reactions():
-            if verbose:
-                sys.stderr.write("Already found reaction: " + str(rxn) + " ... not overwriting\n")
+            #if verbose:
+            sys.stderr.write("Already found reaction: " + str(rxn) + " ... not overwriting\n")
             continue
-        rxn.description = r['name']
+        rxn.readable_name = r['name']
         if rxnid == 'biomass_equation':
             rxn.set_direction('>')
         elif r['reversible'] == 'true':
@@ -239,7 +280,7 @@ def parse_sbml_file(sbml_file, verbose=False):
     return sbml
 
 
-def correct_media_names(media, sbml, cpds):
+def correct_media_names(media, cpds):
     """
     Correct the names in media files so they match names in the SBML files. Basically replacing '-' with '_'
     or '+' with ' '
@@ -254,34 +295,37 @@ def correct_media_names(media, sbml, cpds):
 
     # correct some of the media names so that they match the compounds in the
     # SBML file. This is why we should use compound IDs and not names!
-    sys.stderr.write("WARNING: This may not be correct. Please check correct_media_names in parse_sbml.py\n")
     newmedia = set()
+    compounds_by_name = {c.name: c for c in cpds}
     for m in media:
-        if m.name in sbml.compounds_by_name:
-            media_component = sbml.compounds_by_name[m.name]
+        if m.name in compounds_by_name:
+            media_component = compounds_by_name[m.name]
+            media_component.location = 'e'
+            newmedia.add(media_component)
             log_and_message(f"Found media component {media_component}\n", "GREEN", stdout=True)
-        else:
-            log_and_message(f"Can't find a compound for media component {m.name}\n", "PINK", stderr=True)
-            media_component = PyFBA.metabolism.Compound(m.name, m.name)
+            continue
 
-        intracellular_m = PyFBA.metabolism.CompoundWithLocation.from_compound(media_component, 'c')
-        if intracellular_m in cpds:
-           newmedia.add(m)
-        else:
-            # TODO This refactoring may not be working. Look for L-Histidine -> L_Histidine and Mn2+ -> Mn2
-            testname = str(intracellular_m).replace('-', '_')
-            if testname in cpds:
-                newname = m.name.replace('-', '_')
-                newloc = m.location
-                newmedia.add(PyFBA.metabolism.CompoundWithLocation(newname, newname, newloc))
-            else:
-                testname = str(intracellular_m).replace('+', '')
-                if testname in cpds:
-                    newname = m.name.replace('+', '')
-                    newloc = m.location
-                    newmedia.add(PyFBA.metabolism.CompoundWithLocation(newname, newname, newloc))
-                else:
-                    newmedia.add(m)
+        testname = m.name.replace('-', '_')
+        if testname in compounds_by_name:
+            media_component = compounds_by_name[testname]
+            media_component.location = 'e'
+            newmedia.add(media_component)
+            log_and_message(f"Found media component {media_component}\n", "GREEN", stdout=True)
+            continue
+
+
+        testname = m.name.replace('+', '')
+        if testname in compounds_by_name:
+            media_component = compounds_by_name[testname]
+            media_component.location = 'e'
+            newmedia.add(media_component)
+            log_and_message(f"Found media component {media_component}\n", "GREEN", stdout=True)
+            continue
+
+        log_and_message(f"Even after checking - and + can't find a compound for media " +
+                        f"component {m.name}\n", "PINK", stderr=True)
+        newmedia.add(m)
+
     return newmedia
 
 
