@@ -22,6 +22,10 @@ if args.v:
     sys.stderr.write("List of 'rxns' list: {}\n".format(len(rxn)))
 
 # filter out reactions where one of the components is an uptake/secretion reaction (aka boundary reaction)
+# The uptake and secretion compounds typically have reaction bounds that allow them to be consumed
+# (i.e. diffuse away from the cell) but not produced. However, our media components can also increase in
+# concentration (i.e. diffuse to the cell) and thus the bounds are set higher. Whenever you change the growth media,
+# you also need to adjust the reaction bounds to ensure that the media can be consumed!
 reactions_to_run = set()
 uptake_secretion_reactions = {}
 biomass_equation = None
