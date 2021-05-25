@@ -186,7 +186,6 @@ def parse_sbml_file(sbml_file, verbose=False):
         if s['boundaryCondition'] == 'false':
             cpd.uptake_secretion = False
         elif s['boundaryCondition'] == 'true':
-            print(f"Boundary for {cpdid}")
             cpd.uptake_secretion = True
         else:
             if verbose:
