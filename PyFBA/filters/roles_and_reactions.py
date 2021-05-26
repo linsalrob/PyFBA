@@ -1,6 +1,7 @@
 import sys
 import re
 import PyFBA
+from PyFBA import log_and_message
 
 
 def reactions_to_roles(reaction_set, verbose=False):
@@ -46,13 +47,13 @@ def reactions_to_roles(reaction_set, verbose=False):
     for r in reaction_set:
         if r not in rct2cmpx:
             if verbose:
-                sys.stderr.write("ERROR " + r + " not found\n")
+                log_and_message(f"Converting role {r} to reaction: reaction not found", stderr=True)
             continue
         roles[r] = set()
         for c in rct2cmpx[r]:
             if c not in cmpx2role:
                 if verbose:
-                    sys.stderr.write("Complex " + c + " not found in the complexes\n")
+                    log_and_message(f"Complex {c} not found in the complexes", stderr=True)
                 continue
             for rl in cmpx2role[c]:
                 roles[r].add(rl)
@@ -60,7 +61,7 @@ def reactions_to_roles(reaction_set, verbose=False):
     return roles
 
 
-def roles_to_reactions(roles, verbose=False):
+def roles_to_reactions(roles, organism_type=None, verbose=False):
     """
     Convert between roles and reactions using the model seed data
 
@@ -69,21 +70,26 @@ def roles_to_reactions(roles, verbose=False):
 
     :param roles: A set of roles that we want to convert to reaction IDs
     :type roles: set
+    :param organism_type: what type of organism is this?
+    :type organism_type: str
     :param verbose: print error reporting
     :type verbose: bool
     :return: a hash of roles and set of the associated reaction ids
     :rtype: dict of set of str
     """
 
+    if not organism_type:
+        log_and_message("WARNING: Organism type is not defined while gleaning the reactions. You should probably "
+                        "specify e.g. Gram_Negative, Gram_Positive, etc")
     if isinstance(roles, list):
         roles = set(roles)
     elif isinstance(roles, str):
         roles = {roles}
 
     # key is complex and value is all reactions
-    cmpxs = PyFBA.parse.model_seed.complexes()
+    cmpxs = PyFBA.parse.model_seed.complexes(organism_type=organism_type)
     # key is role and value is all complexes
-    seedroles = PyFBA.parse.model_seed.roles()
+    seedroles = PyFBA.parse.model_seed.roles(organism_type=organism_type)
 
     rcts = {}
     for r in roles:
@@ -92,7 +98,7 @@ def roles_to_reactions(roles, verbose=False):
             sys.stderr.write("It seems that {} is a multifunctional role. You should separate the roles\n".format(r))
         if r not in seedroles:
             if verbose:
-                sys.stderr.write(r + " is not a role we understand. Skipped\n")
+                log_and_message(f"Role {r} is not a role we understand. Skipped", stderr=True)
             continue
 
         rcts[r] = set()
@@ -108,6 +114,39 @@ def roles_to_reactions(roles, verbose=False):
 
     return rcts
 
+
+def roles_to_ec_reactions(roles, organism_type=None, verbose=False):
+    """
+    For a list of roles, find those with EC numbers in them, parse out the EC number and see if any of our
+    reactions have those EC numbers associated with them
+    :param roles: a list of roles
+    :type roles: list[str]
+    :param organism_type: the type of organism, eg. Gram_Negative
+    :type organism_type: str
+    :param verbose: more output
+    :type verbose: bool
+    :return: a dict with roles as key and a set of reactions as value
+    """
+
+    rcts = {}
+    seedreactions = PyFBA.parse.model_seed.reactions(organism_type=organism_type, verbose=verbose)
+    ezs = {}
+    for sr in seedreactions:
+        if seedreactions[sr].ec_numbers:
+            for ec in seedreactions[sr].ec_numbers:
+                if ec not in ezs:
+                    ezs[ec] = set()
+                ezs[ec].add(seedreactions[sr].id)
+
+    for r in roles:
+        ecno2rctns = set()
+        for ecno in re.findall(r'[\d-]+\.[\d-]+\.[\d-]+\.[\d-]+', r):
+            if ecno in ezs:
+                ecno2rctns.update(ezs[ecno])
+        if ecno2rctns:
+            rcts[r] = ecno2rctns
+
+    return rcts
 
 if __name__ == '__main__':
     try:
