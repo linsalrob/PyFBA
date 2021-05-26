@@ -85,6 +85,7 @@ class Reaction:
         self.pLR = 0
         self.pRL = 0
         self.enzymes = set()
+        self.ec_numbers = []
         self.pegs = set()
         self.deltaG_error = 0
         self.deltaG = 0
