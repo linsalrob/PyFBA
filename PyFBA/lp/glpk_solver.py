@@ -1,6 +1,8 @@
 import sys
 import glpk
 
+from PyFBA import log_and_message
+
 """
 
 Run linear programming using GLPK. This uses the updated pyGLPK library.
@@ -20,7 +22,7 @@ That means this code is limited to python2.7.
 solver = glpk.LPX()
 
 
-def load(matrix, rowheaders=None, colheaders=None, verbose=0):
+def load(matrix, rowheaders=None, colheaders=None, verbose=False):
     """
     Load the data matrix into the linear programming solver
 
@@ -46,8 +48,8 @@ def load(matrix, rowheaders=None, colheaders=None, verbose=0):
     nrows = len(matrix)
     ncols = len(matrix[0])
 
-    if verbose > 0:
-        sys.stderr.write("We are loading " + str(nrows) + " rows and " + str(ncols) + " columns\n")
+    if verbose:
+        log_and_message(f"We are loading {nrows} rows and {ncols} columns", stderr=True)
 
     solver.rows.add(nrows)
     solver.cols.add(ncols)
@@ -59,15 +61,15 @@ def load(matrix, rowheaders=None, colheaders=None, verbose=0):
             temp.append(matrix[i][j])
 
     if verbose > 4:
-        sys.stderr.write("Matrix: " + str(temp) + "\n")
+        log_and_message("Matrix: " + str(temp) + "\n")
     solver.matrix = temp
 
     # name the rows and columns
     if rowheaders and len(rowheaders) == nrows:
         for i in range(len(rowheaders)):
             if len(rowheaders[i]) > 255:
-                if verbose > 0:
-                    sys.stderr.write("WARNING ROW HEADER: " + str(rowheaders[i]) + " truncated to 255 characters\n")
+                if verbose:
+                    log_and_message(f"WARNING ROW HEADER: {rowheaders[i]} truncated to 255 characters", stderr=True)
                 solver.rows[i].name = rowheaders[i][0:255]
             else:
                 solver.rows[i].name = rowheaders[i]
@@ -79,7 +81,7 @@ def load(matrix, rowheaders=None, colheaders=None, verbose=0):
         for i in range(len(colheaders)):
             if len(colheaders[i]) > 255:
                 if verbose > 0:
-                    sys.stderr.write("WARNING ROW HEADER: " + str(colheaders[i]) + " truncated to 255 characters\n")
+                    log_and_message(f"WARNING COL HEADER: {colheaders[i]} truncated to 255 characters", stderr=True)
                 solver.cols[i].name = colheaders[i][0:255]
             else:
                 solver.cols[i].name = colheaders[i]
