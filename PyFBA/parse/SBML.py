@@ -123,31 +123,40 @@ class SBML:
         """
 
         newmedia = set()
+        warned_compounds = False
         for m in media:
+            if m.id == 'cpd00018':
+                sys.stderr.write(f"Found {m} at 1\n")
             if m.name in self.compounds_by_name:
-                media_component = self.compounds_by_name[m.name]
+                media_component = copy.copy(self.compounds_by_name[m.name])
                 media_component.location = 'e'
                 newmedia.add(media_component)
                 continue
 
             testname = m.name.replace('-', '_')
             if testname in self.compounds_by_name:
-                media_component = self.compounds_by_name[testname]
+                media_component = copy.copy(self.compounds_by_name[testname])
                 media_component.location = 'e'
                 newmedia.add(media_component)
                 continue
 
             testname = m.name.replace('+', '')
             if testname in self.compounds_by_name:
-                media_component = self.compounds_by_name[testname]
+                media_component = copy.copy(self.compounds_by_name[testname])
                 media_component.location = 'e'
                 newmedia.add(media_component)
                 continue
 
-            log_and_message(f"Even after checking - and + can't find a compound for media " +
-                            f"component {m.name}\n", "PINK", stderr=True)
+            log_and_message(f"Checking media compounds: Our compounds do not include  {m.name}", stderr=True)
+            warned_compounds = True
             newmedia.add(m)
 
+        if warned_compounds:
+            log_and_message("""
+Please note: The warnings about media not being found in compounds are not fatal.
+It just means that we did not find that compound anywhere in the reactions, and so it is unlikely to be
+needed or used. We typically see a few of these in rich media. 
+            """, stderr=True)
         return newmedia
 
 
@@ -176,7 +185,8 @@ def parse_sbml_file(sbml_file, verbose=False):
 
     # add the compounds
     for s in soup.listOfSpecies.find_all('species'):
-        cpdid = s['id'].replace('_c0', '').replace('_e0', '').replace("_b", '')
+        cpdid = s['id'].replace('_c0', '').replace('_e0', '')
+        #cpdid = s['id'].replace('_c0', '').replace('_e0', '').replace("_b", '')
         cpd = PyFBA.metabolism.CompoundWithLocation(cpdid,
                                         s['name'].replace('_c0', '').replace('_e0', ''),
                                         s['compartment'].replace('0', ''))
@@ -276,6 +286,12 @@ def parse_sbml_file(sbml_file, verbose=False):
 
         sbml.add_reaction(rxn)
 
+    log_and_message(f"Parsing the model {sbml.model_name} (id {sbml.model_id}) is complete.")
+    log_and_message(f"Parsing the SBML file: We found " +
+                    f"{len(sbml.compounds)}/{len(sbml.compounds_by_id)}/{len(sbml.compounds_by_name)} compounds"
+                    f" (total, by ID, by name -> These three numbers should be the same!)")
+    log_and_message(f"Parsing the SBML file: We found {len(sbml.reactions)} reactions")
+
     return sbml
 
 
@@ -296,6 +312,7 @@ def correct_media_names(media, cpds):
     # SBML file. This is why we should use compound IDs and not names!
     newmedia = set()
     compounds_by_name = {c.name: c for c in cpds}
+    warned_compounds = False
     for m in media:
         if m.name in compounds_by_name:
             media_component = compounds_by_name[m.name]
@@ -321,10 +338,16 @@ def correct_media_names(media, cpds):
             log_and_message(f"Found media component {media_component}\n", "GREEN", stdout=True)
             continue
 
-        log_and_message(f"Even after checking - and + can't find a compound for media " +
-                        f"component {m.name}\n", "PINK", stderr=True)
+        log_and_message(f"Checking media compounds: Our compounds do not include  {m.name}", stderr=True)
+        warned_compounds = True
         newmedia.add(m)
 
+    if warned_compounds:
+        log_and_message("""
+Please note: The warnings about media not being found in compounds are not fatal.
+It just means that we did not find that compound anywhere in the reactions, and so it is unlikely to be
+needed or used. We typically see a few of these in rich media. 
+        """, stderr=True)
     return newmedia
 
 
