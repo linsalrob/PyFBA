@@ -9,7 +9,7 @@ from .version import __version__
 from .logs import log_and_message, message
 
 # define a logger
-logger = logging.getLogger('PhiSpy')
+logger = logging.getLogger('PyFBA')
 logger.setLevel(5)
 loglocation = os.path.join(os.getcwd(), 'PyFBA.log')
 message(f"We are logging to {loglocation}", "GREEN", 'stdout')
