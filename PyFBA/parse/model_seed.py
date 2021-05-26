@@ -165,7 +165,7 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
     :param verbose: Print more output
     :type verbose: bool
     :return: a dict of the reactions
-    :rtype: dict
+    :rtype: Dict[str, PyFBA.metabolism.Reaction]
     """
 
     if not organism_type:
