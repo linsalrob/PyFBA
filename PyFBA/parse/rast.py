@@ -21,8 +21,8 @@ def roles_of_function(role):
     :rtype: set
     """
 
-    # remove comments from functions and split multiple functions
-    func = re.sub('\s+[#!]\s.*$', '', role)
+    # remove flanking ", comments from functions, and split multiple functions
+    func = re.sub('^"|"$|\s+[#!]\s.*$', '', role)
     return set(re.split('\s*;\s+|\s+[;/@]\s+', func))
 
 
