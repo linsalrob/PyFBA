@@ -1,3 +1,4 @@
+from functools import total_ordering
 
 COMMON_REACTION_LIMIT = 5
 
@@ -198,7 +199,7 @@ class Compound:
         """
         return getattr(self, key)
 
-
+@total_ordering
 class CompoundWithLocation(Compound):
     """
     Compounds can have several locations:
@@ -250,6 +251,13 @@ class CompoundWithLocation(Compound):
             return self.id == other.id or (self.name, self.location) == (other.name, other.location)
         else:
             raise NotImplementedError(f"Comparing a Compound with {type(other)} has not been implemented")
+
+    def __lt__(self, other):
+        """
+        Return whether this is less than other. Note that @total_ordering will take care of all the
+        other comparators!
+        """
+        return self.id < other.id
 
     def __cmp__(self, other):
         """
