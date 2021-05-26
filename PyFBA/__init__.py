@@ -1,4 +1,4 @@
-import logging
+
 import os
 import sys
 from datetime import datetime
@@ -8,17 +8,7 @@ from datetime import datetime
 from .version import __version__
 from .logs import log_and_message, message
 
-# define a logger
-logger = logging.getLogger('PyFBA')
-logger.setLevel(5)
-loglocation = os.path.join(os.getcwd(), 'PyFBA.log')
-message(f"We are logging to {loglocation}", "GREEN", 'stdout')
-hdlr = logging.FileHandler(loglocation)
-fmt = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-hdlr.setFormatter(fmt)
-logger.addHandler(hdlr)
 
-log_and_message(f"Welcome to PyFBA version {__version__} started at {datetime.now()}", stdout=True)
 
 MODELSEED_DIR = ""
 if os.path.exists('Biochemistry/ModelSEEDDatabase'):
