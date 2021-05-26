@@ -36,6 +36,10 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
     sm = {}  # the matrix
     reaction_cpds = set()  # all the cpds in the matrix
 
+    # unify compounds from dicts and sets
+    if type(compounds) == dict:
+        compounds = set(compounds.values())
+
     # initialize the compounds set and the stoichiometric matrix with
     # everything in the media. The order of compounds is irrelevant
     for c in media:
