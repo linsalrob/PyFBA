@@ -1,5 +1,7 @@
 import sys
 
+from PyFBA import log_and_message
+
 
 def suggest_from_media(compounds, reactions, reactions2run, media, verbose=False):
     """
@@ -21,18 +23,16 @@ def suggest_from_media(compounds, reactions, reactions2run, media, verbose=False
 
     # which compounds are in our media
     suggest = set()
-    for c in media:
-        try:
-            rxns = compounds[str(c)].all_reactions()
-        except KeyError:
-            if verbose:
-                sys.stderr.write(str(c) + " does not exist in the database, probably because of its compartment\n")
-            continue
-        importrxn = rxns.intersection(reactions2run)
-        if len(importrxn) == 0:
-            if verbose:
-                sys.stderr.write(str(c) + " is not imported\n")
+    cpdnames = {c.name: c for c in compounds}
+    for m in media:
+        # can we find it by name
+        if m.name in cpdnames:
+            rxns = cpdnames[m.name].all_reactions()
             suggest.update(rxns)
+        else:
+            if verbose:
+                log_and_message(f"Compound {m.name} does not exist in the compound database", stderr=True)
+
     suggest = {r for r in suggest if r in reactions and r not in reactions2run}
 
     return suggest
