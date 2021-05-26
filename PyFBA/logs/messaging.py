@@ -7,6 +7,25 @@ import os
 import sys
 import logging
 from .formatting import Colors, ColorNotFoundError
+from datetime import datetime
+from PyFBA import __version__
+
+logger = None
+
+
+def initiate_logger(logname=f"PyFBA.{datetime.now().isoformat()}.log"):
+    # define a logger
+    global logger
+    logger = logging.getLogger('PyFBA')
+    logger.setLevel(5)
+    loglocation = os.path.join(os.getcwd(), logname)
+    sys.stderr.write(f"We are logging to {loglocation}\n")
+    hdlr = logging.FileHandler(loglocation)
+    fmt = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    hdlr.setFormatter(fmt)
+    logger.addHandler(hdlr)
+
+    logging.getLogger('PyFBA').info(f"Welcome to PyFBA version {__version__} started at {datetime.now()}")
 
 
 def message(msg, c, stream):
@@ -52,9 +71,14 @@ def log_and_message(msg, c="WHITE", stderr=False, stdout=False, quiet=False, log
     :param c: the color to write the message
     :param stderr: write the message to stderr
     :param stdout: write the message to stdout
+    :param quiet: don't write to any stream
     :param loglevel: the logging level. See https://docs.python.org/3/library/logging.html#levels for a list
     :return:
     """
+
+    global logger
+    if not logger:
+        initiate_logger()
 
     if loglevel == 'CRITICAL':
         logging.getLogger('PyFBA').critical(msg.strip())
@@ -69,7 +93,6 @@ def log_and_message(msg, c="WHITE", stderr=False, stdout=False, quiet=False, log
 
     if not quiet:
         if stderr:
-            message(msg,c, "stderr")
+            message(msg, c, "stderr")
         if stdout:
             message(msg, c, "stdout")
-
