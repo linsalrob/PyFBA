@@ -3,7 +3,7 @@ import copy
 import PyFBA
 
 
-def uptake_and_secretion_reactions(model_compounds, compounds):
+def uptake_and_secretion_reactions(model_compounds):
     """
     Figure out which compounds can be taken up from the media and/or secreted into the media. We provide an endless
     reaction for these which allows them to be taken up and/or secreted without affecting the rest of the stoichiometric
@@ -11,21 +11,19 @@ def uptake_and_secretion_reactions(model_compounds, compounds):
 
     We also add a reaction for biomass_equation
 
-    :param model_compounds: A set of the identifiers of all the compounds we have identified so far
-    :type model_compounds: set
-    :param compounds: the dict of all the compounds
-    :type compounds: dict
-    :return: A hash of new uptake and secretion reactions we have identified
+    :param model_compounds: A set of the compounds that are in this model
+    :type model_compounds: set[PyFBA.metabolism.CompoundWithLocation]
+    :return: A hash of new uptake and secretion reactions we need to add to the model
     :rtype: hash
     """
 
     uptake_sec_reactions = {}
     count = 0
     for c in model_compounds:
-        if compounds[c].location == 'e' or compounds[c].name == 'Biomass':
+        if c.location == 'e' or c.name == 'Biomass':
             # this is an uptake or secretion reaction
             # we need to add a new compound like this with a false location
-            us_leftside = compounds[c]
+            us_leftside = c
             us_rightside = copy.copy(us_leftside)
             # The uptake and secretion compounds typically have reaction bounds that allow them to be consumed
             # (i.e. diffuse away from the cell) but not produced. However, our media components can also increase
@@ -61,7 +59,6 @@ def remove_uptake_and_secretion_reactions(reactions):
     :rtype: dict
     """
 
-    # TODO We need to modify the jupyter SBML notebook so that it adds an ID with upsr_{count} to the id
     toremove = set()
     for r in reactions:
         if r.startswith('upsr_'):
