@@ -109,9 +109,24 @@ def compounds(compounds_file='Biochemistry/compounds.json', verbose=False) -> Di
                 c = PyFBA.metabolism.Compound(jc['id'], jc['name'])
                 c.model_seed_id = jc['id']
                 c.mw = jc['mass']
+
+                # parse the aliases. At the time of writing, the aliases are f'd up
+                # and look like this:
+                # 'Name: Manganese; Manganese(2+); Mn(II); Mn++; Mn+2; Mn2+; manganese (II) ion; manganese ion'
+                # i.e. they have converted the hash but not encoded it
+                if 'aliases' in jc and jc['aliases']:
+                    allals = {}
+                    for al in jc['aliases']:
+                        parts = al.split(': ')
+                        keys = parts[0]
+                        vals = parts[1].split('; ')
+                        allals[keys] = vals
+                    c.add_attribute('aliases', allals)
+
+
                 # this should be all the keys (except name and ID)
                 for ck in ["abbreviation", "abstract_compound", 
-                           "aliases", "charge", "comprised_of", "deltag",
+                           "charge", "comprised_of", "deltag",
                            "deltagerr", "formula", "id", "inchikey",
                            "is_cofactor", "is_core", "is_obsolete",
                            "linked_compound", "mass", "name", "notes",
