@@ -25,7 +25,7 @@ class Compound:
 
     """
 
-    def __init__(self, cpd_id, name):
+    def __init__(self, cpd_id, name, verbose=False):
         """
         Initiate the object
         :param cpd_id: The id of the compound
@@ -37,9 +37,9 @@ class Compound:
         """
         self.id = cpd_id
         self.name = name
-        if 'fe2' in name.lower():
+        if verbose and 'fe2' in name.lower():
             log_and_message(f"Warning: Fe2 is deprecated. Please use Fe+2 for the name in compound {name}", stderr=True)
-        if 'fe3' in name.lower():
+        if verbose and 'fe3' in name.lower():
             log_and_message(f"Warning: Fe3 is deprecated. Please use Fe+2 for the name in compound {name}", stderr=True)
         self.reactions = set()
         self.model_seed_id = self.id
