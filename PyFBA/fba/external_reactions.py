@@ -34,7 +34,7 @@ def uptake_and_secretion_reactions(model_compounds):
             # this is similar name that they use in the model seed
             # us_reaction = Reaction('us_001', "EX_" + us_leftside.model_seed_id + "_" + us_leftside.location + "0")
             # but we normally use a different name
-            us_reaction = PyFBA.metabolism.Reaction(f"upsr_{count}", "UPTAKE_SECRETION_REACTION {count}")
+            us_reaction = PyFBA.metabolism.Reaction(f"upsr_{count}", f"UPTAKE_SECRETION_REACTION {count}")
             count += 1
             us_reaction.equation = '(1) + ' + str(us_leftside) + " <=> (1) + " + str(us_rightside)
             us_reaction.add_left_compounds({us_leftside})
