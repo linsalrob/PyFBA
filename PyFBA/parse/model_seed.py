@@ -27,6 +27,7 @@ import PyFBA
 from PyFBA import MODELSEED_DIR
 
 from PyFBA.model_seed import ModelSeed
+from PyFBA import log_and_message
 
 modelseedstore = ModelSeed()
 
@@ -254,15 +255,22 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
                         # we first look up to see whether we have the compound
                         # and then we need to create a new compound with the
                         # appropriate location
-
-                        cpdbyname = modelseedstore.get_compound_by_name(cmpd)
-                        if cpdbyname:
-                            nc = PyFBA.metabolism.CompoundWithLocation.from_compound(cpdbyname, loc)
+                        msg = f"Looking for {cmpd}: "
+                        if cmpd in cpds:
+                            nc = PyFBA.metabolism.CompoundWithLocation.from_compound(cpds[cmpd], loc)
+                            msg += " found by ID"
                         else:
-                            if verbose:
-                                sys.stderr.write("ERROR: Did not find " + cmpd + " in the known compounds.\n")
-                            nc = PyFBA.metabolism.CompoundWithLocation(cmpd, cmpd, loc)
-
+                            cpdbyname = modelseedstore.get_compound_by_name(cmpd)
+                            if cpdbyname:
+                                nc = PyFBA.metabolism.CompoundWithLocation.from_compound(cpdbyname, loc)
+                                msg += " found by name"
+                            else:
+                                if verbose:
+                                    sys.stderr.write("ERROR: Did not find " + cmpd + " in the known compounds.\n")
+                                nc = PyFBA.metabolism.CompoundWithLocation(cmpd, cmpd, loc)
+                                msg += " not found"
+                        if verbose:
+                            log_and_message(msg, stderr=True)
                         nc.add_reactions({r.id})
 
                         if i == 0:
