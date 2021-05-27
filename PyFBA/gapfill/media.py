@@ -43,6 +43,8 @@ def suggest_from_media(compounds, reactions, reactions2run, media, verbose=False
         # can we find it by name
         if m.name in cpdnames:
             rxns = cpdnames[m.name].all_reactions()
+            if verbose:
+                log_and_message(f"For {m.name} added {len(rxns)} reactions", stderr=True)
             suggest.update(rxns)
         elif m.name in cpdaliases:
             if verbose:
