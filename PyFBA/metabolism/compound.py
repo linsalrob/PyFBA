@@ -1,5 +1,7 @@
 from functools import total_ordering
 
+from PyFBA import log_and_message
+
 COMMON_REACTION_LIMIT = 5
 
 
@@ -35,10 +37,15 @@ class Compound:
         """
         self.id = cpd_id
         self.name = name
+        if 'fe2' in name.lower():
+            log_and_message(f"Warning: Fe2 is deprecated. Please use Fe+2 for the name in compound {name}", stderr=True)
+        if 'fe3' in name.lower():
+            log_and_message(f"Warning: Fe3 is deprecated. Please use Fe+2 for the name in compound {name}", stderr=True)
         self.reactions = set()
         self.model_seed_id = self.id
         self.alternate_seed_ids = set()
         self.abbreviation = None
+        self.aliases = None
         self.formula = None
         self.mw = 0
         self.common = False
