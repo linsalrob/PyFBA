@@ -14,7 +14,7 @@ def run_fba(compounds, reactions, reactions_to_run, media, biomass_equation, upt
     Calculated if not provided.
     :type uptake_secretion: dict of Reaction
     :param compounds: The dict of all compounds
-    :type compounds: dict
+    :type compounds: Set[CompoundWithLocation]
     :param reactions: The dict of all reactions
     :type reactions: dict
     :param reactions_to_run: the reactions to run
