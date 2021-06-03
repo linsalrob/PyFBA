@@ -17,13 +17,16 @@ class ModelSeed:
 
      """
 
-    def __init__(self, compounds=None, reactions=None, enzymes=None):
+    def __init__(self, compounds=None, reactions=None, enzymes=None,
+                complexes=None, roles=None):
         self.compounds = compounds
         if reactions:
             self.reactions = reactions
         else:
             self.reactions = {}
         self.enzymes = enzymes
+        self.complexes = complexes
+        self.roles = roles
         self.compounds_by_name = {}
         self.last_compound_by_name_sz = 0
 
@@ -31,6 +34,8 @@ class ModelSeed:
         self.compounds = None
         self.reactions = {}
         self.enzymes = None
+        self.complexes = None
+        self.roles = None
 
     def get_compound_by_name(self, name) -> PyFBA.metabolism.Compound:
         """
@@ -41,7 +46,7 @@ class ModelSeed:
 
         if self.last_compound_by_name_sz != len(self.compounds):
             for c in self.compounds:
-                self.compounds_by_name[self.compounds[c].name] = c
+                self.compounds_by_name[c.name] = c
             self.last_compound_by_name_sz = len(self.compounds)
 
         if name in self.compounds_by_name:

@@ -397,6 +397,9 @@ def compounds_reactions_enzymes(organism_type='', verbose=False) -> (Dict[str, P
     :param verbose: more output
     :return: dict, dict, dict
     """
+    log_and_message("DEPRECATED: compounds_reactions_enzymes has been " + 
+                    "deprecated, and we recommend you use the " +
+                    "ModelSeedStore class now", stderr=True, c="Red")
     return (
         compounds(verbose=verbose),
         reactions(organism_type=organism_type, verbose=verbose),
@@ -411,8 +414,12 @@ def complexes(organism_type='', verbose=False) -> Dict[str, Set[PyFBA.metabolism
     :return: a dict with key is complex and value is all reactions
     """
 
-    enz = enzymes(organism_type=organism_type, verbose=verbose)
-    return {e: enz[e].reactions for e in enz}
+    global modelseedstore
+    if not modelseedstore.complexes:
+        enz = enzymes(organism_type=organism_type, verbose=verbose)
+        modelseedstore.complexes = {e: enz[e].reactions for e in enz}
+
+    return modelseedstore.complexes
 
 
 def roles(organism_type='', verbose=False) -> Dict[str, Set[str]]:
@@ -423,14 +430,40 @@ def roles(organism_type='', verbose=False) -> Dict[str, Set[str]]:
     :param verbose: more output
     :return: a dict of role->complexes
     """
-    enz = enzymes(organism_type=organism_type, verbose=verbose)
-    rls = {}
-    for e in enz:
-        for r in enz[e].roles:
-            if r not in rls:
-                rls[r] = set()
-            rls[r].add(e)
-    return rls
+
+    if not modelseedstore.roles:
+        enz = enzymes(organism_type=organism_type, verbose=verbose)
+        modelseedstore.roles = {}
+        for e in enz:
+            for r in enz[e].roles:
+                if r not in modelseedstore.roles:
+                    modelseedstore.roles[r] = set()
+                modelseedstore.roles[r].add(e)
+    return modelseedstore.roles
+
+def parse_model_seed_data(organism_type='', verbose=False):
+    """
+    Parse the model seed data and return a ModelSeed class that contains
+    all the data
+    :param organism_type: limit to a type of organism
+    :param verbose: more output
+    :return: a ModelSeed class
+    :rtype: PyFBA.model_seed.ModelSeed
+    """
+
+    global modelseedstore
+    
+    if not modelseedstore.compounds:
+        c = compounds(verbose=verbose),
+    if not modelseedstore.reactions:
+        r = reactions(organism_type=organism_type, verbose=verbose),
+    if not modelseedstore.enzymes:
+        e = enzymes(organism_type=organism_type, verbose=verbose)
+    if not modelseedstore.complexes:
+        c = complexes(organism_type=organism_type, verbose=verbose)
+    if not modelseedstore.roles:
+        r = roles(organism_type=organism_type, verbose=verbose)
+    return modelseedstore
 
 def reset_cache():
     """
