@@ -255,7 +255,7 @@ class CompoundWithLocation(Compound):
         :rtype: bool
         """
         if isinstance(other, CompoundWithLocation):
-            return self.id == other.id or (self.name, self.location) == (other.name, other.location)
+            return self.id == other.id and self.name == other.name and self.location == other.location
         else:
             raise NotImplementedError(f"Comparing a Compound with {type(other)} has not been implemented")
 
