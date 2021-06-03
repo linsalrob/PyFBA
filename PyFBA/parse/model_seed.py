@@ -392,14 +392,11 @@ def compounds_reactions_enzymes(organism_type='', verbose=False) -> (Dict[str, P
                                                                      Dict[str, PyFBA.metabolism.Reaction],
                                                                      Dict[str, PyFBA.metabolism.Enzyme]):
     """
-    A somewhat deprecated function, maintained for compatibility. Return three dicts, compounds, reactions, functions
+    Return three dicts, compounds, reactions, functions
     :param organism_type: The type of organism (e.g. Microbial, GramNegative)
     :param verbose: more output
     :return: dict, dict, dict
     """
-    log_and_message("DEPRECATED: compounds_reactions_enzymes has been " + 
-                    "deprecated, and we recommend you use the " +
-                    "ModelSeedStore class now", stderr=True, c="Red")
     return (
         compounds(verbose=verbose),
         reactions(organism_type=organism_type, verbose=verbose),
