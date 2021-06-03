@@ -90,8 +90,8 @@ def compounds(compounds_file='Biochemistry/compounds.json', verbose=False) -> Di
     :type compounds_file: str
     :parma verbose: more output
     :type verbose: bool
-    :return: A hash of compounds with the str(compound) as the key and the compound object as the value
-    :rtype: dict
+    :return: A set of Compound objects.
+    :rtype: set[PyFBA.metabolism.Compound]
 
     """
 
@@ -100,7 +100,7 @@ def compounds(compounds_file='Biochemistry/compounds.json', verbose=False) -> Di
     if modelseedstore.compounds:
         return modelseedstore.compounds
 
-    modelseedstore.compounds = {}
+    modelseedstore.compounds = set()
 
     try:
         if verbose:
@@ -135,7 +135,7 @@ def compounds(compounds_file='Biochemistry/compounds.json', verbose=False) -> Di
                     if ck in jc:
                         c.add_attribute(ck, jc[ck])
 
-                modelseedstore.compounds[jc['id']] = c
+                modelseedstore.compounds.add(c)
     except IOError as e:
         sys.exit("There was an error parsing " +
                  compounds_file + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
