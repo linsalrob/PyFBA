@@ -31,7 +31,7 @@ def reaction_bounds(reactions, reactions_to_run, media, lower=-1000.0, mid=0.0, 
     other_uptake_secretion_count = 0
     for r in reactions_to_run:
         # if we already know the bounds, eg from an SBML file
-        if r is not 'BIOMASS_EQN' and reactions[r].lower_bound is not None and reactions[r].upper_bound is not None:
+        if r != 'BIOMASS_EQN' and reactions[r].lower_bound != None and reactions[r].upper_bound != None:
             rbvals[r] = (reactions[r].lower_bound, reactions[r].upper_bound)
             continue
         if r in reactions:
