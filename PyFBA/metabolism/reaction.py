@@ -168,7 +168,22 @@ class Reaction:
 
         return f"{self.id}: {self.readable_name}"
 
+    """
+        Since we have complex data structures, we can't just pickle them and unpickle them with aplomb!
+        In fact, this is affecting deep/shallow copy, and we need to ensure that we use copy.deepcopy() 
+        at all times, otherwise the data structures are not copied correctly.
+        
+        These two methods correctly allow us to pickle the data structures. Note that we have
+        CompoundWithLocation objects, and we need both the object and its abundance to correctly create the pickle.
+    """
+
     def __getstate__(self):
+        """
+        The state that the object is saved or copied as. We override the left/right compounds and abundances
+        with simple arrays of data. This is lossy - we are losing the connections between compounds and data
+        and we probably need to reconstruct that after pickling/unpickling the reactions.
+        :return:
+        """
         state = self.__dict__.copy()
         state['left_compounds'] = []
         state['right_compounds'] = []
@@ -184,7 +199,11 @@ class Reaction:
 
 
     def __setstate__(self, state):
-        # correctly handle unpickling
+        """
+        Create a new reaction from a saved state. This is from __getstate__ eg. when pickled.
+        :param state: the state that was saved.
+        :return:
+        """
         left = set()
         right = set()
         left_abundance = {}
