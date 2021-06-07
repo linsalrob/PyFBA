@@ -1,6 +1,6 @@
 import sys
 import PyFBA
-from PyFBA import lp
+from PyFBA import lp, log_and_message
 
 
 def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, biomass_equation,
@@ -38,6 +38,7 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
 
     # unify compounds from dicts and sets
     if type(compounds) == dict:
+        sys.stderr.write("converting compounds from a dict to a set")
         compounds = set(compounds.values())
 
     # initialize the compounds set and the stoichiometric matrix with
@@ -45,6 +46,8 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
     for c in media:
         if c not in compounds:
             compounds.add(c)
+        if verbose and type(c) != PyFBA.metabolism.compound.CompoundWithLocation:
+            log_and_message(f"In parsing the media, {c} is a {type(c)}", stderr=True)
         reaction_cpds.add(c)
         sm[c] = {}
 
@@ -54,17 +57,23 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
             reaction_cpds.add(c)
             if c not in sm:
                 sm[c] = {}
+            if verbose and type(c) != PyFBA.metabolism.compound.CompoundWithLocation:
+                log_and_message(f"In parsing left compounds, {c} is a {type(c)}", stderr=True)
             sm[c][r] = 0 - reactions[r].get_left_compound_abundance(c)
 
         for c in reactions[r].right_compounds:
             reaction_cpds.add(c)
             if c not in sm:
                 sm[c] = {}
+            if verbose and type(c) != PyFBA.metabolism.compound.CompoundWithLocation:
+                log_and_message(f"In parsing right compounds, {c} is a {type(c)}", stderr=True)
             sm[c][r] = reactions[r].get_right_compound_abundance(c)
 
     for c in biomass_equation.left_compounds:
         if c not in compounds:
             compounds.add(c)
+        if verbose and type(c) != PyFBA.metabolism.compound.CompoundWithLocation:
+            log_and_message(f"In parsing biomass left, {c} is a {type(c)}", stderr=True)
         reaction_cpds.add(c)
         if c not in sm:
             sm[c] = {}
@@ -72,6 +81,8 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
     for c in biomass_equation.right_compounds:
         if c not in compounds:
             compounds.add(c)
+        if verbose and type(c) != PyFBA.metabolism.compound.CompoundWithLocation:
+            log_and_message(f"In parsing biomass right, {c} is a {type(c)}", stderr=True)
         reaction_cpds.add(c)
         if c not in sm:
             sm[c] = {}
