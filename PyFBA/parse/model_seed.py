@@ -191,13 +191,15 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
 
     global modelseedstore
 
-    if organism_type in modelseedstore.reactions:
-        return modelseedstore.reactions[organism_type]
 
+    if modelseedstore.organism_type and modelseedstore.organism_type == organism_type and modelseedstore.reactions:
+        return modelseedstore.reactions
+
+    modelseedstore.organism_type = organism_type
     cpds = compounds(verbose=verbose)
     locations = location()
 
-    modelseedstore.reactions[organism_type] = {}  # type Dict[Any, Reaction]
+    modelseedstore.reactions = {}  # type Dict[Any, Reaction]
 
     with open(os.path.join(MODELSEED_DIR, rctf), 'r') as rxnf:
         for rxn in json.load(rxnf):
@@ -284,15 +286,15 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
 
                 r.equation = " + ".join(new[0]) + " <=> " + " + ".join(new[1])
 
-                modelseedstore.reactions[organism_type][r.id] = r
+                modelseedstore.reactions[r.id] = r
 
     # finally, if we need to adjust the organism type based on Template reactions, we shall
     new_rcts = template_reactions(organism_type)
     for r in new_rcts:
-        modelseedstore.reactions[organism_type][r].direction = new_rcts[r]['direction']
-        modelseedstore.reactions[organism_type][r].enzymes = new_rcts[r]['enzymes']
+        modelseedstore.reactions[r].direction = new_rcts[r]['direction']
+        modelseedstore.reactions[r].enzymes = new_rcts[r]['enzymes']
 
-    return modelseedstore.reactions[organism_type]
+    return modelseedstore.reactions
 
 
 def ftr_to_roles(rf="Annotations/Roles.tsv") -> Dict[str, str]:
