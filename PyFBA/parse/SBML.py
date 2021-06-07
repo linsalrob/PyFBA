@@ -315,27 +315,24 @@ def correct_media_names(media, cpds):
     warned_compounds = False
     for m in media:
         if m.name in compounds_by_name:
-            media_component = compounds_by_name[m.name]
-            media_component.location = 'e'
+            media_component = PyFBA.metabolism.CompoundWithLocation.from_compound(compounds_by_name[m.name], 'e')
             newmedia.add(media_component)
-            log_and_message(f"Found media component {media_component}\n", "GREEN", stdout=True)
+            log_and_message(f"Found media component by name {media_component}\n", "GREEN", stdout=True)
             continue
 
         testname = m.name.replace('-', '_')
         if testname in compounds_by_name:
-            media_component = compounds_by_name[testname]
-            media_component.location = 'e'
+            media_component = PyFBA.metabolism.CompoundWithLocation.from_compound(compounds_by_name[testname], 'e')
             newmedia.add(media_component)
-            log_and_message(f"Found media component {media_component}\n", "GREEN", stdout=True)
+            log_and_message(f"Found media component by corrected name (-:_) {media_component}\n", "GREEN", stdout=True)
             continue
 
 
         testname = m.name.replace('+', '')
         if testname in compounds_by_name:
-            media_component = compounds_by_name[testname]
-            media_component.location = 'e'
+            media_component = PyFBA.metabolism.CompoundWithLocation.from_compound(compounds_by_name[testname], 'e')
             newmedia.add(media_component)
-            log_and_message(f"Found media component {media_component}\n", "GREEN", stdout=True)
+            log_and_message(f"Found media component by corrected name (+:'') {media_component}\n", "GREEN", stdout=True)
             continue
 
         log_and_message(f"Checking media compounds: Our compounds do not include  {m.name}", stderr=True)
