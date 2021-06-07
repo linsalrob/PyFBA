@@ -128,22 +128,19 @@ class SBML:
             if m.id == 'cpd00018':
                 sys.stderr.write(f"Found {m} at 1\n")
             if m.name in self.compounds_by_name:
-                media_component = copy.copy(self.compounds_by_name[m.name])
-                media_component.location = 'e'
+                media_component = PyFBA.metabolism.CompoundWithLocation.from_compound(self.compounds_by_name[m.name], 'e')
                 newmedia.add(media_component)
                 continue
 
             testname = m.name.replace('-', '_')
             if testname in self.compounds_by_name:
-                media_component = copy.copy(self.compounds_by_name[testname])
-                media_component.location = 'e'
+                media_component = PyFBA.metabolism.CompoundWithLocation.from_compound(self.compounds_by_name[testname], 'e')
                 newmedia.add(media_component)
                 continue
 
             testname = m.name.replace('+', '')
             if testname in self.compounds_by_name:
-                media_component = copy.copy(self.compounds_by_name[testname])
-                media_component.location = 'e'
+                media_component = PyFBA.metabolism.CompoundWithLocation.from_compound(self.compounds_by_name[testname], 'e')
                 newmedia.add(media_component)
                 continue
 
