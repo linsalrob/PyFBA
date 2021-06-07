@@ -306,10 +306,8 @@ class CompoundWithLocation(Compound):
 
         :rtype: int
         """
-        try:
-            return hash((super().__hash__(), self.location))
-        except AttributeError:
-            return super().__hash__()
+        return hash((super().__hash__(), self.location))
+
 
     def __str__(self):
         """
@@ -328,9 +326,6 @@ class CompoundWithLocation(Compound):
         # correctly handle unpickling
         # sys.stderr.write(f"Read {state}\n")
         self.__dict__.update(state)
-
-
-    
 
 
     def calculate_molecular_weight(self):
