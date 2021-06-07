@@ -172,10 +172,14 @@ class Reaction:
         state = self.__dict__.copy()
         state['left_compounds'] = []
         state['right_compounds'] = []
+        state['left_abundance'] = {}
+        state['right_abundance'] = {}
         for l in self.left_compounds:
             state['left_compounds'].append([l.id, l.name, l.location])
+            state['left_abundance'][f"{l.id} :: {l.name} :: {l.location}"] = self.left_abundance[l]
         for r in self.right_compounds:
             state['right_compounds'].append([r.id, r.name, r.location])
+            state['right_abundance'][f"{r.id} :: {r.name} :: {r.location}"] = self.right_abundance[r]
         return state
 
 
@@ -183,14 +187,20 @@ class Reaction:
         # correctly handle unpickling
         left = set()
         right = set()
+        left_abundance = {}
+        right_abundance = {}
         for l in state['left_compounds']:
             c = PyFBA.metabolism.CompoundWithLocation(id=l[0], name=l[1], location=l[2])
             left.add(c)
+            left_abundance[c] = state['left_abundance'][f"{l[0]} :: {l[1]} :: {l[2]}"]
         state['left_compounds'] = left
+        state['left_abundance'] = left_abundance
         for r in state['right_compounds']:
             c = PyFBA.metabolism.CompoundWithLocation(id=r[0], name=r[1], location=r[2])
             right.add(c)
+            right_abundance[c] = state['right_abundance'][f"{r[0]} :: {r[1]} :: {r[2]}"]
         state['right_compounds'] = left
+        state['right_abundance'] = right_abundance
         self.__dict__.update(state)
 
 
