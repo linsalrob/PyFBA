@@ -168,6 +168,16 @@ class Reaction:
 
         return f"{self.id}: {self.readable_name}"
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        return state
+
+
+    def __setstate__(self, state):
+        # correctly handle unpickling
+        self.__dict__.update(state)
+
+
     def set_direction(self, direction):
         """
         Set the direction of the reaction.
