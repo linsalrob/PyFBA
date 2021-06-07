@@ -1,5 +1,5 @@
 from functools import total_ordering
-
+import sys
 from PyFBA import log_and_message
 
 COMMON_REACTION_LIMIT = 5
@@ -304,7 +304,7 @@ class CompoundWithLocation(Compound):
 
         :rtype: int
         """
-        return hash((self.id, self.name, self.location))
+        return hash((super(CompoundWithLocation, self).get_attribute('id'), super(CompoundWithLocation, self).get_attribute('name'), self.location))
 
     def __str__(self):
         """
@@ -312,6 +312,21 @@ class CompoundWithLocation(Compound):
         :rtype: str
         """
         return f"{self.id}: {self.name} (location: {self.location})"
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        sys.stderr.write(f"Set {state}\n")
+        return state
+
+
+    def __setstate__(self, state):
+        # correctly handle unpickling
+        sys.stderr.write(f"Read {state}\n")
+        self.__dict__.update(state)
+
+
+    
+
 
     def calculate_molecular_weight(self):
         # this is here because the subclass should implement unimplemented methods otherwise it is abstract
