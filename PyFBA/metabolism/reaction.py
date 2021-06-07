@@ -218,7 +218,7 @@ class Reaction:
             c = PyFBA.metabolism.CompoundWithLocation(id=r[0], name=r[1], location=r[2])
             right.add(c)
             right_abundance[c] = state['right_abundance'][f"{r[0]} :: {r[1]} :: {r[2]}"]
-        state['right_compounds'] = left
+        state['right_compounds'] = right
         state['right_abundance'] = right_abundance
         self.__dict__.update(state)
 
