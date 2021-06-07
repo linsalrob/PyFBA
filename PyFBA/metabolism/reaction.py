@@ -170,12 +170,29 @@ class Reaction:
 
     def __getstate__(self):
         state = self.__dict__.copy()
+        state['left_compounds'] = []
+        state['right_compounds'] = []
+        for l in self.left_compounds:
+            state['left_compounds'].append([l.id, l.name, l.location])
+        for r in self.right_compounds:
+            state['right_compounds'].append([r.id, r.name, r.location])
         return state
 
 
     def __setstate__(self, state):
         # correctly handle unpickling
+        left = set()
+        right = set()
+        for l in state['left_compounds']:
+            c = PyFBA.metabolism.CompoundWithLocation(id=l[0], name=l[1], location=l[2])
+            left.add(c)
+        state['left_compounds'] = left
+        for r in state['right_compounds']:
+            c = PyFBA.metabolism.CompoundWithLocation(id=r[0], name=r[1], location=r[2])
+            right.add(c)
+        state['right_compounds'] = left
         self.__dict__.update(state)
+
 
 
     def set_direction(self, direction):
