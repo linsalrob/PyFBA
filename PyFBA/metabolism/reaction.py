@@ -293,7 +293,7 @@ class Reaction:
         if cmpd in self.left_abundance:
             return self.left_abundance[cmpd]
         else:
-            raise KeyError(f"In the reaction {self.readable_name}, you do not have" +
+            raise KeyError(f"In the reaction {self.readable_name} (reaction id: {self.id}), you do not have" +
                            f" {cmpd} on the left hand side of the equation: {self.equation}")
 
     def number_of_left_compounds(self):
@@ -353,7 +353,7 @@ class Reaction:
         if cmpd in self.right_abundance:
             return self.right_abundance[cmpd]
         else:
-            raise KeyError(f"In the reaction {self.readable_name}, you do not have" +
+            raise KeyError(f"In the reaction {self.readable_name} (reaction id: {self.id}), you do not have" +
                            f" {cmpd} on the right hand side of the equation: {self.equation}")
 
     def number_of_right_compounds(self):
