@@ -234,6 +234,8 @@ class CompoundWithLocation(Compound):
         :rtype:
         """
         super(CompoundWithLocation, self).__init__(id, name, *args, **kwargs)
+        self.id = id
+        self.name = name
         self.location = location
 
     @classmethod
@@ -255,7 +257,7 @@ class CompoundWithLocation(Compound):
         :rtype: bool
         """
         if isinstance(other, CompoundWithLocation):
-            return super.__eq__() and self.location == other.location
+            return super().__eq__(other) and self.location == other.location
         else:
             raise NotImplementedError(f"Comparing a Compound with {type(other)} has not been implemented")
 
@@ -307,7 +309,7 @@ class CompoundWithLocation(Compound):
         try:
             return hash((super().__hash__(), self.location))
         except AttributeError:
-            return super.__hash__()
+            return super().__hash__()
 
     def __str__(self):
         """
@@ -318,13 +320,13 @@ class CompoundWithLocation(Compound):
 
     def __getstate__(self):
         state = self.__dict__.copy()
-        sys.stderr.write(f"Set {state}\n")
+        # sys.stderr.write(f"Set {state}\n")
         return state
 
 
     def __setstate__(self, state):
         # correctly handle unpickling
-        sys.stderr.write(f"Read {state}\n")
+        # sys.stderr.write(f"Read {state}\n")
         self.__dict__.update(state)
 
 
