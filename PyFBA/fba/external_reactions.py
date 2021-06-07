@@ -1,5 +1,5 @@
 import copy
-
+import sys
 import PyFBA
 
 
@@ -23,8 +23,11 @@ def uptake_and_secretion_reactions(model_compounds):
         if c.location == 'e' or c.name == 'Biomass':
             # this is an uptake or secretion reaction
             # we need to add a new compound like this with a false location
+            sys.stderr.write(f"Found {c} that is a {type(c)}\n")
             us_leftside = c
             us_rightside = copy.copy(us_leftside)
+            sys.stderr.write(f"Created left:  {us_leftside} that is a {type(us_leftside)}\n")
+            sys.stderr.write(f"Created right: {us_rightside} that is a {type(us_rightside)}\n")
             # The uptake and secretion compounds typically have reaction bounds that allow them to be consumed
             # (i.e. diffuse away from the cell) but not produced. However, our media components can also increase
             # in concentration (i.e. diffuse to the cell) and thus the bounds are set higher. Whenever you change the
