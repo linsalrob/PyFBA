@@ -222,7 +222,7 @@ class CompoundWithLocation(Compound):
     :ivar location: the location of the compound.
     """
 
-    def __init__(self, location=None, *args, **kwargs):
+    def __init__(self, id=None, name=None, location=None, *args, **kwargs):
         """
         Initiate the object
 
@@ -234,6 +234,8 @@ class CompoundWithLocation(Compound):
         :rtype:
         """
         super(CompoundWithLocation, self).__init__(*args, **kwargs)
+        self.id = id
+        self.name = name
         self.location = location
 
     @classmethod
