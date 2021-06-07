@@ -197,7 +197,7 @@ class Reaction:
         if isinstance(cmpds, set):
             # choose one element. next(iter(cmpds)) does not remove the element
             if not isinstance(next(iter(cmpds)), PyFBA.metabolism.CompoundWithLocation):
-                raise TypeError("Starting with v.2 reactions need PyFBA.metabolism.CompoundWithLocation objects")
+                raise TypeError(f"Starting with v.2 reactions need PyFBA.metabolism.CompoundWithLocation objects not {type(next(iter(cmpds)))}")
             self.left_compounds.update(cmpds)
         elif isinstance(cmpds, PyFBA.metabolism.CompoundWithLocation):
             # add a single compound
