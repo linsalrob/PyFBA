@@ -233,9 +233,7 @@ class CompoundWithLocation(Compound):
         :return:
         :rtype:
         """
-        super(CompoundWithLocation, self).__init__(*args, **kwargs)
-        self.id = id
-        self.name = name
+        super(CompoundWithLocation, self).__init__(id, name, *args, **kwargs)
         self.location = location
 
     @classmethod
@@ -257,7 +255,7 @@ class CompoundWithLocation(Compound):
         :rtype: bool
         """
         if isinstance(other, CompoundWithLocation):
-            return self.id == other.id and self.name == other.name and self.location == other.location
+            return super.__eq__() and self.location == other.location
         else:
             raise NotImplementedError(f"Comparing a Compound with {type(other)} has not been implemented")
 
@@ -306,7 +304,10 @@ class CompoundWithLocation(Compound):
 
         :rtype: int
         """
-        return hash((super(CompoundWithLocation, self).get_attribute('id'), super(CompoundWithLocation, self).get_attribute('name'), self.location))
+        try:
+            return hash((super().__hash__(), self.location))
+        except AttributeError:
+            return super.__hash__()
 
     def __str__(self):
         """
