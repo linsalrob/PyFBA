@@ -11,10 +11,7 @@ This is a generic linear programming wrapper that I wrote that we can
 build upon for fba work, but it is not limited to fba.
 
 Do not use the standard pyGLK. The only version that I could get to
-compile is https://github.com/bradfordboyle/pyglpk and that will only
-compile on python2.x
-
-That means this code is limited to python2.7.
+compile is https://github.com/bradfordboyle/pyglpk 
 
 
 """
