@@ -79,7 +79,7 @@ def template_reactions(modeltype):
     return new_enz
 
 
-def compounds(compounds_file='Biochemistry/compounds.json', verbose=False) -> Dict[str, PyFBA.metabolism.Compound]:
+def compounds(compounds_file='Biochemistry/compounds.json', verbose=False) -> Set[PyFBA.metabolism.Compound]:
     """
     Load the compounds mapping that connects ID to compound objects
 
@@ -91,7 +91,7 @@ def compounds(compounds_file='Biochemistry/compounds.json', verbose=False) -> Di
     :parma verbose: more output
     :type verbose: bool
     :return: A set of Compound objects.
-    :rtype: set[PyFBA.metabolism.Compound]
+    :rtype: Set[PyFBA.metabolism.Compound]
 
     """
 
@@ -258,8 +258,9 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
                         # and then we need to create a new compound with the
                         # appropriate location
                         msg = f"Looking for {cmpd}: "
-                        if cmpd in cpds:
-                            nc = PyFBA.metabolism.CompoundWithLocation.from_compound(cpds[cmpd], loc)
+                        cpdbyid = modelseedstore.get_compound_by_id(cmpd)
+                        if cpdbyid:
+                            nc = PyFBA.metabolism.CompoundWithLocation.from_compound(cpdbyid, loc)
                             msg += " found by ID"
                         else:
                             cpdbyname = modelseedstore.get_compound_by_name(cmpd)
@@ -267,8 +268,6 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
                                 nc = PyFBA.metabolism.CompoundWithLocation.from_compound(cpdbyname, loc)
                                 msg += " found by name"
                             else:
-                                if verbose:
-                                    sys.stderr.write("ERROR: Did not find " + cmpd + " in the known compounds.\n")
                                 nc = PyFBA.metabolism.CompoundWithLocation(cmpd, cmpd, loc)
                                 msg += " not found"
                         if verbose:
