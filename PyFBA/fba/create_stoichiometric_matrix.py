@@ -102,7 +102,8 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
 
     if not uptake_secretion:
         uptake_secretion = PyFBA.fba.uptake_and_secretion_reactions(reaction_cpds)
-        log_and_message(f"create_stoichiometric_matrix found {len(uptake_secretion)} reactions", stderr=True)
+        log_and_message(f"create_stoichiometric_matrix found {len(uptake_secretion)} uptake and secretion reactions",
+                        stderr=True)
     for r in uptake_secretion:
         reactions[uptake_secretion[r].id] = uptake_secretion[r]
         for c in uptake_secretion[r].left_compounds:
