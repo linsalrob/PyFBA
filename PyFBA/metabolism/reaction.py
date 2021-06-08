@@ -165,8 +165,10 @@ class Reaction:
         The string version of the reaction.
         :rtype: str
         """
-
-        return f"{self.id}: {self.readable_name}"
+        if self.readable_name:
+            return f"{self.id}: {self.readable_name}"
+        else:
+            return f"{self.id}: {self.equation}"
 
     """
         Since we have complex data structures, we can't just pickle them and unpickle them with aplomb!
