@@ -315,7 +315,7 @@ def correct_media_names(media, cpds):
         if m.name in compounds_by_name:
             media_component = PyFBA.metabolism.CompoundWithLocation.from_compound(compounds_by_name[m.name], 'e')
             newmedia.add(media_component)
-            log_and_message(f"Found media component by name {media_component}\n", "GREEN", stdout=True)
+            # log_and_message(f"Found media component by name {media_component}\n", "GREEN", stdout=True)
             continue
 
         testname = m.name.replace('-', '_')
