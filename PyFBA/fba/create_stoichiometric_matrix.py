@@ -38,16 +38,18 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
 
     # unify compounds from dicts and sets
     if type(compounds) == dict:
-        sys.stderr.write("converting compounds from a dict to a set")
+        log_and_message("create_stoichiometric_matrix is converting compounds from a dict to a set")
         compounds = set(compounds.values())
 
     # initialize the compounds set and the stoichiometric matrix with
     # everything in the media. The order of compounds is irrelevant
     for c in media:
         if c not in compounds:
+            log_and_message(f"create_stoichiometric_matrix is adding compound {c} from media to compounds", stderr=True)
             compounds.add(c)
         if verbose and type(c) != PyFBA.metabolism.compound.CompoundWithLocation:
-            log_and_message(f"In parsing the media, {c} is a {type(c)}", stderr=True)
+            log_and_message(f"create_stoichiometric_matrix is parsing the media, {c} is a {type(c)} " +
+                            f"(not a cpod with location)", stderr=True)
         reaction_cpds.add(c)
         sm[c] = {}
 
@@ -72,6 +74,7 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
     for c in biomass_equation.left_compounds:
         if c not in compounds:
             compounds.add(c)
+            log_and_message(f"create_stoichiometric_matrix added compound {c} from biomass to compounds", stderr=True)
         if verbose and type(c) != PyFBA.metabolism.compound.CompoundWithLocation:
             log_and_message(f"In parsing biomass left, {c} is a {type(c)}", stderr=True)
         reaction_cpds.add(c)
@@ -81,6 +84,7 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
     for c in biomass_equation.right_compounds:
         if c not in compounds:
             compounds.add(c)
+            log_and_message(f"create_stoichiometric_matrix added compound {c} from biomass to compounds", stderr=True)
         if verbose and type(c) != PyFBA.metabolism.compound.CompoundWithLocation:
             log_and_message(f"In parsing biomass right, {c} is a {type(c)}", stderr=True)
         reaction_cpds.add(c)
