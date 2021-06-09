@@ -161,7 +161,7 @@ def gram_negative():
     return reactants, products
 
 
-def biomass_equation(biomass_type='standard', compounds=None):
+def biomass_equation(biomass_type='standard', cpds=None):
     """Get the biomass_equation equation for a specific type of biomass_equation equation.
 
     biomass_type can be one of:
@@ -174,19 +174,22 @@ def biomass_equation(biomass_type='standard', compounds=None):
     extract from the biomass equations. If none, we will use the modelseed compounds
     :param biomass_type: The type of biomass_equation equation to get
     :type biomass_type: str
-    :param compounds: The metabolism compound set that we use to map to the compounds we find
-    :type compounds: Set[PyFBA.metabolism.Compound]
+    :param cpds: The metabolism compound set that we use to map to the compounds we find
+    :type cpds: Set[PyFBA.metabolism.Compound]
     :return: The biomass_equation equation as a Reaction object
     :rtype: Reaction
     """
 
+    modelseedcompounds = None
 
-    if isinstance(compounds, set):
-        compounds = PyFBA.model_seed.ModelSeed(compounds=compounds)
-    elif not compounds:
-        compounds = PyFBA.parse.parse_model_seed_data
+    if isinstance(cpds, set):
+        modelseedcompounds = PyFBA.model_seed.ModelSeed(compounds=cpds)
+    elif not cpds:
+        modelseed = PyFBA.parse.parse_model_seed_data()
+        modelseedcompounds = modelseed.compounds
     else:
-        PyFBA.log_and_message(f"biomass.py can't parse compounds {compounds}", stderr=True)
+        PyFBA.log_and_message(f"biomass.py can't parse compounds {cpds}", stderr=True)
+        return None
 
     if biomass_type == 'standard':
         reactants, products = standard_eqn()
@@ -201,7 +204,7 @@ def biomass_equation(biomass_type='standard', compounds=None):
 
     r = Reaction('biomass_equation', 'biomass_equation')
     for i,c in enumerate(reactants):
-        cpdname = compounds.get_compound_by_name(c)
+        cpdname = modelseedcompounds.get_compound_by_name(c)
         if cpdname:
             cpd = CompoundWithLocation.from_compound(cpdname, 'c')
         else:
@@ -211,7 +214,7 @@ def biomass_equation(biomass_type='standard', compounds=None):
         r.set_left_compound_abundance(cpd, reactants[c])
 
     for i,c in enumerate(products):
-        cpdname = compounds.get_compound_by_name(c)
+        cpdname = modelseedcompounds.get_compound_by_name(c)
         if cpdname:
             cpd = CompoundWithLocation.from_compound(cpdname, 'c')
         else:
