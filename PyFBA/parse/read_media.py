@@ -27,7 +27,7 @@ def media_files():
     return all_media
 
 
-def pyfba_media(media_name):
+def pyfba_media(media_name, verbose=False):
     """
     Parse a media file that we have provided with PyFBA. This is probably the most common method to access media.
     If you want alternative media included, just let us know!
@@ -47,7 +47,7 @@ def pyfba_media(media_name):
         return set()
 
     media = set()
-
+    log_and_message(f"Reading media from {all_media[media_name]}", stderr=verbose)
     with open_text("PyFBA.Biochemistry.media", all_media[media_name]) as f:
         for li, l in enumerate(f):
             # skip the header line
