@@ -71,6 +71,7 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.0',
         'Topic :: Scientific/Engineering :: Bio-Informatics',
-    ]
+    ],
+    zip_safe=True
 )
 

@@ -18,7 +18,7 @@ import os
 import re
 import sys
 import json
-import pkg_resources
+from importlib.resources import open_text
 
 from typing import Dict, Set
 
@@ -61,8 +61,6 @@ def template_reactions(modeltype):
     else:
         raise NotImplementedError("Parsing data for " + inputfile + " has not been implemented!")
 
-    if not pkg_resources.resource_exists:
-        pass
 
     if not os.path.exists(os.path.join(MODELSEED_DIR, inputfile)):
         raise FileExistsError(f"{inputfile} was not found. Please check your model SEED directory {MODELSEED_DIR}")
@@ -102,6 +100,8 @@ def compounds(compounds_file='Biochemistry/compounds.json', verbose=False) -> Se
 
     modelseedstore.compounds = set()
 
+
+    """
     try:
         if verbose:
             sys.stderr.write(f"Parsing compounds in {compounds_file}\n")
@@ -139,6 +139,38 @@ def compounds(compounds_file='Biochemistry/compounds.json', verbose=False) -> Se
     except IOError as e:
         sys.exit("There was an error parsing " +
                  compounds_file + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
+    """
+
+    f = open_text(__package__, 'Biochemistry.ModelSEEDDatabase.Biochemistry.compounds.json')
+    for jc in json.load(f):
+        c = PyFBA.metabolism.Compound(jc['id'], jc['name'])
+        c.model_seed_id = jc['id']
+        c.mw = jc['mass']
+
+        # parse the aliases. At the time of writing, the aliases are f'd up
+        # and look like this:
+        # 'Name: Manganese; Manganese(2+); Mn(II); Mn++; Mn+2; Mn2+; manganese (II) ion; manganese ion'
+        # i.e. they have converted the hash but not encoded it
+        if 'aliases' in jc and jc['aliases']:
+            allals = {}
+            for al in jc['aliases']:
+                parts = al.split(': ')
+                keys = parts[0]
+                vals = parts[1].split('; ')
+                allals[keys] = vals
+            c.add_attribute('aliases', allals)
+
+        # this should be all the keys (except name and ID)
+        for ck in ["abbreviation", "abstract_compound",
+                   "charge", "comprised_of", "deltag",
+                   "deltagerr", "formula", "id", "inchikey",
+                   "is_cofactor", "is_core", "is_obsolete",
+                   "linked_compound", "mass", "name", "notes",
+                   "pka", "pkb", "smiles", "source"]:
+            if ck in jc:
+                c.add_attribute(ck, jc[ck])
+
+        modelseedstore.compounds.add(c)
 
     return modelseedstore.compounds
 
