@@ -37,23 +37,15 @@ class Compound:
         """
         self.id = cpd_id
 
-        if cpd_id == 'cpd10515':
-            log_and_message(f"Retrieved {cpd_id} with name {name}", stderr=True)
-
         if name.lower() == 'fe2' or name.lower() == 'fe+2' or name == 'fe2+':
-            if verbose:
-                log_and_message(f"Warning: {name} is deprecated. We changed {cpd_id} {name} to {cpd_id} Fe2+", stderr=verbose)
+            log_and_message(f"Warning: {name} is deprecated. We changed {cpd_id} {name} to {cpd_id} Fe2+", stderr=verbose)
             name = 'Fe2+'
 
         if name.lower() == 'fe3' or name == 'fe3+' or name.lower() == 'fe+3':
-            if verbose:
-                log_and_message(f"Warning: {name} is deprecated. We changed {name} to Fe3+", stderr=verbose)
+            log_and_message(f"Warning: {name} is deprecated. We changed {name} to Fe3+", stderr=verbose)
             name = 'Fe3+'
         elif 'fe3' in name.lower() and verbose:
             log_and_message(f"Warning: {name} might be deprecated, we prefer Fe3+", stderr=verbose)
-
-        if cpd_id == 'cpd10515':
-            log_and_message(f"Now have {cpd_id} with name {name}", stderr=True)
 
         self.name = name
         self.reactions = set()

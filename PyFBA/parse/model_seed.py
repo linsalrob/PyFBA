@@ -126,9 +126,6 @@ def compounds(compounds_file='compounds.json', verbose=False) -> Set[PyFBA.metab
             if ck in jc:
                 c.add_attribute(ck, jc[ck])
 
-        if jc['id'] == 'cpd10515':
-            sys.stderr.write(f"{c.__dict__}")
-
         modelseedstore.compounds.add(c)
 
     compf.close()
