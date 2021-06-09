@@ -22,7 +22,6 @@ import io
 
 import PyFBA
 from .model_seed import location
-from .config import MODELSEED_DIR
 
 def template_reactions(modeltype='microbial'):
     """
