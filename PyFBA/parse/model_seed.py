@@ -14,6 +14,7 @@ You should be able to do that by changing the functions in __init__.py
 
 """
 
+import sys
 import re
 import json
 try:
@@ -124,6 +125,9 @@ def compounds(compounds_file='compounds.json', verbose=False) -> Set[PyFBA.metab
                    "pka", "pkb", "smiles", "source"]:
             if ck in jc:
                 c.add_attribute(ck, jc[ck])
+
+        if jc['id'] == 'cpd10515':
+            sys.stderr.write(f"{c.__dict__}")
 
         modelseedstore.compounds.add(c)
 
