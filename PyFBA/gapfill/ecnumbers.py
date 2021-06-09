@@ -2,7 +2,7 @@ import os
 import sys
 import re
 
-from PyFBA import MODELSEED_DIR
+import PyFBA
 
 def suggest_reactions_using_ec(roles, reactions, reactions2run, rf="SOLRDump/Reactions.tsv", verbose=False):
     """
@@ -23,29 +23,14 @@ def suggest_reactions_using_ec(roles, reactions, reactions2run, rf="SOLRDump/Rea
     :rtype: set
     """
 
-    if not os.path.exists(os.path.join(MODELSEED_DIR, rf)):
-        sys.stderr.write("FATAL: The reactions file {} does not exist from the directory {}.".format(rf, MODELSEED_DIR) +
-                         " Please provide a path to that file\n")
-        return set()
+    modelseed = PyFBA.parse.parse_model_seed_data()
 
-    # Read the ModelSEED reactions file
     ec_to_reactions = {}
-    with open(os.path.join(MODELSEED_DIR, rf), "r") as rin:
-        for l in rin:
-            if l.startswith("#") or l.startswith("id"):
-                # Ignore comment lines
-                continue
-            ll = l.strip().split("\t")
-            rxnid = ll[0]
-            ecs = ll[13]
-            # EC number might be null
-            if ecs == "null":
-                continue
-            # Multiple EC numbers can be assigned to a reaction
-            for e in ecs.split(";"):
-                if e not in ec_to_reactions:
-                    ec_to_reactions[e] = set()
-                ec_to_reactions[e].add(rxnid)
+    for r in modelseed.enzymes:
+        for e in r.ec_number:
+            if e not in ec_to_reactions:
+                ec_to_reactions[e] = set()
+            ec_to_reactions[e].add(r)
 
     # Find all EC numbers in the list of roles
     suggested_reactions = set()
