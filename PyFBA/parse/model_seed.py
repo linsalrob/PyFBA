@@ -14,19 +14,16 @@ You should be able to do that by changing the functions in __init__.py
 
 """
 
-import os
 import re
-import sys
 import json
-from importlib.resources import open_text
-
+try:
+    from importlib.resources import open_text
+except ImportError:
+    # this is for python<3.7
+    from importlib_resources import open_text
 from typing import Dict, Set
 
 import PyFBA
-
-from PyFBA import MODELSEED_DIR
-
-
 from PyFBA.model_seed import ModelSeed
 from PyFBA import log_and_message
 
@@ -42,7 +39,6 @@ def template_reactions(modeltype):
     :rtype: dict
     """
 
-    inputmodule = ""
     if modeltype.lower() == 'core':
         inputmodule = "PyFBA.Biochemistry.ModelSEEDDatabase.Templates.Core"
     elif modeltype.lower() == 'fungi':
@@ -98,6 +94,8 @@ def compounds(compounds_file='compounds.json', verbose=False) -> Set[PyFBA.metab
 
     modelseedstore.compounds = set()
 
+    log_and_message(f"Reading compounds from PyFBA.Biochemistry.ModelSEEDDatabase.Biochemistry.{compounds_file}",
+                    stderr=verbose)
     compf = open_text("PyFBA.Biochemistry.ModelSEEDDatabase.Biochemistry", compounds_file)
     for jc in json.load(compf):
         c = PyFBA.metabolism.Compound(jc['id'], jc['name'])
@@ -176,17 +174,16 @@ def reactions(organism_type=None, rctf='reactions.json', verbose=False) \
 
     if not organism_type:
         if verbose:
-            sys.stderr.write("ERROR: A model type was not specified, and so using microbial core")
+            log_and_message("ERROR: A model type was not specified, and so using microbial core", stderr=verbose)
         organism_type = "Core"
 
     global modelseedstore
-
 
     if modelseedstore.organism_type and modelseedstore.organism_type == organism_type and modelseedstore.reactions:
         return modelseedstore.reactions
 
     modelseedstore.organism_type = organism_type
-    cpds = compounds(verbose=verbose)
+    compounds(verbose=verbose)
     locations = location()
 
     modelseedstore.reactions = {}  # type Dict[Any, Reaction]
@@ -215,15 +212,15 @@ def reactions(organism_type=None, rctf='reactions.json', verbose=False) \
                     break
             if separator == "Not found":
                 if verbose:
-                    sys.stderr.write("WARNING: Could not find a seperator in " + rxn['equation'] +
-                                     ". This reaction was skipped. Please check it\n")
+                    log_and_message("WARNING: Could not find a seperator in {rxn['equation']} "
+                                    "This reaction was skipped. Please check it", stderr=verbose)
                 continue
 
             left, right = rxn['equation'].split(separator)
 
             # we parse out the two sides and compare them.
             # we do left and store in new[0] and right and store in new[1] and then rejoin
-            new = [[],[]]
+            new = [[], []]
             for i, side in enumerate([left, right]):
                 side = side.strip()
                 if not side:
@@ -232,7 +229,7 @@ def reactions(organism_type=None, rctf='reactions.json', verbose=False) \
                 # deal with the compounds on the left side of the equation
                 m = re.findall(r'\(([\d.e-]+)\)\s+(.*?)\[(\d+)]', side)
                 if m == [] and verbose:
-                    sys.stderr.write("ERROR: Could not parse the compounds from {side}\n")
+                    log_and_message("ERROR: Could not parse the compounds from {side}", stderr=verbose)
 
                 for p in m:
                     (q, cmpd, locval) = p
@@ -241,7 +238,7 @@ def reactions(organism_type=None, rctf='reactions.json', verbose=False) \
                         loc = locations[locval]
                     else:
                         if verbose:
-                            sys.stderr.write("WARNING: Could not get a location for {locval}\n")
+                            log_and_message(f"WARNING: Could not get a location for {locval}", stderr=verbose)
                         loc = locval
 
                     # we first look up to see whether we have the compound
@@ -261,7 +258,7 @@ def reactions(organism_type=None, rctf='reactions.json', verbose=False) \
                             nc = PyFBA.metabolism.CompoundWithLocation(cmpd, cmpd, loc)
                             msg += " not found"
                     if verbose:
-                        log_and_message(msg, stderr=True)
+                        log_and_message(msg, stderr=verbose)
                     nc.add_reactions({r.id})
 
                     if i == 0:
@@ -364,15 +361,15 @@ def enzymes(organism_type="", verbose=False) -> Dict[str, PyFBA.metabolism.Enzym
     for cmplx in c2f:
         if cmplx in modelseedstore.enzymes:
             if verbose:
-                sys.stderr.write(f"Warning: have duplicate {cmplx} complexes that maybe in more than once. " +
-                                 "Skipped later incantations\n")
+                log_and_message(f"Warning: have duplicate {cmplx} complexes that maybe in more than once. "
+                                f"Skipped later incantations", stderr=verbose)
             continue
         modelseedstore.enzymes[cmplx] = PyFBA.metabolism.Enzyme(cmplx)
         for ft in c2f[cmplx]:
             if ft in f2r:
                 modelseedstore.enzymes[cmplx].add_roles({f2r[ft]})
             else:
-                sys.stderr.write(f"Warning: No functional role for {ft}\n")
+                log_and_message(f"Warning: No functional role for {ft}", stderr=verbose)
             for ecno in re.findall(r'[\d-]+\.[\d-]+\.[\d-]+\.[\d-]+', f2r[ft]):
                 modelseedstore.enzymes[cmplx].add_ec(ecno)
     for r in rcts:
@@ -433,6 +430,7 @@ def roles(organism_type='', verbose=False) -> Dict[str, Set[str]]:
                 modelseedstore.roles[r].add(e)
     return modelseedstore.roles
 
+
 def parse_model_seed_data(organism_type='', verbose=False):
     """
     Parse the model seed data and return a ModelSeed class that contains
@@ -446,16 +444,17 @@ def parse_model_seed_data(organism_type='', verbose=False):
     global modelseedstore
     
     if not modelseedstore.compounds:
-        c = compounds(verbose=verbose),
+        compounds(verbose=verbose),
     if not modelseedstore.reactions:
-        r = reactions(organism_type=organism_type, verbose=verbose),
+        reactions(organism_type=organism_type, verbose=verbose),
     if not modelseedstore.enzymes:
-        e = enzymes(organism_type=organism_type, verbose=verbose)
+        enzymes(organism_type=organism_type, verbose=verbose)
     if not modelseedstore.complexes:
-        c = complexes(organism_type=organism_type, verbose=verbose)
+        complexes(organism_type=organism_type, verbose=verbose)
     if not modelseedstore.roles:
-        r = roles(organism_type=organism_type, verbose=verbose)
+        roles(organism_type=organism_type, verbose=verbose)
     return modelseedstore
+
 
 def reset_cache():
     """
@@ -465,4 +464,3 @@ def reset_cache():
     global modelseedstore
     modelseedstore = ModelSeed()
     modelseedstore.reset()
-
