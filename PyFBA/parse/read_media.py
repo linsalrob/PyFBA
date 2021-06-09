@@ -1,6 +1,7 @@
 import os
 import sys
 
+import PyFBA
 from PyFBA import log_and_message
 
 try:
@@ -9,22 +10,14 @@ except ImportError:
     # this is for python<3.7
     from importlib_resources import open_text, path
 
-import PyFBA
 
 def media_files():
     """
     Get a list of the media names that we know about
     :return: a dict of the media names and the data repositories associated wtih those names
     """
-
-    all_media = {}
-    with path('PyFBA.Biochemistry.media', 'ArgonneLB.txt') as media_path:
-        for m in os.listdir(media_path):
-            if 'README.md' == m or '__init__.py' == m:
-                continue
-            n = m.replace('.txt', '')
-            all_media[n] = m
-    return all_media
+    
+    return PyFBA.Biochemistry.media.media
 
 
 def pyfba_media(media_name, verbose=False):
