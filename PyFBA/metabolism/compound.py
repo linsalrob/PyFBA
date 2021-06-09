@@ -37,7 +37,6 @@ class Compound:
         """
         self.id = cpd_id
 
-        verbose = True
         if name.lower() == 'fe2' or name.lower() == 'fe+2' or name == 'fe2+':
             if verbose:
                 log_and_message(f"Warning: {name} is deprecated. We changed {cpd_id} {name} to {cpd_id} Fe2+", stderr=verbose)

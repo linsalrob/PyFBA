@@ -252,7 +252,7 @@ def reactions(organism_type=None, rctf='reactions.json', verbose=False) \
                     cpdbyid = modelseedstore.get_compound_by_id(cmpd)
                     if cpdbyid:
                         nc = PyFBA.metabolism.CompoundWithLocation.from_compound(cpdbyid, loc)
-                        msg += " found by ID"
+                        msg = None # no real interest in those that we just find!
                     else:
                         cpdbyname = modelseedstore.get_compound_by_name(cmpd)
                         if cpdbyname:
@@ -261,7 +261,7 @@ def reactions(organism_type=None, rctf='reactions.json', verbose=False) \
                         else:
                             nc = PyFBA.metabolism.CompoundWithLocation(cmpd, cmpd, loc)
                             msg += " not found"
-                    if verbose:
+                    if msg and verbose:
                         log_and_message(msg, stderr=verbose)
                     nc.add_reactions({r.id})
 
