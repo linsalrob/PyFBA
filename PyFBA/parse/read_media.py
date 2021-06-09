@@ -18,7 +18,7 @@ def media_files():
     """
 
     all_media = {}
-    with path('PyFBA.Biochemistry', 'media') as media_path:
+    with path('PyFBA.Biochemistry.media', 'ArgonneLB.txt') as media_path:
         for m in os.listdir(media_path):
             if 'README.md' == m or '__init__.py' == m:
                 continue
