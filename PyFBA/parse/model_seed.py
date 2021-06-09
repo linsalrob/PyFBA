@@ -18,14 +18,14 @@ import os
 import re
 import sys
 import json
-from importlib.resources import open_text, files
+from importlib.resources import open_text
 
 from typing import Dict, Set
 
 import PyFBA
 
 from PyFBA import MODELSEED_DIR
-from PyFBA import Biochemistry
+
 
 from PyFBA.model_seed import ModelSeed
 from PyFBA import log_and_message
@@ -42,43 +42,40 @@ def template_reactions(modeltype):
     :rtype: dict
     """
 
-    inputfile = ""
+    inputmodule = ""
     if modeltype.lower() == 'core':
-        inputfile = "Templates/Core/Reactions.tsv"
+        inputmodule = "PyFBA.Biochemistry.ModelSEEDDatabase.Templates.Core"
     elif modeltype.lower() == 'fungi':
-        inputfile = "Templates/Fungi/Reactions.tsv"
+        inputmodule = "PyFBA.Biochemistry.ModelSEEDDatabase.Templates.Fungi"
     elif modeltype.lower() == 'gramnegative' or modeltype.lower() == 'gram_negative':
-        inputfile = "Templates/GramNegative/Reactions.tsv"
+        inputmodule = "PyFBA.Biochemistry.ModelSEEDDatabase.Templates.GramNegative"
     elif modeltype.lower() == 'grampositive' or modeltype.lower() == 'gram_positive':
-        inputfile = "Templates/GramPositive/Reactions.tsv"
+        inputmodule = "PyFBA.Biochemistry.ModelSEEDDatabase.Templates.GramPositive"
     elif modeltype.lower() == 'human':
-        inputfile = "Templates/Human/Reactions.tsv"
+        inputmodule = "PyFBA.Biochemistry.ModelSEEDDatabase.Templates.Human"
     elif modeltype.lower() == 'microbial':
-        inputfile = "Templates/Microbial/Reactions.tsv"
+        inputmodule = "PyFBA.Biochemistry.ModelSEEDDatabase.Templates.Microbial"
     elif modeltype.lower() == 'mycobacteria':
-        inputfile = "Templates/Mycobacteria/Reactions.tsv"
+        inputmodule = "PyFBA.Biochemistry.ModelSEEDDatabase.Templates.Mycobacteria"
     elif modeltype.lower() == 'plant':
-        inputfile = "Templates/Plant/Reactions.tsv"
+        inputmodule = "PyFBA.Biochemistry.ModelSEEDDatabase.Templates.Plant"
     else:
-        raise NotImplementedError("Parsing data for " + inputfile + " has not been implemented!")
+        raise NotImplementedError(f"Parsing data for {modeltype} has not been implemented!")
 
-
-    if not os.path.exists(os.path.join(MODELSEED_DIR, inputfile)):
-        raise FileExistsError(f"{inputfile} was not found. Please check your model SEED directory {MODELSEED_DIR}")
-
+    reactionsf = open_text(inputmodule, "Reactions.tsv")
     new_enz = {}
-    with open(os.path.join(os.path.join(MODELSEED_DIR, inputfile)), 'r') as f:
-        for li in f:
-            if not li.startswith('id'):
-                p = li.strip().split("\t")
-                new_enz[p[0]] = {}
-                new_enz[p[0]]['direction'] = p[2]
-                new_enz[p[0]]['enzymes'] = set(p[-1].split("|"))
+    for li in reactionsf:
+        if not li.startswith('id'):
+            p = li.strip().split("\t")
+            new_enz[p[0]] = {}
+            new_enz[p[0]]['direction'] = p[2]
+            new_enz[p[0]]['enzymes'] = set(p[-1].split("|"))
+    reactionsf.close()
 
     return new_enz
 
 
-def compounds(compounds_file='Biochemistry/compounds.json', verbose=False) -> Set[PyFBA.metabolism.Compound]:
+def compounds(compounds_file='compounds.json', verbose=False) -> Set[PyFBA.metabolism.Compound]:
     """
     Load the compounds mapping that connects ID to compound objects
 
@@ -101,50 +98,8 @@ def compounds(compounds_file='Biochemistry/compounds.json', verbose=False) -> Se
 
     modelseedstore.compounds = set()
 
-
-    """
-    try:
-        if verbose:
-            sys.stderr.write(f"Parsing compounds in {compounds_file}\n")
-        with open(os.path.join(MODELSEED_DIR, compounds_file), 'r') as f:
-            for jc in json.load(f):
-                c = PyFBA.metabolism.Compound(jc['id'], jc['name'])
-                c.model_seed_id = jc['id']
-                c.mw = jc['mass']
-
-                # parse the aliases. At the time of writing, the aliases are f'd up
-                # and look like this:
-                # 'Name: Manganese; Manganese(2+); Mn(II); Mn++; Mn+2; Mn2+; manganese (II) ion; manganese ion'
-                # i.e. they have converted the hash but not encoded it
-                if 'aliases' in jc and jc['aliases']:
-                    allals = {}
-                    for al in jc['aliases']:
-                        parts = al.split(': ')
-                        keys = parts[0]
-                        vals = parts[1].split('; ')
-                        allals[keys] = vals
-                    c.add_attribute('aliases', allals)
-
-
-                # this should be all the keys (except name and ID)
-                for ck in ["abbreviation", "abstract_compound", 
-                           "charge", "comprised_of", "deltag",
-                           "deltagerr", "formula", "id", "inchikey",
-                           "is_cofactor", "is_core", "is_obsolete",
-                           "linked_compound", "mass", "name", "notes",
-                           "pka", "pkb", "smiles", "source"]:
-                    if ck in jc:
-                        c.add_attribute(ck, jc[ck])
-
-                modelseedstore.compounds.add(c)
-    except IOError as e:
-        sys.exit("There was an error parsing " +
-                 compounds_file + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
-    """
-
-    #f = files(PyFBA.Biochemistry).joinpath('ModelSEEDDatabase').joinpath('Biochemistry').joinpath('compounds.json').open_text()
-    f = open_text("PyFBA.Biochemistry.ModelSEEDDatabase.Biochemistry", 'compounds.json')
-    for jc in json.load(f):
+    compf = open_text("PyFBA.Biochemistry.ModelSEEDDatabase.Biochemistry", compounds_file)
+    for jc in json.load(compf):
         c = PyFBA.metabolism.Compound(jc['id'], jc['name'])
         c.model_seed_id = jc['id']
         c.mw = jc['mass']
@@ -174,6 +129,7 @@ def compounds(compounds_file='Biochemistry/compounds.json', verbose=False) -> Se
 
         modelseedstore.compounds.add(c)
 
+    compf.close()
     return modelseedstore.compounds
 
 
@@ -194,7 +150,7 @@ def location() -> Dict[str, str]:
     return all_locations
 
 
-def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=False) \
+def reactions(organism_type=None, rctf='reactions.json', verbose=False) \
         -> Dict[str, PyFBA.metabolism.Reaction]:
     """
     Parse the reaction information in Biochemistry/reactions.master.tsv
@@ -235,92 +191,93 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
 
     modelseedstore.reactions = {}  # type Dict[Any, Reaction]
 
-    with open(os.path.join(MODELSEED_DIR, rctf), 'r') as rxnf:
-        for rxn in json.load(rxnf):
-            r = PyFBA.metabolism.Reaction(rxn['id'])
-            if 'name' in rxn and rxn['name']:
-                r.readable_name = rxn['name']
-            r.model_seed_id = rxn['id']
-            # convert a few 0/1 to True/False
-            if rxn['is_transport']:
-                r.is_transport = True
-            if rxn['is_obsolete']:
-                r.is_obsolete = True
+    rxnf = open_text("PyFBA.Biochemistry.ModelSEEDDatabase.Biochemistry", rctf)
+    for rxn in json.load(rxnf):
+        r = PyFBA.metabolism.Reaction(rxn['id'])
+        if 'name' in rxn and rxn['name']:
+            r.readable_name = rxn['name']
+        r.model_seed_id = rxn['id']
+        # convert a few 0/1 to True/False
+        if rxn['is_transport']:
+            r.is_transport = True
+        if rxn['is_obsolete']:
+            r.is_obsolete = True
 
-            for rxnkey in ["abbreviation", "abstract_reaction", "aliases", "code", "compound_ids", "definition",
-                           "deltag", "deltagerr", "direction", "ec_numbers",
-                           "linked_reaction", "notes", "pathways", "reversibility",
-                           "source", "status", "stoichiometry"]:
-                if rxnkey in rxn:
-                    r.add_attribute(rxnkey, rxn[rxnkey])
+        for rxnkey in ["abbreviation", "abstract_reaction", "aliases", "code", "compound_ids", "definition",
+                       "deltag", "deltagerr", "direction", "ec_numbers",
+                       "linked_reaction", "notes", "pathways", "reversibility",
+                       "source", "status", "stoichiometry"]:
+            if rxnkey in rxn:
+                r.add_attribute(rxnkey, rxn[rxnkey])
 
-                for separator in [" <=> ", " => ", " <= ", " = ", " < ", " > ", "Not found"]:
-                    if separator in rxn['equation']:
-                        break
-                if separator == "Not found":
-                    if verbose:
-                        sys.stderr.write("WARNING: Could not find a seperator in " + rxn['equation'] +
-                                         ". This reaction was skipped. Please check it\n")
+            for separator in [" <=> ", " => ", " <= ", " = ", " < ", " > ", "Not found"]:
+                if separator in rxn['equation']:
+                    break
+            if separator == "Not found":
+                if verbose:
+                    sys.stderr.write("WARNING: Could not find a seperator in " + rxn['equation'] +
+                                     ". This reaction was skipped. Please check it\n")
+                continue
+
+            left, right = rxn['equation'].split(separator)
+
+            # we parse out the two sides and compare them.
+            # we do left and store in new[0] and right and store in new[1] and then rejoin
+            new = [[],[]]
+            for i, side in enumerate([left, right]):
+                side = side.strip()
+                if not side:
                     continue
 
-                left, right = rxn['equation'].split(separator)
+                # deal with the compounds on the left side of the equation
+                m = re.findall(r'\(([\d.e-]+)\)\s+(.*?)\[(\d+)]', side)
+                if m == [] and verbose:
+                    sys.stderr.write("ERROR: Could not parse the compounds from {side}\n")
 
-                # we parse out the two sides and compare them.
-                # we do left and store in new[0] and right and store in new[1] and then rejoin
-                new = [[],[]]
-                for i, side in enumerate([left, right]):
-                    side = side.strip()
-                    if not side:
-                        continue
+                for p in m:
+                    (q, cmpd, locval) = p
 
-                    # deal with the compounds on the left side of the equation
-                    m = re.findall(r'\(([\d.e-]+)\)\s+(.*?)\[(\d+)]', side)
-                    if m == [] and verbose:
-                        sys.stderr.write("ERROR: Could not parse the compounds from {side}\n")
-
-                    for p in m:
-                        (q, cmpd, locval) = p
-
-                        if locval in locations:
-                            loc = locations[locval]
-                        else:
-                            if verbose:
-                                sys.stderr.write("WARNING: Could not get a location for {locval}\n")
-                            loc = locval
-
-                        # we first look up to see whether we have the compound
-                        # and then we need to create a new compound with the
-                        # appropriate location
-                        msg = f"Looking for {cmpd}: "
-                        cpdbyid = modelseedstore.get_compound_by_id(cmpd)
-                        if cpdbyid:
-                            nc = PyFBA.metabolism.CompoundWithLocation.from_compound(cpdbyid, loc)
-                            msg += " found by ID"
-                        else:
-                            cpdbyname = modelseedstore.get_compound_by_name(cmpd)
-                            if cpdbyname:
-                                nc = PyFBA.metabolism.CompoundWithLocation.from_compound(cpdbyname, loc)
-                                msg += " found by name"
-                            else:
-                                nc = PyFBA.metabolism.CompoundWithLocation(cmpd, cmpd, loc)
-                                msg += " not found"
+                    if locval in locations:
+                        loc = locations[locval]
+                    else:
                         if verbose:
-                            log_and_message(msg, stderr=True)
-                        nc.add_reactions({r.id})
+                            sys.stderr.write("WARNING: Could not get a location for {locval}\n")
+                        loc = locval
 
-                        if i == 0:
-                            r.add_left_compounds({nc})
-                            r.set_left_compound_abundance(nc, float(q))
+                    # we first look up to see whether we have the compound
+                    # and then we need to create a new compound with the
+                    # appropriate location
+                    msg = f"Looking for {cmpd}: "
+                    cpdbyid = modelseedstore.get_compound_by_id(cmpd)
+                    if cpdbyid:
+                        nc = PyFBA.metabolism.CompoundWithLocation.from_compound(cpdbyid, loc)
+                        msg += " found by ID"
+                    else:
+                        cpdbyname = modelseedstore.get_compound_by_name(cmpd)
+                        if cpdbyname:
+                            nc = PyFBA.metabolism.CompoundWithLocation.from_compound(cpdbyname, loc)
+                            msg += " found by name"
                         else:
-                            r.add_right_compounds({nc})
-                            r.set_right_compound_abundance(nc, float(q))
+                            nc = PyFBA.metabolism.CompoundWithLocation(cmpd, cmpd, loc)
+                            msg += " not found"
+                    if verbose:
+                        log_and_message(msg, stderr=True)
+                    nc.add_reactions({r.id})
 
-                        new[i].append("(" + str(q) + ") " + nc.name + "[" + loc + "]")
+                    if i == 0:
+                        r.add_left_compounds({nc})
+                        r.set_left_compound_abundance(nc, float(q))
+                    else:
+                        r.add_right_compounds({nc})
+                        r.set_right_compound_abundance(nc, float(q))
 
-                r.equation = " + ".join(new[0]) + " <=> " + " + ".join(new[1])
+                    new[i].append("(" + str(q) + ") " + nc.name + "[" + loc + "]")
 
-                modelseedstore.reactions[r.id] = r
+            r.equation = " + ".join(new[0]) + " <=> " + " + ".join(new[1])
 
+            modelseedstore.reactions[r.id] = r
+
+    rxnf.close()
     # finally, if we need to adjust the organism type based on Template reactions, we shall
     new_rcts = template_reactions(organism_type)
     for r in new_rcts:
@@ -330,7 +287,7 @@ def reactions(organism_type=None, rctf='Biochemistry/reactions.json', verbose=Fa
     return modelseedstore.reactions
 
 
-def ftr_to_roles(rf="Annotations/Roles.tsv") -> Dict[str, str]:
+def ftr_to_roles(rf="Roles.tsv") -> Dict[str, str]:
     """
     Read the roles file and create a dictionary of feature_id->role
     :param rf: the Roles file
@@ -338,16 +295,18 @@ def ftr_to_roles(rf="Annotations/Roles.tsv") -> Dict[str, str]:
     """
 
     ftr2role = {}
-    with open(os.path.join(MODELSEED_DIR, rf), 'r') as f:
-        for li in f:
-            if li.startswith('id'):
-                continue
-            p = li.strip().split("\t")
-            ftr2role[p[0]] = p[1]
+    rolesf = open_text("PyFBA.Biochemistry.ModelSEEDDatabase.Annotations", rf)
+    for li in rolesf:
+        if li.startswith('id'):
+            continue
+        p = li.strip().split("\t")
+        ftr2role[p[0]] = p[1]
+    rolesf.close()
+
     return ftr2role
 
 
-def complex_to_ftr(cf="Annotations/Complexes.tsv") -> Dict[str, set]:
+def complex_to_ftr(cf="Complexes.tsv") -> Dict[str, set]:
     """
     Read the complexes file, and create a dict of complex->feature_ids
     :param cf: the Complexes file
@@ -355,17 +314,18 @@ def complex_to_ftr(cf="Annotations/Complexes.tsv") -> Dict[str, set]:
     """
 
     cpx2ftr = {}
-    with open(os.path.join(MODELSEED_DIR, cf), 'r') as f:
-        for li in f:
-            if li.startswith('id'):
-                continue
-            p = li.strip().split("\t")
-            cpx2ftr[p[0]] = set()
-            if 'null' == p[5]:
-                continue
-            for ftr in p[5].split('|'):
-                cpx2ftr[p[0]].add(ftr.split(';')[0])
+    complexf = open_text("PyFBA.Biochemistry.ModelSEEDDatabase.Annotations", cf)
+    for li in complexf:
+        if li.startswith('id'):
+            continue
+        p = li.strip().split("\t")
+        cpx2ftr[p[0]] = set()
+        if 'null' == p[5]:
+            continue
+        for ftr in p[5].split('|'):
+            cpx2ftr[p[0]].add(ftr.split(';')[0])
 
+    complexf.close()
     return cpx2ftr
 
 
