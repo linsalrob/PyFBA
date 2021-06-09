@@ -54,6 +54,7 @@ setup(
         "lxml",
         "python-libsbml",
         "beautifulsoup4",
+        'importlib_resources; python_version < "3.7"',
     ],
     test_suite = 'nose.collector',
     description='A Python implementation of flux balance analysis',
