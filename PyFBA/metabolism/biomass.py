@@ -180,13 +180,12 @@ def biomass_equation(biomass_type='standard', cpds=None):
     :rtype: Reaction
     """
 
-    modelseedcompounds = None
+    modelseed = None
 
     if isinstance(cpds, set):
-        modelseedcompounds = PyFBA.model_seed.ModelSeed(compounds=cpds)
+        modelseed = PyFBA.model_seed.ModelSeed(compounds=cpds)
     elif not cpds:
         modelseed = PyFBA.parse.parse_model_seed_data()
-        modelseedcompounds = modelseed.compounds
     else:
         PyFBA.log_and_message(f"biomass.py can't parse compounds {cpds}", stderr=True)
         return None
@@ -204,7 +203,7 @@ def biomass_equation(biomass_type='standard', cpds=None):
 
     r = Reaction('biomass_equation', 'biomass_equation')
     for i,c in enumerate(reactants):
-        cpdname = modelseedcompounds.get_compound_by_name(c)
+        cpdname = modelseed.get_compound_by_name(c)
         if cpdname:
             cpd = CompoundWithLocation.from_compound(cpdname, 'c')
         else:
@@ -214,7 +213,7 @@ def biomass_equation(biomass_type='standard', cpds=None):
         r.set_left_compound_abundance(cpd, reactants[c])
 
     for i,c in enumerate(products):
-        cpdname = modelseedcompounds.get_compound_by_name(c)
+        cpdname = modelseed.get_compound_by_name(c)
         if cpdname:
             cpd = CompoundWithLocation.from_compound(cpdname, 'c')
         else:
