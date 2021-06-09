@@ -4839,9 +4839,6 @@ Putative alpha-glucosidase	Xyloglucan_Utilization	Carbohydrates	Polysaccharides
 Putative sugar isomerase	Xyloglucan_Utilization	Carbohydrates	Polysaccharides
 Regulator of trehalose utilization TreR, ROK family	Xyloglucan_Utilization	Carbohydrates	Polysaccharides
 Trehalose synthase, nucleoside diphosphate glucose dependent	Xyloglucan_Utilization	Carbohydrates	Polysaccharides
-Xyloglucan_Utilization	528		
-Xyloglucan_Utilization	443		
-Xyloglucan_Utilization			
 Cellulose synthase catalytic subunit [UDP-forming] (EC 2.4.1.12)	Cellulose_synthesis	Experimental Subsystems	
 Cellulose synthase, putative	Cellulose_synthesis	Experimental Subsystems	
 Cyclic di-GMP binding protein precursor	Cellulose_synthesis	Experimental Subsystems	
