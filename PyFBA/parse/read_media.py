@@ -17,7 +17,7 @@ def media_files():
     :return: a dict of the media names and the data repositories associated wtih those names
     """
     
-    return PyFBA.Biochemistry.media.media
+    return PyFBA.Biochemistry.media
 
 
 def pyfba_media(media_name, verbose=False):
