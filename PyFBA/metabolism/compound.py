@@ -36,11 +36,20 @@ class Compound:
         :rtype:
         """
         self.id = cpd_id
+
+        if name.lower() == 'fe2' or name.lower() == 'fe2+':
+            log_and_message(f"Warning: {name} is deprecated. We changed {name} to Fe+2", stderr=True)
+            name = 'Fe+2'
+        elif 'fe2' in name.lower():
+            log_and_message(f"Warning: {name} might be deprecated, we prefer Fe+2", stderr=True)
+
+        if name.lower() == 'fe3' or name.lower() == 'fe3+':
+            log_and_message(f"Warning: {name} is deprecated. We changed {name} to Fe+3", stderr=True)
+            name = 'Fe+3'
+        elif 'fe3' in name.lower():
+            log_and_message(f"Warning: {name} might be deprecated, we prefer Fe+3", stderr=True)
+
         self.name = name
-        if verbose and 'fe2' in name.lower():
-            log_and_message(f"Warning: Fe2 is deprecated. Please use Fe+2 for the name in compound {name}", stderr=True)
-        if verbose and 'fe3' in name.lower():
-            log_and_message(f"Warning: Fe3 is deprecated. Please use Fe+2 for the name in compound {name}", stderr=True)
         self.reactions = set()
         self.model_seed_id = self.id
         self.alternate_seed_ids = set()
