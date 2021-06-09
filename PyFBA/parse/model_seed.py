@@ -142,8 +142,8 @@ def compounds(compounds_file='Biochemistry/compounds.json', verbose=False) -> Se
                  compounds_file + "\n" + "I/O error({0}): {1}".format(e.errno, e.strerror))
     """
 
-    f = files(PyFBA.Biochemistry).joinpath('ModelSEEDDatabase').joinpath('Biochemistry').joinpath('compounds.json').open_text()
-    #f = open_text("PyFBA.Biochemistry", 'compounds.json')
+    #f = files(PyFBA.Biochemistry).joinpath('ModelSEEDDatabase').joinpath('Biochemistry').joinpath('compounds.json').open_text()
+    f = open_text("PyFBA.Biochemistry.ModelSEEDDatabase.Biochemistry", 'compounds.json')
     for jc in json.load(f):
         c = PyFBA.metabolism.Compound(jc['id'], jc['name'])
         c.model_seed_id = jc['id']
