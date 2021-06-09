@@ -121,7 +121,7 @@ def compounds(compounds_file='compounds.json', verbose=False) -> Set[PyFBA.metab
                    "charge", "comprised_of", "deltag",
                    "deltagerr", "formula", "id", "inchikey",
                    "is_cofactor", "is_core", "is_obsolete",
-                   "linked_compound", "mass", "name", "notes",
+                   "linked_compound", "mass", "notes",
                    "pka", "pkb", "smiles", "source"]:
             if ck in jc:
                 c.add_attribute(ck, jc[ck])
