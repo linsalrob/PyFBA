@@ -11,7 +11,7 @@ cpd00254	Mg	Mg	2
 cpd00971	Na+	Na	1
 cpd00067	H+	H	1
 cpd00009	Phosphate	HO4P	-2
-cpd10516	fe3	Fe	3
+cpd10516	Fe3+	Fe	3
 cpd00058	Cu2+	Cu	2
 cpd00034	Zn2+	Zn	2
 cpd00149	Co2+	Co	2
