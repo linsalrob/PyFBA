@@ -80,9 +80,9 @@ pip install git+https://github.com/bradfordboyle/pyglpk
 
 We rely on the [Model SEED](http://www.theseed.org/models) to provide the biochemistry tables that we use (although we 
 have designed PyFBA with the potential to use biochemistry tables from other sources if they become publicly 
-available!). To get the latest ModelSEED database you need to clone their GIT repository to a destination on your hard 
+available!). ~~To get the latest ModelSEED database you need to clone their GIT repository to a destination on your hard 
 drive. You then need to set the [ModelSEEDDatabase environment variable](#set_the_environment_variables) as explained 
-below.
+below.~~ We no longer need a separate installation of the Model SEED database.
 
 ## Python modules
 
@@ -146,26 +146,7 @@ If you do not have administrative (root) access to your machine you can also ins
 
 # Set the environment variables
 
-PyFBA relies on the Model SEED Database, and we need to know where that is installed. We also provide some example
-media files with the download and you can set an environment variable (PYFBA_MEDIA_DIR) that points to the location of
-those files if you want to include them for your models.
- 
-Set the following two environment variables:
-
-Environment variable name | points to | example
---- | --- | ---
-```ModelSEEDDatabase``` | the location of the Model SEED Database directory | ```ModelSEEDDatabase=/data/ModelSEEDDatabase```
-```PYFBA_MEDIA_DIR``` | the location of the media files |  ```PYFBA_MEDIA_DIR=$HOME/FBA/media```
-
-For more information on setting the environment variables, see one of these sites:
-* [Windows](https://www.microsoft.com/resources/documentation/windows/xp/all/proddocs/en-us/sysdm_advancd_environmnt_addchange_variable.mspx)
-* MacOS:
-    * You can set them globally as described (here)[http://stackoverflow.com/questions/135688/setting-environment-variables-in-os-x/3756686#3756686]
-or (here)[https://developer.apple.com/library/mac/documentation/MacOSX/Conceptual/BPRuntimeConfig/Articles/EnvironmentVars.html]
-    * You can set them in your .bashrc/.profile as described for Linux (below)
-    * You can set them in each terminal by using ```export ModelSEEDDatabase=/data/ModelSEEDDatabase```
-* [Linux](http://www.cyberciti.biz/faq/set-environment-variable-linux/)
-
+You no longer need to set environment variables to work with PyFBA.
 
 # Tests
 
