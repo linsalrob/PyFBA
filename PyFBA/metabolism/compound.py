@@ -39,7 +39,7 @@ class Compound:
 
         if name.lower() == 'fe2' or name.lower() == 'fe+2' or name == 'fe2+':
             if verbose:
-                log_and_message(f"Warning: {name} is deprecated. We changed {name} to Fe2+", stderr=verbose)
+                log_and_message(f"Warning: {name} is deprecated. We changed {cpd_id} {name} to {cp_did} Fe2+", stderr=verbose)
             name = 'Fe2+'
 
         if name.lower() == 'fe3' or name == 'fe3+' or name.lower() == 'fe+3':
