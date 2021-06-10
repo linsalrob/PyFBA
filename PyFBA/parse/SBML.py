@@ -294,7 +294,7 @@ def parse_sbml_file(sbml_file, verbose=False):
             for c in rxn.right_compounds:
                 log_and_message(f"Right Compound: {c}", stderr=True)
         if 'rxn05368' in sbml.reactions:
-            for c in sbml.reactions['rxn05368'].left_compunds:
+            for c in sbml.reactions['rxn05368'].left_compounds:
                 if c.id == 'cpd00067' and c.location != 'c':
                     sys.stderr.write(f"Found location {c.location} for {c.id} after adding {rxn}")
                     sys.exit(-1)
