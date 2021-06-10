@@ -261,6 +261,13 @@ def parse_sbml_file(sbml_file, verbose=False):
                             )
                         sbml.add_compound(cpd)
 
+                    if isinstance(cpd, PyFBA.metabolism.CompoundWithLocation):
+                        cpd.location = cpdloc
+                    elif isinstance(cpd, PyFBA.metabolism.Compound):
+                        cpd = PyFBA.metabolism.CompoundWithLocation.from_compound(cpd, cpdloc)
+                    else:
+                        log_and_message(f"ERROR: {cpd} is neither a Compound nor a CompoundWithLocation", stderr=verbose)
+
                     if cpd.uptake_secretion:
                         rxn.is_uptake_secretion = True
 
