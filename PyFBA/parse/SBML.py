@@ -244,6 +244,7 @@ def parse_sbml_file(sbml_file, verbose=False):
             for rc in r.find_all(rp):
                 for sp in rc.find_all('speciesReference'):
                     cpdid, cpdloc = sp['species'].split("_")
+                    cpdloc = cpdloc.replace('0', '')
                     try:
                         cpd = copy.deepcopy(sbml.get_a_compound_by_id(cpdid))
                     except ValueError:
@@ -296,7 +297,9 @@ def parse_sbml_file(sbml_file, verbose=False):
         if 'rxn05368' in sbml.reactions:
             for c in sbml.reactions['rxn05368'].left_compounds:
                 if c.id == 'cpd00067' and c.location != 'c':
-                    sys.stderr.write(f"Found location {c.location} for {c.id} after adding {rxn}")
+                    sys.stderr.write(f"Found location {c.location} for {c.id} after adding {rxn}\n")
+                    for c in rxn.left_compounds:
+                        log_and_message(f"Left Compound: {c}", stderr=True)
                     sys.exit(-1)
 
     log_and_message(f"Parsing the model {sbml.model_name} (id {sbml.model_id}) is complete.")
