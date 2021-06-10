@@ -36,8 +36,7 @@ class SBML:
         :return: None
         :rtype: None
         """
-        # we just store these based on the compound, then we don't worry about location, etc.
-        # The hash takes care of that
+
         self.compounds.add(cpd)
         self.compounds_by_id[cpd.id] = cpd
         self.compounds_by_name[cpd.name] = cpd
@@ -222,9 +221,6 @@ def parse_sbml_file(sbml_file, verbose=False):
 
         rxn = PyFBA.metabolism.Reaction(rxnid)
 
-        if rxnid == 'rxn05368':
-            log_and_message(f"Found rxn05368", stderr=True)
-
         if rxn in sbml.get_all_reactions():
             #if verbose:
             sys.stderr.write("Already found reaction: " + str(rxn) + " ... not overwriting\n")
@@ -236,9 +232,6 @@ def parse_sbml_file(sbml_file, verbose=False):
             rxn.set_direction("=")
         else:
             rxn.set_direction(">")
-
-        if rxnid == 'rxn05368':
-            log_and_message(f"Found rxn05368: {rxn.direction}", stderr=True)
 
         # a hash to build the equation from
         equation = {'left': [], 'right': []}
@@ -300,6 +293,11 @@ def parse_sbml_file(sbml_file, verbose=False):
                 log_and_message(f"Left Compound: {c}", stderr=True)
             for c in rxn.right_compounds:
                 log_and_message(f"Right Compound: {c}", stderr=True)
+        if 'rxn05368' in sbml.reactions:
+            for c in sbml.reactions['rxn05368'].left_compunds:
+                if c.id == 'cpd00067' and c.location != 'c':
+                    sys.stderr.write(f"Found location {c.location} for {c.id} after adding {rxn}")
+                    sys.exit(-1)
 
     log_and_message(f"Parsing the model {sbml.model_name} (id {sbml.model_id}) is complete.")
     log_and_message(f"Parsing the SBML file: We found " +
