@@ -187,7 +187,7 @@ def parse_sbml_file(sbml_file, verbose=False):
         cpdname = s['name'].replace('_c0', '').replace('_e0', '')
         cpd = PyFBA.metabolism.CompoundWithLocation(cpdid, cpdname,
                                         s['compartment'].replace('0', ''))
-        log_and_message(f"Added compound {cpdid} | {cpdname}: {cpd.id} and {cpd.name}", stderr=True)
+        #log_and_message(f"Added compound {cpdid} | {cpdname}: {cpd.id} and {cpd.name}", stderr=verbose)
         cpd.abbreviation = s['id']
         cpd.model_seed_id = cpdid
         cpd.charge = s['charge']
