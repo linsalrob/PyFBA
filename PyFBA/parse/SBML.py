@@ -296,7 +296,10 @@ def parse_sbml_file(sbml_file, verbose=False):
         sbml.add_reaction(rxn)
         if rxnid == 'rxn05368':
             log_and_message(f"Found rxn05368: {rxn.__dict__}", stderr=True)
-
+            for c in rxn.left_compounds:
+                log_and_message(f"Left Compound: {c}", stderr=True)
+            for c in rxn.right_compounds:
+                log_and_message(f"Right Compound: {c}", stderr=True)
 
     log_and_message(f"Parsing the model {sbml.model_name} (id {sbml.model_id}) is complete.")
     log_and_message(f"Parsing the SBML file: We found " +
