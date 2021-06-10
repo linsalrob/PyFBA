@@ -203,8 +203,6 @@ def parse_sbml_file(sbml_file, verbose=False):
 
     # add the reactions
     for r in soup.listOfReactions.find_all('reaction'):
-        # I am going to split off the location for the reaction.
-        # I don't believe we have the same reaction running in two different locations but maybe in plants, etc?
         if 'biomass' in r['id'].lower():
             rxnid = 'biomass_equation'
         elif '_' not in r['id']:
@@ -224,6 +222,9 @@ def parse_sbml_file(sbml_file, verbose=False):
 
         rxn = PyFBA.metabolism.Reaction(rxnid)
 
+        if rxnid == 'rxn05368':
+            log_and_message(f"Found rxn05368", stderr=True)
+
         if rxn in sbml.get_all_reactions():
             #if verbose:
             sys.stderr.write("Already found reaction: " + str(rxn) + " ... not overwriting\n")
@@ -235,6 +236,9 @@ def parse_sbml_file(sbml_file, verbose=False):
             rxn.set_direction("=")
         else:
             rxn.set_direction(">")
+
+        if rxnid == 'rxn05368':
+            log_and_message(f"Found rxn05368: {rxn.direction}", stderr=True)
 
         # a hash to build the equation from
         equation = {'left': [], 'right': []}
@@ -290,6 +294,9 @@ def parse_sbml_file(sbml_file, verbose=False):
                     rxn.upper_bound = float(p['value'])
 
         sbml.add_reaction(rxn)
+        if rxnid == 'rxn05368':
+            log_and_message(f"Found rxn05368: {rxn.__dict__}", stderr=True)
+
 
     log_and_message(f"Parsing the model {sbml.model_name} (id {sbml.model_id}) is complete.")
     log_and_message(f"Parsing the SBML file: We found " +
