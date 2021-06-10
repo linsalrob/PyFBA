@@ -245,7 +245,7 @@ def parse_sbml_file(sbml_file, verbose=False):
                 for sp in rc.find_all('speciesReference'):
                     cpdid, cpdloc = sp['species'].split("_")
                     try:
-                        cpd = sbml.get_a_compound_by_id(cpdid)
+                        cpd = copy.deepcopy(sbml.get_a_compound_by_id(cpdid))
                     except ValueError:
                         # the compound is not in the model (but it should be!)
                         count += 1
