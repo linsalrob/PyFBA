@@ -1,6 +1,8 @@
 """
 
 """
+from typing import Dict, Set
+
 import PyFBA
 
 class ModelSeed:
@@ -16,6 +18,8 @@ class ModelSeed:
      :ivar enzymes:a dict of enzyme id -> enzyme objects
 
      """
+    compounds: Set[PyFBA.metabolism.Compound]
+    reactions: Dict[str, PyFBA.metabolism.Reaction]
 
     def __init__(self, compounds=None, reactions=None, enzymes=None,
                 complexes=None, roles=None, organism_type=None):
@@ -34,7 +38,7 @@ class ModelSeed:
         self.last_compound_by_name_sz = 0
 
     def reset(self):
-        self.compounds = None
+        self.compounds = set()
         self.reactions = {}
         self.enzymes = None
         self.complexes = None
@@ -66,6 +70,8 @@ class ModelSeed:
         if self.last_compound_by_id_sz != len(self.compounds):
             for c in self.compounds:
                 self.compounds_by_id[c.id] = c
+                for a in c.alternate_seed_ids:
+                    self.compounds_by_id[a] = c
             self.last_compound_by_id_sz = len(self.compounds)
 
         if cid in self.compounds_by_id:
