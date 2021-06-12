@@ -44,6 +44,17 @@ class ModelSeed:
         self.complexes = None
         self.roles = None
 
+    def rebuild_indices(self):
+        self.compounds_by_id = {}
+        self.compounds_by_name = {}
+        for c in self.compounds:
+            self.compounds_by_id[c.id] = c
+            for a in c.alternate_seed_ids:
+                self.compounds_by_id[a] = c
+            self.compounds_by_name[c.name] = c
+        self.last_compound_by_id_sz = len(self.compounds)
+        self.last_compound_by_name_sz = len(self.compounds)
+
     def get_compound_by_name(self, name) -> PyFBA.metabolism.Compound:
         """
         Retrieve a compound by its name. We use self.last_compound_by_name_sz to see if compounds has changed
@@ -52,9 +63,7 @@ class ModelSeed:
         """
 
         if self.last_compound_by_name_sz != len(self.compounds):
-            for c in self.compounds:
-                self.compounds_by_name[c.name] = c
-            self.last_compound_by_name_sz = len(self.compounds)
+            self.rebuild_indices()
 
         if name in self.compounds_by_name:
             return self.compounds_by_name[name]
@@ -68,13 +77,11 @@ class ModelSeed:
         """
 
         if self.last_compound_by_id_sz != len(self.compounds):
-            for c in self.compounds:
-                self.compounds_by_id[c.id] = c
-                for a in c.alternate_seed_ids:
-                    self.compounds_by_id[a] = c
-            self.last_compound_by_id_sz = len(self.compounds)
+            self.rebuild_indices()
 
         if cid in self.compounds_by_id:
             return self.compounds_by_id[cid]
         return None
+
+
 
