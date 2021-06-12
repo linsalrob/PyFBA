@@ -22,7 +22,7 @@ try:
 except ImportError:
     # this is for python<3.7
     from importlib_resources import open_text
-from typing import Dict, Set
+from typing import Dict, Set, Any, List
 
 import PyFBA
 from PyFBA.model_seed import ModelSeed
@@ -79,6 +79,14 @@ def compounds(compounds_file='compounds.json', verbose=False) -> Set[PyFBA.metab
     Optionally, you can provide a compounds file. If not, the default
     in MODELSEED_DIR/Biochemistry/compounds.master.tsv will be used.
 
+    Note there are some compounds that apppear more than once in the ModelSEED json file.
+
+    For example, "mecillinam" appears as both "cpd30724" and "cpd35839". The former has "source: Orphan" while the
+    latter has "source: Primary Database". We prefer the latter, and keep the other ID(s) as alternate IDs.
+
+    We use name as a primary key, although we should consider smiles or something else, these are often NULL in
+    non-primary entries.
+
     :param compounds_file: An optional filename of a compounds file to parse
     :type compounds_file: str
     :parma verbose: more output
@@ -98,7 +106,20 @@ def compounds(compounds_file='compounds.json', verbose=False) -> Set[PyFBA.metab
     log_and_message(f"Reading compounds from PyFBA.Biochemistry.ModelSEEDDatabase.Biochemistry.{compounds_file}",
                     stderr=verbose)
     compf = open_text("PyFBA.Biochemistry.ModelSEEDDatabase.Biochemistry", compounds_file)
+
+    compounds_by_name: Dict[str, PyFBA.metabolism.Compound]  = {}
+    primary_compounds: Dict[str, PyFBA.metabolism.Compound] = {}
+    secondary_compounds: Dict[str, List[PyFBA.metabolism.Compound]]  = {}
+
     for jc in json.load(compf):
+        # If we are not the primary source, and this compound already has a primary source,
+        # we just append the ID and move along. Otherwise we need to make a new compound
+        # in case we don't have a Primary Database source for this compound.
+
+        if jc['source'] != "Primary Database" and jc['name'] in primary_compounds:
+            primary_compounds[jc['name']].alternate_seed_ids.add(jc['id'])
+            continue
+
         c = PyFBA.metabolism.Compound(jc['id'], jc['name'])
         c.model_seed_id = jc['id']
         c.mw = jc['mass']
@@ -126,6 +147,36 @@ def compounds(compounds_file='compounds.json', verbose=False) -> Set[PyFBA.metab
             if ck in jc:
                 c.add_attribute(ck, jc[ck])
 
+
+        if jc['source'] == "Primary Database" and jc['name'] in secondary_compounds:
+            for s in secondary_compounds[jc['name']]:
+                c.alternate_seed_ids.add(s.id)
+            del secondary_compounds[jc['name']]
+        else:
+            if jc['name'] not in secondary_compounds:
+                secondary_compounds[jc['name']] = []
+            secondary_compounds[jc['name']].append(c)
+
+    # now just flatten secondary compounds
+    if len(secondary_compounds) > 0:
+        log_and_message(f"We found {len(secondary_compounds)} compounds that do not have a Primary Database equivilent")
+        # at the moment we just use the last one as the exemplar
+        for n in secondary_compounds:
+            exc = secondary_compounds[n].pop()
+            # check if we have additional information
+            for extra in secondary_compounds[n]:
+                exc.alternate_seed_ids.add(extra.id)
+                for ck in ["abbreviation", "abstract_compound",
+                           "charge", "comprised_of", "deltag",
+                           "deltagerr", "formula", "id", "inchikey",
+                           "is_cofactor", "is_core", "is_obsolete",
+                           "linked_compound", "mass", "notes",
+                           "pka", "pkb", "smiles", "source"]:
+                    if not exc.get_attribute(ck) and  extra.get_attribute(ck):
+                        exc.add_attribute(ck, extra.get_attribute(ck))
+            primary_compounds[n] = exc
+
+    for c in primary_compounds.values():
         modelseedstore.compounds.add(c)
 
     compf.close()
