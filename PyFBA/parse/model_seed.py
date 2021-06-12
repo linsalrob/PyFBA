@@ -147,11 +147,12 @@ def compounds(compounds_file='compounds.json', verbose=False) -> Set[PyFBA.metab
             if ck in jc:
                 c.add_attribute(ck, jc[ck])
 
-
-        if jc['source'] == "Primary Database" and jc['name'] in secondary_compounds:
-            for s in secondary_compounds[jc['name']]:
-                c.alternate_seed_ids.add(s.id)
-            del secondary_compounds[jc['name']]
+        if jc['source'] == "Primary Database":
+            if jc['name'] in secondary_compounds:
+                for s in secondary_compounds[jc['name']]:
+                    c.alternate_seed_ids.add(s.id)
+                del secondary_compounds[jc['name']]
+            primary_compounds[jc['name']] = c
         else:
             if jc['name'] not in secondary_compounds:
                 secondary_compounds[jc['name']] = []
@@ -159,7 +160,7 @@ def compounds(compounds_file='compounds.json', verbose=False) -> Set[PyFBA.metab
 
     # now just flatten secondary compounds
     if len(secondary_compounds) > 0:
-        log_and_message(f"We found {len(secondary_compounds)} compounds that do not have a Primary Database equivilent")
+        log_and_message(f"We found {len(secondary_compounds)} compounds that do not have a Primary Database equivalent")
         # at the moment we just use the last one as the exemplar
         for n in secondary_compounds:
             exc = secondary_compounds[n].pop()
