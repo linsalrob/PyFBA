@@ -111,10 +111,17 @@ def compounds(compounds_file='compounds.json', verbose=False) -> Set[PyFBA.metab
     primary_compounds: Dict[str, PyFBA.metabolism.Compound] = {}
     secondary_compounds: Dict[str, List[PyFBA.metabolism.Compound]]  = {}
 
+    debugme = False # this is a flag to set if we want to debug something
     for jc in json.load(compf):
         # If we are not the primary source, and this compound already has a primary source,
         # we just append the ID and move along. Otherwise we need to make a new compound
         # in case we don't have a Primary Database source for this compound.
+
+        if jc['id'] == 'cpd00027':
+            debugme = True
+
+        if debugme:
+            log_and_message(f"Found {jc['id']}: {jc['name']}", stderr=True)
 
         if jc['source'] != "Primary Database" and jc['name'] in primary_compounds:
             primary_compounds[jc['name']].alternate_seed_ids.add(jc['id'])
@@ -153,10 +160,14 @@ def compounds(compounds_file='compounds.json', verbose=False) -> Set[PyFBA.metab
                     c.alternate_seed_ids.add(s.id)
                 del secondary_compounds[jc['name']]
             primary_compounds[jc['name']] = c
+            if debugme:
+                log_and_message(f"Saved {jc['id']}: {jc['name']} as a primary_compound", stderr=True)
         else:
             if jc['name'] not in secondary_compounds:
                 secondary_compounds[jc['name']] = []
             secondary_compounds[jc['name']].append(c)
+            if debugme:
+                log_and_message(f"Saved {jc['id']}: {jc['name']} as a secondary_compound", stderr=True)
 
     # now just flatten secondary compounds
     if len(secondary_compounds) > 0:
