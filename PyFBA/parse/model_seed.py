@@ -177,8 +177,15 @@ def compounds(compounds_file='compounds.json', verbose=False) -> Set[PyFBA.metab
                         exc.add_attribute(ck, extra.get_attribute(ck))
             primary_compounds[n] = exc
 
+    cpd00027added = False
     for c in primary_compounds.values():
+        if c.id == 'cpd00027':
+            log_and_message("ADDED: cpd00027", stderr=True)
+            cpd00027added = True
         modelseedstore.compounds.add(c)
+
+    if not cpd00027added:
+        log_and_message("cpd00027 NOT added", stderr=True)
 
     compf.close()
     return modelseedstore.compounds
