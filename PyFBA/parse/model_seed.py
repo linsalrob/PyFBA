@@ -107,26 +107,18 @@ def compounds(compounds_file='compounds.json', verbose=False) -> Set[PyFBA.metab
                     stderr=verbose)
     compf = open_text("PyFBA.Biochemistry.ModelSEEDDatabase.Biochemistry", compounds_file)
 
-    compounds_by_name: Dict[str, PyFBA.metabolism.Compound]  = {}
     primary_compounds: Dict[str, PyFBA.metabolism.Compound] = {}
-    secondary_compounds: Dict[str, List[PyFBA.metabolism.Compound]]  = {}
+    secondary_compounds: Dict[str, List[PyFBA.metabolism.Compound]] = {}
 
     for jc in json.load(compf):
         # If we are not the primary source, and this compound already has a primary source,
         # we just append the ID and move along. Otherwise we need to make a new compound
         # in case we don't have a Primary Database source for this compound.
 
-        debugme = False  # this is a flag to set if we want to debug something
-        if jc['id'] == 'cpd00027':
-            debugme = True
-
-        if debugme:
-            log_and_message(f"Found {jc['id']}: {jc['name']}", stderr=True)
-
         # Initially we checked if this was not a Primary Database source, but there are some compounds
         # like D-Glucose that are in the database twice as primary compounds, e.g cpd00027 and cpd26821
         # So now we just take the first instance!
-        #if jc['source'] != "Primary Database" and jc['name'] in primary_compounds:
+        # if jc['source'] != "Primary Database" and jc['name'] in primary_compounds:
         if jc['name'] in primary_compounds:
             primary_compounds[jc['name']].alternate_seed_ids.add(jc['id'])
             continue
@@ -164,14 +156,10 @@ def compounds(compounds_file='compounds.json', verbose=False) -> Set[PyFBA.metab
                     c.alternate_seed_ids.add(s.id)
                 del secondary_compounds[jc['name']]
             primary_compounds[jc['name']] = c
-            if debugme:
-                log_and_message(f"Saved {jc['id']}: {jc['name']} as primary_compound {c}", stderr=True)
         else:
             if jc['name'] not in secondary_compounds:
                 secondary_compounds[jc['name']] = []
             secondary_compounds[jc['name']].append(c)
-            if debugme:
-                log_and_message(f"Saved {jc['id']}: {jc['name']} as secondary_compound {c}", stderr=True)
 
     # now just flatten secondary compounds
     if len(secondary_compounds) > 0:
@@ -257,6 +245,8 @@ def reactions(organism_type=None, rctf='reactions.json', verbose=False) \
 
     modelseedstore.reactions = {}  # type Dict[Any, Reaction]
 
+    log_and_message(f"Reading reactions from PyFBA.Biochemistry.ModelSEEDDatabase.Biochemistry.{rctf}",
+                    stderr=verbose)
     rxnf = open_text("PyFBA.Biochemistry.ModelSEEDDatabase.Biochemistry", rctf)
     for rxn in json.load(rxnf):
         r = PyFBA.metabolism.Reaction(rxn['id'])
@@ -353,7 +343,7 @@ def reactions(organism_type=None, rctf='reactions.json', verbose=False) \
     return modelseedstore.reactions
 
 
-def ftr_to_roles(rf="Roles.tsv") -> Dict[str, str]:
+def ftr_to_roles(rf="Roles.tsv", verbose=False) -> Dict[str, str]:
     """
     Read the roles file and create a dictionary of feature_id->role
     :param rf: the Roles file
@@ -361,6 +351,7 @@ def ftr_to_roles(rf="Roles.tsv") -> Dict[str, str]:
     """
 
     ftr2role = {}
+    log_and_message(f"Reading roles from PyFBA.Biochemistry.ModelSEEDDatabase.Biochemistry.{rf}", stderr=verbose)
     rolesf = open_text("PyFBA.Biochemistry.ModelSEEDDatabase.Annotations", rf)
     for li in rolesf:
         if li.startswith('id'):
@@ -372,7 +363,7 @@ def ftr_to_roles(rf="Roles.tsv") -> Dict[str, str]:
     return ftr2role
 
 
-def complex_to_ftr(cf="Complexes.tsv") -> Dict[str, set]:
+def complex_to_ftr(cf="Complexes.tsv", verbose=False) -> Dict[str, set]:
     """
     Read the complexes file, and create a dict of complex->feature_ids
     :param cf: the Complexes file
@@ -380,6 +371,7 @@ def complex_to_ftr(cf="Complexes.tsv") -> Dict[str, set]:
     """
 
     cpx2ftr = {}
+    log_and_message(f"Reading roles from PyFBA.Biochemistry.ModelSEEDDatabase.Biochemistry.{cf}", stderr=verbose)
     complexf = open_text("PyFBA.Biochemistry.ModelSEEDDatabase.Annotations", cf)
     for li in complexf:
         if li.startswith('id'):
@@ -424,6 +416,7 @@ def enzymes(organism_type="", verbose=False) -> Dict[str, PyFBA.metabolism.Enzym
 
     modelseedstore.enzymes = {}
 
+    log_and_message(f"Creating enzymes with complexes and reactions", stderr=verbose)
     # Set up enzymes with complexes and reactions
     c2f = complex_to_ftr()
     f2r = ftr_to_roles()
