@@ -123,7 +123,11 @@ def compounds(compounds_file='compounds.json', verbose=False) -> Set[PyFBA.metab
         if debugme:
             log_and_message(f"Found {jc['id']}: {jc['name']}", stderr=True)
 
-        if jc['source'] != "Primary Database" and jc['name'] in primary_compounds:
+        # Initially we checked if this was not a Primary Database source, but there are some compounds
+        # like D-Glucose that are in the database twice as primary compounds, e.g cpd00027 and cpd26821
+        # So now we just take the first instance!
+        #if jc['source'] != "Primary Database" and jc['name'] in primary_compounds:
+        if jc['name'] in primary_compounds:
             primary_compounds[jc['name']].alternate_seed_ids.add(jc['id'])
             continue
 
