@@ -111,12 +111,12 @@ def compounds(compounds_file='compounds.json', verbose=False) -> Set[PyFBA.metab
     primary_compounds: Dict[str, PyFBA.metabolism.Compound] = {}
     secondary_compounds: Dict[str, List[PyFBA.metabolism.Compound]]  = {}
 
-    debugme = False # this is a flag to set if we want to debug something
     for jc in json.load(compf):
         # If we are not the primary source, and this compound already has a primary source,
         # we just append the ID and move along. Otherwise we need to make a new compound
         # in case we don't have a Primary Database source for this compound.
 
+        debugme = False  # this is a flag to set if we want to debug something
         if jc['id'] == 'cpd00027':
             debugme = True
 
@@ -161,13 +161,13 @@ def compounds(compounds_file='compounds.json', verbose=False) -> Set[PyFBA.metab
                 del secondary_compounds[jc['name']]
             primary_compounds[jc['name']] = c
             if debugme:
-                log_and_message(f"Saved {jc['id']}: {jc['name']} as a primary_compound", stderr=True)
+                log_and_message(f"Saved {jc['id']}: {jc['name']} as primary_compound {c}", stderr=True)
         else:
             if jc['name'] not in secondary_compounds:
                 secondary_compounds[jc['name']] = []
             secondary_compounds[jc['name']].append(c)
             if debugme:
-                log_and_message(f"Saved {jc['id']}: {jc['name']} as a secondary_compound", stderr=True)
+                log_and_message(f"Saved {jc['id']}: {jc['name']} as secondary_compound {c}", stderr=True)
 
     # now just flatten secondary compounds
     if len(secondary_compounds) > 0:
@@ -193,6 +193,7 @@ def compounds(compounds_file='compounds.json', verbose=False) -> Set[PyFBA.metab
         if c.id == 'cpd00027':
             log_and_message("ADDED: cpd00027", stderr=True)
             cpd00027added = True
+        log_and_message(f"Saved {c}", stderr=True)
         modelseedstore.compounds.add(c)
 
     if not cpd00027added:
