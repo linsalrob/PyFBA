@@ -13,12 +13,23 @@ from PyFBA import __version__
 logger = None
 
 
-def initiate_logger(logname=f"PyFBA.{datetime.now().isoformat()}.log"):
-    # define a logger
+def initiate_logger(logname=f"PyFBA.{datetime.now().isoformat()}.log", logdir=None):
+    """
+    Instantiate a logger, and write outputs to the log.
+
+    If logdir is not defined, we use os.getcwd()/logs/ to store the logs. Otherwise, provide a pathh to the location
+    :param logname: the name of the file to save the logs to
+    :param logdir:  the directory to write the logs to
+    :return: the instantiated logger.
+    """
     global logger
     logger = logging.getLogger('PyFBA')
     logger.setLevel(5)
-    loglocation = os.path.join(os.getcwd(), logname)
+    if not logdir:
+        logdir = os.path.join(os.getcwd(), 'logs')
+    os.makedirs(logdir, exist_ok=True)
+
+    loglocation = os.path.join(logdir, logname)
     sys.stderr.write(f"We are logging to {loglocation}\n")
     hdlr = logging.FileHandler(loglocation)
     fmt = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
