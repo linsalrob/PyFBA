@@ -3,6 +3,7 @@ import sys
 from PyFBA import lp
 import PyFBA
 
+
 def run_fba(modeldata, reactions_to_run, media, biomass_equation, uptake_secretion=None, verbose=False):
     """
     Run an fba for a set of data. We required the reactions object,
@@ -28,10 +29,10 @@ def run_fba(modeldata, reactions_to_run, media, biomass_equation, uptake_secreti
 
     """
 
-    cp, rc = PyFBA.fba.create_stoichiometric_matrix(reactions_to_run, modelseed, media,
-                                                               biomass_equation, uptake_secretion, verbose=verbose)
+    cp, rc = PyFBA.fba.create_stoichiometric_matrix(reactions_to_run, modeldata, media,
+                                                    biomass_equation, uptake_secretion, verbose=verbose)
 
-    rbvals = PyFBA.fba.reaction_bounds(modelseed.reactions, rc, media)
+    rbvals = PyFBA.fba.reaction_bounds(modeldata.reactions, rc, media)
     PyFBA.fba.compound_bounds(cp)
 
     if verbose:
@@ -39,15 +40,14 @@ def run_fba(modeldata, reactions_to_run, media, biomass_equation, uptake_secreti
         sys.stderr.write("Number of reactions to run: {}\n".format(len(reactions_to_run)))
         sys.stderr.write("Number of compounds in SM: {}\n".format(len(cp)))
         sys.stderr.write("Number of reactions in SM: {}\n".format(len(rc)))
-        sys.stderr.write("Revised number of total reactions: {}\n".format(len(modelseed.reactions)))
-        sys.stderr.write("Number of total compounds: {}\n".format(len(modelseed.compounds)))
+        sys.stderr.write("Revised number of total reactions: {}\n".format(len(modeldata.reactions)))
+        sys.stderr.write("Number of total compounds: {}\n".format(len(modeldata.compounds)))
         sys.stderr.write("SMat dimensions: {} x {}\n".format(len(cp), len(rc)))
 
     status, value = PyFBA.lp.solve()
-    
+
     growth = False
     if value > 1:
         growth = True
-    
-    return status, value, growth
 
+    return status, value, growth

@@ -1,4 +1,3 @@
-import copy
 import os
 import unittest
 
@@ -23,10 +22,9 @@ else:
     sys.stderr.write("No media found. Can't proceed with testing the FBA.\n")
     sys.stderr.write("You can specify the media location by setting the PYFBA_MEDIA_DIR environment variable\n")
 
-class TestFBA(unittest.TestCase):
 
+class TestFBA(unittest.TestCase):
     modeldata = PyFBA.parse.model_seed.parse_model_seed_data('gramnegative', verbose=True)
-    compounds, reactions, enzymes = PyFBA.parse.model_seed.compounds_reactions_enzymes('gram_negative')
 
     def setUp(self):
         """
@@ -35,8 +33,7 @@ class TestFBA(unittest.TestCase):
 
     def test_external_reactions(self):
         """Testing the fba external reactions"""
-        compounds = PyFBA.parse.model_seed.compounds()
-        reactions = PyFBA.parse.model_seed.reactions()
+        compounds = self.__class__.modeldata.compounds
         # create a few external compounds
         cpds = list(compounds)[0:10]
         model_cpds = set()
@@ -54,7 +51,7 @@ class TestFBA(unittest.TestCase):
     def test_create_sm(self):
         """Test the stoichiometric matrix"""
 
-        reactions2run = set(list(self.__class__.reactions.keys())[0:20])
+        reactions2run = set(list(self.__class__.modeldata.reactions.keys())[0:20])
         biomass_equation = PyFBA.metabolism.biomass_equation('gram_negative')
         cp, rc, reactions = PyFBA.fba.create_stoichiometric_matrix(reactions_to_run=reactions2run,
                                                                    modeldata=self.__class__.modeldata,
@@ -74,20 +71,20 @@ class TestFBA(unittest.TestCase):
             return
         self.assertTrue(os.path.exists(os.path.join(test_file_loc, 'reaction_list.txt')))
         self.assertTrue(os.path.exists(os.path.join(media_file_loc, 'ArgonneLB.txt')))
-        compounds, reactions, enzymes = self.__class__.compounds, self.__class__.reactions, self.__class__.enzymes
         reactions2run = set()
         with open(os.path.join(test_file_loc, 'reaction_list.txt'), 'r') as f:
-            for l in f:
-                if l.startswith('#'):
+            for lf in f:
+                if lf.startswith('#'):
                     continue
-                if "biomass" in l.lower():
+                if "biomass" in lf.lower():
                     continue
-                r = l.strip()
-                if r in reactions:
+                r = lf.strip()
+                if r in self.__class__.modeldata.reactions:
                     reactions2run.add(r)
         media = PyFBA.parse.read_media_file(os.path.join(media_file_loc, 'ArgonneLB.txt'))
         biomass = PyFBA.metabolism.biomass_equation('gram_negative')
-        status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass, verbose=False)
+        status, value, growth = PyFBA.fba.run_fba(self.__class__.modeldata, reactions2run, media, biomass,
+                                                  verbose=False)
         self.assertTrue(growth)
         value = float('%0.3f' % value)
         self.assertEqual(value, 340.873)

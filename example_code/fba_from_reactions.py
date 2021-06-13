@@ -13,7 +13,7 @@ if __name__ == '__main__':
 
     # read the enzyme data
     #compounds, reactions, enzymes = PyFBA.parse.model_seed.compounds_reactions_enzymes('gramnegative')
-    modelseed = PyFBA.parse.model_seed.parse_model_seed_data('gramnegative', verbose=True)
+    modeldata = PyFBA.parse.model_seed.parse_model_seed_data('gramnegative', verbose=True)
     reactions2run = set()
     with open(args.r, 'r') as f:
         for l in f:
@@ -24,7 +24,7 @@ if __name__ == '__main__':
                     sys.stderr.write("Biomass reaction was skipped from the list as it is imported\n")
                 continue
             r = l.strip()
-            if r in modelseed.reactions:
+            if r in modeldata.reactions:
                 reactions2run.add(r)
             else:
                 sys.stderr.write(f"Reaction {r} not found")
@@ -32,5 +32,5 @@ if __name__ == '__main__':
     media = PyFBA.parse.read_media_file(args.m)
     biomass_equation = PyFBA.metabolism.biomass_equation('gramnegative')
 
-    status, value, growth = PyFBA.fba.run_fba(modelseed, reactions2run, media, biomass_equation, verbose=True)
+    status, value, growth = PyFBA.fba.run_fba(modeldata, reactions2run, media, biomass_equation, verbose=True)
     print("Initial run has " + str(value) + " --> Growth: " + str(growth))

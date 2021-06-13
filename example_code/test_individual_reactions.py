@@ -18,7 +18,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # read the enzyme data
-    compounds, reactions, enzymes = PyFBA.parse.model_seed.compounds_reactions_enzymes('gramnegative')
+    modeldata = PyFBA.parse.model_seed.parse_model_seed_data('gramnegative', verbose=args.v)
     reactions_to_run = set()
     with open(args.r, 'r') as f:
         for l in f:
@@ -29,13 +29,13 @@ if __name__ == '__main__':
                     sys.stderr.write("Biomass reaction was skipped from the list as it is imported\n")
                 continue
             r = l.strip()
-            if r in reactions:
+            if r in modeldata.reactions:
                 reactions_to_run.add(r)
 
     media = PyFBA.parse.read_media_file(args.m)
     biomass_eqn = PyFBA.metabolism.biomass_equation('gramnegative')
 
-    status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions_to_run, media, biomass_eqn)
+    status, value, growth = PyFBA.fba.run_fba(modeldata, reactions_to_run, media, biomass_eqn)
     print("Before we test components, FBA has " + str(value) + " --> Growth: " + str(growth))
     if not growth:
         sys.exit("Since the complete model does not grow, we can't parse out the important parts!")
@@ -44,6 +44,6 @@ if __name__ == '__main__':
     for r in ori_reactions:
         reactions_to_run = copy.copy(ori_reactions)
         reactions_to_run.remove(r)
-        reactions = PyFBA.fba.remove_uptake_and_secretion_reactions(reactions)
-        status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions_to_run, media, biomass_eqn)
+        PyFBA.fba.remove_uptake_and_secretion_reactions(modeldata.reactions)
+        status, value, growth = PyFBA.fba.run_fba(modeldata, reactions_to_run, media, biomass_eqn)
         print("{}\t{}".format(r, growth))

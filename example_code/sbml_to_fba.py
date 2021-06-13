@@ -1,5 +1,4 @@
 import argparse
-import copy
 import os
 import sys
 
@@ -15,6 +14,9 @@ if not os.path.exists(args.s):
     sys.exit("SBML file {} was not found".format(args.s))
 
 sbml = PyFBA.parse.parse_sbml_file(args.s, False)
+# create modeldata objects
+modeldata = PyFBA.model_seed.ModelSeed(compounds=sbml.compounds, reactions=sbml.reactions)
+modeldata.rebuild_indices()
 
 # get the reactions from the SBML file. This is a dict of metabolite.Reaction objects
 rxn = sbml.reactions
@@ -43,7 +45,6 @@ for r in rxn:
     else:
         reactions_to_run.add(r)
 
-
 # get all the compounds from the SBML file. This is a dict of metabolite.Compound objects
 cps = sbml.compounds
 # filter for compounds that are boundary compounds
@@ -58,8 +59,7 @@ if args.v:
 # read the media file
 media = PyFBA.parse.read_media_file(args.m)
 # correct the names
-media = PyFBA.parse.correct_media_names(media, cpds)
-
+media = PyFBA.parse.correct_media_names(media, cps)
 
 # adjust the lower bounds of uptake secretion reactions for things that are not in the media
 for u in uptake_secretion_reactions:
@@ -71,8 +71,7 @@ for u in uptake_secretion_reactions:
         rxn[u].lower_bound = 0.0
         uptake_secretion_reactions[u].lower_bound = 0.0
 
-
 # run the fba
-status, value, growth = PyFBA.fba.run_fba(cpds, rxn, reactions_to_run, media, biomass_equation,
+status, value, growth = PyFBA.fba.run_fba(modeldata, reactions_to_run, media, biomass_equation,
                                           uptake_secretion_reactions, args.v)
 sys.stdout.write("The FBA completed with value; {} and growth: {}\n".format(value, growth))

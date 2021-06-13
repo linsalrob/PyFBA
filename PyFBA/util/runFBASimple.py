@@ -1,4 +1,3 @@
-#!/usr/bin/python2.7
 from __future__ import print_function
 import sys
 import os
@@ -25,8 +24,7 @@ if args.dev:
 import PyFBA
 
 # Load ModelSEED database
-compounds, reactions, enzymes =\
-    PyFBA.parse.model_seed.compounds_reactions_enzymes('gramnegative')
+modeldata = PyFBA.parse.model_seed.parse_model_seed_data('gramnegative', verbose=True)
 
 # Read in reactions file
 modelReactions = set()
@@ -46,7 +44,7 @@ if vrb:
 # Remove reactions IDs that do not not have a reaction equation associated
 tempset = set()
 for r in modelReactions:
-    if r in reactions:
+    if r in modeldata.reactions:
         tempset.add(r)
     elif args.verbose:
         print("Reaction ID", r,
@@ -63,7 +61,7 @@ print("Our media has", len(media) ,"components", file=sys.stderr)
 biomass_equation = PyFBA.metabolism.biomass_equation('gramnegative')
 
 # Run FBA
-status, value, growth = PyFBA.fba.run_fba(compounds, reactions,
+status, value, growth = PyFBA.fba.run_fba(modeldata,
                                           modelReactions,
                                           media, biomass_equation)
 print("The biomass reaction has a flux of", value,
