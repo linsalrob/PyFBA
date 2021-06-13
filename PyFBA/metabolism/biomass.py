@@ -161,7 +161,7 @@ def gram_negative():
     return reactants, products
 
 
-def biomass_equation(biomass_type='standard', cpds=None):
+def biomass_equation(biomass_type='standard', cpds=None, verbose=False):
     """Get the biomass_equation equation for a specific type of biomass_equation equation.
 
     biomass_type can be one of:
@@ -207,7 +207,7 @@ def biomass_equation(biomass_type='standard', cpds=None):
         if cpdname:
             cpd = CompoundWithLocation.from_compound(cpdname, 'c')
         else:
-            PyFBA.log_and_message(f"biomass.py: No compound found for {c} in our compounds dataset", stderr=True)
+            PyFBA.log_and_message(f"biomass.py: No compound found for {c} in our compounds dataset", stderr=verbose)
             cpd = CompoundWithLocation(f"rctn{i}", c, 'c')
         r.add_left_compounds({cpd})
         r.set_left_compound_abundance(cpd, reactants[c])
@@ -217,7 +217,7 @@ def biomass_equation(biomass_type='standard', cpds=None):
         if cpdname:
             cpd = CompoundWithLocation.from_compound(cpdname, 'c')
         else:
-            PyFBA.log_and_message(f"biomass.py: No compound found for {c} in our compounds dataset", stderr=True)
+            PyFBA.log_and_message(f"biomass.py: No compound found for {c} in our compounds dataset", stderr=verbose)
             cpd = CompoundWithLocation(f"rctn{i}", c, 'c')
         r.add_right_compounds({cpd})
         r.set_right_compound_abundance(cpd, products[c])
