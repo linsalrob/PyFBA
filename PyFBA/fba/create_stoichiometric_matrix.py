@@ -39,7 +39,6 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
     sm = {}  # the matrix
     reaction_cpds = set()  # all the cpds in the matrix
 
-
     # compounds is now deprecated since we don't need to parse that. We use the compounds
     # from the media, reactions, and biomass equation, but don't look at the compounds
     # any more
@@ -152,5 +151,5 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
     ob[-1] = 1
 
     PyFBA.lp.objective_coefficients(ob)
-
+    log_and_message(f"csm: sm will be compounds {len(cp)} x reactions {len(rc)}", stderr=verbose)
     return cp, rc, uptake_secretion
