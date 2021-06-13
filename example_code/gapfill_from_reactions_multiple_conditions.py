@@ -22,7 +22,7 @@ def resolve_additional_reactions(ori_reactions, adnl_reactions, md, gm, ngm, bio
     :type ori_reactions: Set[str]
     :param adnl_reactions: a list of tuples of how the reactions were suggested, and the set of additional reactions
     :param md: The modeldata object
-    :type md: PyFBA.model_seed.ModelSeed
+    :type md: PyFBA.model_seed.ModelData
     :param gm: A list of media where we should grow
     :type gm: List[Set[PyFBA.metabolism.CompoundWithLocation]]
     :param ngm: A list of media where we should NOT grow

@@ -8,7 +8,7 @@ are currently hardcoded because the ModelSeedDirectory does not contain
 a mapping for compartments (the mapping files do not have the integers
 used in the reactions file!).
 
-PLEASE NOTE: This version uses the ModelSeed JSON files, please revert
+PLEASE NOTE: This version uses the ModelData JSON files, please revert
 to model_seed_solr.py if you want to use the old SOLR datadumps.
 You should be able to do that by changing the functions in __init__.py
 
@@ -25,10 +25,10 @@ except ImportError:
 from typing import Dict, Set, Any, List
 
 import PyFBA
-from PyFBA.model_seed import ModelSeed
+from PyFBA.model_seed import ModelData
 from PyFBA import log_and_message
 
-modelseedstore = ModelSeed()
+modelseedstore = ModelData()
 
 
 def template_reactions(modeltype):
@@ -500,7 +500,7 @@ def parse_model_seed_data(organism_type='', verbose=False):
     :param organism_type: limit to a type of organism
     :param verbose: more output
     :return: a ModelSeed class
-    :rtype: PyFBA.model_seed.ModelSeed
+    :rtype: PyFBA.model_seed.ModelData
     """
 
     global modelseedstore
@@ -524,5 +524,5 @@ def reset_cache():
     """
 
     global modelseedstore
-    modelseedstore = ModelSeed()
+    modelseedstore = ModelData()
     modelseedstore.reset()

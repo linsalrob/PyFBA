@@ -12,7 +12,7 @@ def run_fba(modeldata, reactions_to_run, media, biomass_equation, uptake_secreti
     With all of these we run the fba and return:
 
     :param modeldata: the model seed object that includes compounds and reactions
-    :type modeldata: PyFBA.model_seed.ModelSeed
+    :type modeldata: PyFBA.model_seed.ModelData
     :param reactions_to_run: the reactions to run
     :type reactions_to_run: set
     :param media: An array of compound.Compound objects representing the media

@@ -6,7 +6,7 @@ from typing import Dict, Set
 import PyFBA
 
 
-class ModelSeed:
+class ModelData:
     """
      A class to hold model seed objects so that we only need to parse them once.
 

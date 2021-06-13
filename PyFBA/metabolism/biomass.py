@@ -183,7 +183,7 @@ def biomass_equation(biomass_type='standard', cpds=None, verbose=False):
     modelseed = None
 
     if isinstance(cpds, set):
-        modelseed = PyFBA.model_seed.ModelSeed(compounds=cpds)
+        modelseed = PyFBA.model_seed.ModelData(compounds=cpds)
     elif not cpds:
         modelseed = PyFBA.parse.parse_model_seed_data()
     else:

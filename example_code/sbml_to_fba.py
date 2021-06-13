@@ -15,7 +15,7 @@ if not os.path.exists(args.s):
 
 sbml = PyFBA.parse.parse_sbml_file(args.s, False)
 # create modeldata objects
-modeldata = PyFBA.model_seed.ModelSeed(compounds=sbml.compounds, reactions=sbml.reactions)
+modeldata = PyFBA.model_seed.ModelData(compounds=sbml.compounds, reactions=sbml.reactions)
 modeldata.rebuild_indices()
 
 # get the reactions from the SBML file. This is a dict of metabolite.Reaction objects

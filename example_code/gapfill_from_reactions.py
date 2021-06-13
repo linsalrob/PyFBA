@@ -19,7 +19,7 @@ def resolve_additional_reactions(ori_reactions, adnl_reactions, modeldata, media
     :param ori_reactions: original reactions
     :type ori_reactions: Set[str]
     :param modeldata: the model seed object that includes compounds and reactions
-    :type modeldata: PyFBA.model_seed.ModelSeed
+    :type modeldata: PyFBA.model_seed.ModelData
     :param adnl_reactions: a list of tuples of how the reactions were suggested, and the set of additional reactions
     :type adnl_reactions: list of tuple
     :param mediaset: our media object

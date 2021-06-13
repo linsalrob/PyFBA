@@ -9,7 +9,7 @@ Adding PyFBA.model package to list.
 However, this breaks compatibility with Python 2 because of the "errors" keyword in open.
 
 The main changes include relative imports, a new class in the tests/ package to allow deep assertions,
-and using this type of construct with the open command to ignore unicode errors in ModelSeed:
+and using this type of construct with the open command to ignore unicode errors in ModelData:
 
 	with open(ssfile, 'r', errors='replace') as sin:
 

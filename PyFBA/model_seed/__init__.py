@@ -2,8 +2,8 @@
 A model seed object
 """
 
-from .model_seed import ModelSeed
+from .model_seed import ModelData
 
 __all__ = [
-    'ModelSeed'
+    'ModelData'
 ]

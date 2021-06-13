@@ -27,7 +27,7 @@ def calculate_precision_recall(growth_media, no_growth_media, modeldata, reactio
     :param growth_media: Media on which the model should grow
     :type growth_media: list of Media sets
     :param modeldata: The model data
-    :type modeldata: PyFBA.model_seed.ModelSeed
+    :type modeldata: PyFBA.model_seed.ModelData
     :param reactions2run:The set of reactions to run
     :type reactions2run: set
     :param biomass_eqtn: The biomass equation
@@ -68,7 +68,7 @@ def iterate_reactions_to_run(base_reactions, optional_reactions, modeldata, medi
 
 
     :param modeldata: The model data
-    :type modeldata: PyFBA.model_seed.ModelSeed
+    :type modeldata: PyFBA.model_seed.ModelData
     :param base_reactions: a set of reactions that are required for the model but that do not result in growth
     :type base_reactions: set
     :param optional_reactions: a set of reactions that when added to the base_reactions set result in
@@ -121,7 +121,7 @@ def minimize_additional_reactions(base_reactions, optional_reactions, modeldata,
         growth but for which only a subset may or may not be required.
     :type optional_reactions: set
     :param modeldata: the model seed object that includes compounds and reactions
-    :type modeldata: PyFBA.model_seed.ModelSeed
+    :type modeldata: PyFBA.model_seed.ModelData
     :param media: our media object
     :type media: set
     :param biomass_eqn: our biomass equation
@@ -279,7 +279,7 @@ def minimize_by_accuracy(base_reactions, optional_reactions, modeldata, growth_m
         growth but for which only a subset may or may not be required.
     :type optional_reactions: set
     :param modeldata: The model data
-    :type modeldata: PyFBA.model_seed.ModelSeed
+    :type modeldata: PyFBA.model_seed.ModelData
     :param biomass_eqn: our biomass equation
     :type biomass_eqn: network.reaction.Reaction
     :param verbose: Print more information

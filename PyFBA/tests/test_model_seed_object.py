@@ -5,14 +5,14 @@ import PyFBA
 
 class TestModelSeedObject(unittest.TestCase):
     def test_object(self):
-        msp = PyFBA.model_seed.ModelSeed()
+        msp = PyFBA.model_seed.ModelData()
         self.assertIsNone(msp.compounds)
         self.assertIsNone(msp.enzymes)
         self.assertFalse(msp.reactions)
 
     def test_add_to_object(self):
         # we just set these up as some dicts
-        msp = PyFBA.model_seed.ModelSeed()
+        msp = PyFBA.model_seed.ModelData()
         self.assertIsNone(msp.compounds)
         self.assertIsNone(msp.enzymes)
         self.assertFalse(msp.reactions)

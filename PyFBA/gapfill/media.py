@@ -6,7 +6,7 @@ def suggest_from_media(modeldata, reactions2run, media, verbose=False):
     Identify a set of reactions that you should add to your model for growth based on the media compounds
 
     :param modeldata: the model seed object that includes compounds and reactions
-    :type modeldata: PyFBA.model_seed.ModelSeed
+    :type modeldata: PyFBA.model_seed.ModelData
     :param verbose: Print more output
     :type verbose: bool
     :param reactions2run: The reactions we are running

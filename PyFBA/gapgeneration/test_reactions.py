@@ -17,7 +17,7 @@ def test_growth(reactions_to_delete, reactions_to_run, modeldata, media, biomass
     :param reactions_to_run: Reactions to run for the model
     :type reactions_to_run: set
     :param modeldata: The modeldata object
-    :param PyFBA.model_seed.ModelSeed
+    :param PyFBA.model_seed.ModelData
     :param media: The media object
     :type media: set
     :param biomass_eqn: The biomass equation
@@ -54,7 +54,7 @@ def not_essential_reactions(reactions_to_delete, reactions_to_run, modeldata, me
     :param reactions_to_run: Reactions to run for the model
     :type reactions_to_run: set
     :param modeldata: The modeldata object
-    :param PyFBA.model_seed.ModelSeed
+    :param PyFBA.model_seed.ModelData
     :param media: The media object
     :type media: set
     :param biomass_eqn: The biomass equation
@@ -104,7 +104,7 @@ def test_all_reactions(reactions_to_run, modeldata, media, biomass_eqn, verbose)
     :param reactions_to_run: Reactions to run for the model
     :type reactions_to_run: set
     :param modeldata: The modeldata object
-    :param PyFBA.model_seed.ModelSeed
+    :param PyFBA.model_seed.ModelData
     :param media: The media object
     :type media: set
     :param biomass_eqn: The biomass equation

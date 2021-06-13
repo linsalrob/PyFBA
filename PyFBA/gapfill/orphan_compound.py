@@ -23,7 +23,7 @@ def suggest_by_compound(modeldata, reactions2run, max_reactions, verbose=False):
     don't want to consider external compounds any way
 
     :param modeldata: the model seed object that includes compounds and reactions
-    :type modeldata: PyFBA.model_seed.ModelSeed
+    :type modeldata: PyFBA.model_seed.ModelData
     :param reactions2run: The set of reactions that we will already run
     :type reactions2run: set
     :param max_reactions: The maximum number of reactions that a compound can be associated with. Avoids, eg. H2O

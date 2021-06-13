@@ -17,7 +17,7 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
     :param reactions_to_run: just the reaction ids that we want to include in our model
     :type reactions_to_run: set
     :param modeldata: the model seed object that includes compounds and reactions
-    :type modeldata: PyFBA.model_seed.ModelSeed
+    :type modeldata: PyFBA.model_seed.ModelData
     :param media: a set of compounds that would make up the media
     :type media: set
     :param biomass_equation: the biomass_equation equation as a Reaction object
@@ -31,8 +31,8 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
 
     """
 
-    if not isinstance(modeldata, PyFBA.model_seed.ModelSeed):
-        msg = f"DEPRECTED: Please convert {type(modeldata)} that was passed to create_stoichiometric_matrix to a ModelSeed object"
+    if not isinstance(modeldata, PyFBA.model_seed.ModelData):
+        msg = f"DEPRECTED: Please convert {type(modeldata)} that was passed to create_stoichiometric_matrix to a ModelData object"
         log_and_message(msg)
         raise DeprecationWarning(msg)
 
