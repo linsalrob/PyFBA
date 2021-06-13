@@ -11,7 +11,7 @@ class ModelData:
      A class to hold model seed objects so that we only need to parse them once.
 
      This holds enzymes, reactions, and compounds. The variables are the same data structures
-     returned by the parser (see parse/model_seed.py).
+     returned by the parser (see parse/model_data.py).
 
      Other variables associated with the Compound class:
      :ivar compounds: a dict of compound id -> compound objects

@@ -2,7 +2,7 @@
 """
 
 Please note that this is the historic version, and now we have moved to parsing the JSON
-files directly. See model_seed.py
+files directly. See model_data.py
 
 A parser for the SEED biochemistry modules that are available on Github
 at https://github.com/ModelSEED/ModelSEEDDatabase. We have also included
