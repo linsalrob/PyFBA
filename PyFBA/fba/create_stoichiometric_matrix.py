@@ -59,16 +59,16 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
             reaction_cpds.add(c)
             if c not in sm:
                 sm[c] = {}
-            if verbose and type(c) != PyFBA.metabolism.compound.CompoundWithLocation:
-                log_and_message(f"In parsing left compounds, {c} is a {type(c)}", stderr=True)
+            if not isinstance(c, PyFBA.metabolism.compound.CompoundWithLocation):
+                log_and_message(f"Warning. In parsing left compounds for the SM, {c} is a {type(c)}", stderr=verbose)
             sm[c][r] = 0 - reactions[r].get_left_compound_abundance(c)
 
         for c in reactions[r].right_compounds:
             reaction_cpds.add(c)
             if c not in sm:
                 sm[c] = {}
-            if verbose and type(c) != PyFBA.metabolism.compound.CompoundWithLocation:
-                log_and_message(f"In parsing right compounds, {c} is a {type(c)}", stderr=True)
+            if not isinstance(c, PyFBA.metabolism.compound.CompoundWithLocation):
+                log_and_message(f"Warning. In parsing right compounds for the SM, {c} is a {type(c)}", stderr=verbose)
             sm[c][r] = reactions[r].get_right_compound_abundance(c)
 
     for c in biomass_equation.left_compounds:
