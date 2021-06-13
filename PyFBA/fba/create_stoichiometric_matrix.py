@@ -129,8 +129,7 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
     # it is important that we add these at the end
     rc.append("BIOMASS_EQN")
 
-    if verbose:
-        sys.stderr.write(f"In the model there are : {len(cp)} compounds and {len(rc)} reactions\n")
+    log_and_message(f"csm: In the model there are : {len(cp)} compounds and {len(rc)} reactions", stderr=verbose)
 
     # here we create the matrix from our sm hash
     data = []

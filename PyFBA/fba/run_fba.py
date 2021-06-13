@@ -1,6 +1,4 @@
-import sys
-
-from PyFBA import lp
+from PyFBA import lp, log_and_message
 import PyFBA
 
 
@@ -30,19 +28,20 @@ def run_fba(modeldata, reactions_to_run, media, biomass_equation, uptake_secreti
     """
 
     cp, rc, upsr = PyFBA.fba.create_stoichiometric_matrix(reactions_to_run, modeldata, media,
-                                                    biomass_equation, uptake_secretion, verbose=verbose)
+                                                          biomass_equation, uptake_secretion, verbose=verbose)
 
     rbvals = PyFBA.fba.reaction_bounds(modeldata.reactions, rc, media)
     PyFBA.fba.compound_bounds(cp)
 
     if verbose:
-        sys.stderr.write("Length of the media: {}\n".format(len(media)))
-        sys.stderr.write("Number of reactions to run: {}\n".format(len(reactions_to_run)))
-        sys.stderr.write("Number of compounds in SM: {}\n".format(len(cp)))
-        sys.stderr.write("Number of reactions in SM: {}\n".format(len(rc)))
-        sys.stderr.write("Revised number of total reactions: {}\n".format(len(modeldata.reactions)))
-        sys.stderr.write("Number of total compounds: {}\n".format(len(modeldata.compounds)))
-        sys.stderr.write("SMat dimensions: {} x {}\n".format(len(cp), len(rc)))
+        log_and_message(f"Length of the media: {len(media)}", stderr=verbose)
+        log_and_message(f"Number of reactions to run: {len(reactions_to_run)}", stderr=verbose)
+        log_and_message(f"Number of compounds in SM: {len(cp)}", stderr=verbose)
+        log_and_message(f"Number of reactions in SM: {len(rc)}", stderr=verbose)
+        log_and_message(f"Number of uptake/secretion reactions {len(upsr)}", stderr=verbose)
+        log_and_message(f"Revised number of total reactions: {len(modeldata.reactions)}", stderr=verbose)
+        log_and_message(f"Revised number of total compounds: {len(modeldata.compounds)}", stderr=verbose)
+        log_and_message(f"SMat dimensions: {len(cp)} x {len(rc)}", stderr=verbose)
 
     status, value = PyFBA.lp.solve()
 
