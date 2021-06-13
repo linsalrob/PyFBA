@@ -12,22 +12,20 @@ import sys
 import PyFBA
 
 
-def resolve_additional_reactions(ori_reactions, adnl_reactions, cpds, rcts, mediaset, biomass_eqn):
+def resolve_additional_reactions(ori_reactions, adnl_reactions, modeldata, mediaset, biomass_eqn):
     """
     Iteratively resolve additional reactions that are required.
 
-    :param cpds: Our compounds dictionary object
-    :type cpds: dict
-    :param ori_reactions: the set of original reactions that form the base of the model
-    :type ori_reactions: set
+    :param ori_reactions: original reactions
+    :type ori_reactions: Set[str]
+    :param modeldata: the model seed object that includes compounds and reactions
+    :type modeldata: PyFBA.model_seed.ModelSeed
     :param adnl_reactions: a list of tuples of how the reactions were suggested, and the set of additional reactions
     :type adnl_reactions: list of tuple
-    :param rcts: our reactions object
-    :type rcts: dict
     :param mediaset: our media object
-    :type mediaset: set
+    :type mediaset: Set[PyFBA.metabolism.CompoundWithLocation]
     :param biomass_eqn: our biomass object
-    :type biomass_eqn: metabolism.Reaction
+    :type biomass_eqn: PyFBA.metabolism.Reaction
     :return: set of additional reactions from all of the added_reactions
     :rtype: set
     """
@@ -42,11 +40,11 @@ def resolve_additional_reactions(ori_reactions, adnl_reactions, cpds, rcts, medi
         # get all the other reactions we need to add
         for tple in adnl_reactions:
             ori.update(tple[1])
-        new_essential = PyFBA.gapfill.minimize_additional_reactions(ori, new, cpds, rcts, mediaset, biomass_eqn,
+        new_essential = PyFBA.gapfill.minimize_additional_reactions(ori, new, modeldata, mediaset, biomass_eqn,
                                                                     verbose=True)
         for new_r in new_essential:
-            reactions[new_r].is_gapfilled = True
-            reactions[new_r].gapfill_method = how
+            modeldata.reactions[new_r].is_gapfilled = True
+            modeldata.reactions[new_r].gapfill_method = how
         reqd_additional.update(new_essential)
 
     return reqd_additional
@@ -60,8 +58,8 @@ if __name__ == '__main__':
     parser.add_argument('-m', help='media file', required=True)
     parser.add_argument('-c', help='close genomes reactions file')
     parser.add_argument('-g', help='other genera reactions file')
-    parser.add_argument('-t', help='organism type for the model (currently allowed are {}). Default=gramnegative'.format(
-        orgtypes), default='gramnegative')
+    parser.add_argument('-t', default='gramnegative',
+                        help=f'organism type for the model (currently allowed are {orgtypes}). Default=gramnegative')
     parser.add_argument('-v', help='verbose output', action='store_true')
     args = parser.parse_args()
 
@@ -69,7 +67,8 @@ if __name__ == '__main__':
         sys.exit("Sorry, {} is not a valid organism type".format(args.t))
 
     # read the enzyme data
-    compounds, reactions, enzymes = PyFBA.parse.model_seed.compounds_reactions_enzymes(args.t)
+    # compounds, reactions, enzymes = PyFBA.parse.model_seed.compounds_reactions_enzymes(args.t)
+    modeldata = PyFBA.parse.model_seed.parse_model_seed_data(args.t, verbose=args.v)
 
     reactionsource = {}
 
@@ -83,7 +82,7 @@ if __name__ == '__main__':
                     sys.stderr.write("Biomass reaction was skipped from the list as it is auto-imported\n")
                 continue
             r = l.strip()
-            if r in reactions:
+            if r in modeldata.reactions:
                 reactions2run.add(r)
 
     for r in reactions2run:
@@ -95,7 +94,7 @@ if __name__ == '__main__':
     else:
         biomass_eqtn = PyFBA.metabolism.biomass.biomass_equation('standard')
 
-    status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn, verbose=args.v)
+    status, value, growth = PyFBA.fba.run_fba(modeldata, reactions2run, media, biomass_eqtn, verbose=args.v)
     sys.stderr.write("For the initial run we get growth of {} which is {}\n".format(value, growth))
     if growth:
         sys.exit("No need to gapfill!")
@@ -123,10 +122,10 @@ if __name__ == '__main__':
     #############################################################################################
 
     sys.stderr.write("Gap filling from MEDIA\n")
-    media_reactions = PyFBA.gapfill.suggest_from_media(compounds, reactions, reactions2run, media, verbose=args.v)
+    media_reactions = PyFBA.gapfill.suggest_from_media(modeldata, reactions2run, media, verbose=args.v)
     added_reactions.append(("media", media_reactions))
     reactions2run.update(media_reactions)
-    status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
+    status, value, growth = PyFBA.fba.run_fba(modeldata, reactions2run, media, biomass_eqtn)
     sys.stderr.write("After adding {} MEDIA reactions we get {} (growth is {})\n\n".format(len(media_reactions),
                                                                                            value, growth))
     for r in media_reactions:
@@ -134,8 +133,7 @@ if __name__ == '__main__':
             reactionsource[r] = 'media_reactions'
 
     if growth:
-        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 media, biomass_eqtn)
+        additions = resolve_additional_reactions(original_reactions, added_reactions, modeldata, media, biomass_eqtn)
         # print('reactions' + " : " + str(original_reactions.union(additions)))
         for r in original_reactions.union(additions):
             if r not in reactionsource:
@@ -151,12 +149,12 @@ if __name__ == '__main__':
     close_reactions = set()
     if args.c:
         # add reactions from roles in close genomes
-        close_reactions = PyFBA.gapfill.suggest_from_roles(args.c, reactions, threshold=0, verbose=True)
+        close_reactions = PyFBA.gapfill.suggest_from_roles(args.c, modeldata.reactions, threshold=0, verbose=True)
         # find the new reactions
         close_reactions.difference_update(reactions2run)
         added_reactions.append(("close genomes ", close_reactions))
         reactions2run.update(close_reactions)
-        status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
+        status, value, growth = PyFBA.fba.run_fba(modeldata, reactions2run, media, biomass_eqtn)
         sys.stderr.write("After adding {} reactions in {} we get {} (growth is {})\n\n".format(len(close_reactions),
                                                                                                args.c, value, growth))
         for r in close_reactions:
@@ -166,11 +164,10 @@ if __name__ == '__main__':
         # if this grows then we want to find the minimal set of reactions
         # that we need to add for growth and call it good.
         if growth:
-            additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                     media, biomass_eqtn)
+            additns = resolve_additional_reactions(original_reactions, added_reactions, modeldata, media, biomass_eqtn)
             # print("Additional reactions required: " + str(additions) + "\n")
             # print("'reactions': {}".format(original_reactions.union(additions)))
-            for r in original_reactions.union(additions):
+            for r in original_reactions.union(additns):
                 if r not in reactionsource:
                     reactionsource[r] = "UNKNOWN??"
                 print("{}\t{}".format(r, reactionsource[r]))
@@ -179,12 +176,12 @@ if __name__ == '__main__':
     genus_reactions = set()
     if args.g:
         # add reactions from roles in similar genera
-        genus_reactions = PyFBA.gapfill.suggest_from_roles(args.g, reactions, threshold=0, verbose=True)
+        genus_reactions = PyFBA.gapfill.suggest_from_roles(args.g, modeldata.reactions, threshold=0, verbose=True)
         # find the new reactions
         genus_reactions.difference_update(reactions2run)
         added_reactions.append(("other genera", genus_reactions))
         reactions2run.update(genus_reactions)
-        status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
+        status, value, growth = PyFBA.fba.run_fba(modeldata, reactions2run, media, biomass_eqtn)
         sys.stderr.write("After adding {} reactions in {} we get {} (growth is {})\n\n".format(len(genus_reactions),
                                                                                                args.g, value, growth))
         if args.v:
@@ -196,11 +193,10 @@ if __name__ == '__main__':
         # if this grows then we want to find the minimal set of reactions
         # that we need to add for growth and call it good.
         if growth:
-            additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                     media, biomass_eqtn)
+            additns = resolve_additional_reactions(original_reactions, added_reactions, modeldata, media, biomass_eqtn)
             # print("Additional reactions required: " + str(additions) + "\n")
             # print("'reactions': {}".format(original_reactions.union(additions)))
-            for r in original_reactions.union(additions):
+            for r in original_reactions.union(additns):
                 if r not in reactionsource:
                     reactionsource[r] = "UNKNOWN??"
                 print("{}\t{}".format(r, reactionsource[r]))
@@ -216,7 +212,7 @@ if __name__ == '__main__':
     essential_reactions.difference_update(reactions2run)
     added_reactions.append(("essential", essential_reactions))
     reactions2run.update(essential_reactions)
-    status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
+    status, value, growth = PyFBA.fba.run_fba(modeldata, reactions2run, media, biomass_eqtn)
     sys.stderr.write("After adding {} ESSENTIAL reactions we get {} (growth is {})\n\n".format(len(essential_reactions),
                                                                                                value, growth))
 
@@ -227,8 +223,7 @@ if __name__ == '__main__':
     # if this grows then we want to find the minimal set of reactions
     # that we need to add for growth and call it good.
     if growth:
-        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 media, biomass_eqtn)
+        additions = resolve_additional_reactions(original_reactions, added_reactions, modeldata, media, biomass_eqtn)
         # print('reactions' + " : " + str(original_reactions.union(additions)))
         for r in original_reactions.union(additions):
             if r not in reactionsource:
@@ -241,10 +236,11 @@ if __name__ == '__main__':
     #############################################################################################
 
     sys.stderr.write("Gap filling from SUBSYSTEMS\n")
-    subsystem_reactions = PyFBA.gapfill.suggest_reactions_from_subsystems(reactions, reactions2run, threshold=0.5, verbose=args.v)
+    subsystem_reactions = PyFBA.gapfill.suggest_reactions_from_subsystems(modeldata.reactions, reactions2run,
+                                                                          threshold=0.5, verbose=args.v)
     added_reactions.append(("subsystems", subsystem_reactions))
     reactions2run.update(subsystem_reactions)
-    status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
+    status, value, growth = PyFBA.fba.run_fba(modeldata, reactions2run, media, biomass_eqtn)
     sys.stderr.write("After adding {} SUBSYSTEM reactions we get {} (growth is {})\n\n".format(len(subsystem_reactions),
                                                                                                value, growth))
     for r in subsystem_reactions:
@@ -252,8 +248,7 @@ if __name__ == '__main__':
             reactionsource[r] = 'subsystem_reactions'
 
     if growth:
-        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 media, biomass_eqtn)
+        additions = resolve_additional_reactions(original_reactions, added_reactions, modeldata, media, biomass_eqtn)
         # print('reactions' + " : " + str(original_reactions.union(additions)))
         for r in original_reactions.union(additions):
             if r not in reactionsource:
@@ -266,10 +261,10 @@ if __name__ == '__main__':
     #############################################################################################
 
     sys.stderr.write("Gap filling from ORPHAN COMPOUNDS\n")
-    orphan_compounds = PyFBA.gapfill.suggest_by_compound(compounds, reactions, reactions2run, 1)
+    orphan_compounds = PyFBA.gapfill.suggest_by_compound(modeldata, reactions2run, 1)
     added_reactions.append(("orphans", orphan_compounds))
     reactions2run.update(orphan_compounds)
-    status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
+    status, value, growth = PyFBA.fba.run_fba(modeldata, reactions2run, media, biomass_eqtn)
     sys.stderr.write("After adding {} ORPHAN compounds we get {} (growth is {})\n\n".format(len(orphan_compounds),
                                                                                             value, growth))
     for r in orphan_compounds:
@@ -277,8 +272,7 @@ if __name__ == '__main__':
             reactionsource[r] = 'orphan_compounds'
 
     if growth:
-        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 media, biomass_eqtn)
+        additions = resolve_additional_reactions(original_reactions, added_reactions, modeldata, media, biomass_eqtn)
         # print('reactions' + " : " + str(original_reactions.union(additions)))
         for r in original_reactions.union(additions):
             if r not in reactionsource:
@@ -286,18 +280,17 @@ if __name__ == '__main__':
             print("{}\t{}".format(r, reactionsource[r]))
         sys.exit(0)
 
-
     #############################################################################################
     #                                        Probability of inclusion                           #
     #############################################################################################
 
     sys.stderr.write("Gap filling from PROBABILITY\n")
     # use reactions wtih pLR or pRL > cutoff
-    prob_reactions = PyFBA.gapfill.compound_probability(reactions, reactions2run, 0, True, True)
+    prob_reactions = PyFBA.gapfill.compound_probability(modeldata.reactions, reactions2run, 0, True, True)
     prob_reactions.difference_update(reactions2run)
     added_reactions.append(("probability", prob_reactions))
     reactions2run.update(prob_reactions)
-    status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
+    status, value, growth = PyFBA.fba.run_fba(modeldata, reactions2run, media, biomass_eqtn)
     sys.stderr.write("After adding {} PROBABILITY reactions we get {} (growth is {})\n\n".format(len(prob_reactions),
                                                                                                  value, growth))
 
@@ -308,8 +301,7 @@ if __name__ == '__main__':
         # if this grows then we want to find the minimal set of reactions
     # that we need to add for growth and call it good.
     if growth:
-        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 media, biomass_eqtn)
+        additions = resolve_additional_reactions(original_reactions, added_reactions, modeldata, media, biomass_eqtn)
         # print("Additional reactions required: " + str(additions) + "\n")
         # print("'reactions': {}".format(original_reactions.union(additions)))
         for r in original_reactions.union(additions):
@@ -324,12 +316,12 @@ if __name__ == '__main__':
 
     sys.stderr.write("Gap filling from ALL OTHER REACTIONS WITH PROTEINS\n")
     # propose other reactions that we have proteins for
-    with_p_reactions = PyFBA.gapfill.suggest_reactions_with_proteins(reactions, True)
+    with_p_reactions = PyFBA.gapfill.suggest_reactions_with_proteins(modeldata.reactions, True)
     # find the new reactions
     with_p_reactions.difference_update(reactions2run)
     added_reactions.append(("With proteins", with_p_reactions))
     reactions2run.update(with_p_reactions)
-    status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
+    status, value, growth = PyFBA.fba.run_fba(modeldata, reactions2run, media, biomass_eqtn)
     sys.stderr.write("After adding {} ALL WITH PROTEINS reactions ".format(len(with_p_reactions)) +
                      " we get {} (growth is {})\n\n".format(value, growth))
 
@@ -340,8 +332,7 @@ if __name__ == '__main__':
     # if this grows then we want to find the minimal set of reactions
     # that we need to add for growth and call it good.
     if growth:
-        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 media, biomass_eqtn)
+        additions = resolve_additional_reactions(original_reactions, added_reactions, modeldata, media, biomass_eqtn)
         # print("Additional reactions required: " + str(additions) + "\n")
         # print("'reactions': {}".format(original_reactions.union(additions)))
         for r in original_reactions.union(additions):
@@ -361,15 +352,16 @@ if __name__ == '__main__':
 
     sys.stderr.write("Gap filling from ALL OTHER REACTIONS WITHOUT PROTEINS\n")
     # propose other reactions that we have proteins for
-    without_p_reactions = PyFBA.gapfill.suggest_reactions_without_proteins(reactions, True)
+    without_p_reactions = PyFBA.gapfill.suggest_reactions_without_proteins(modeldata.reactions, True)
     # we have to limit this to things we have compounds in our reaction list, or we will not be able to solve the
     # FBA (We may not be able to anyway)
-    without_p_reactions = PyFBA.gapfill.limit_reactions_by_compound(reactions, reactions2run, without_p_reactions)
+    without_p_reactions = PyFBA.gapfill.limit_reactions_by_compound(modeldata.reactions, reactions2run,
+                                                                    without_p_reactions)
     # find the new reactions
     without_p_reactions.difference_update(reactions2run)
     added_reactions.append(("Without proteins", without_p_reactions))
     reactions2run.update(without_p_reactions)
-    status, value, growth = PyFBA.fba.run_fba(compounds, reactions, reactions2run, media, biomass_eqtn)
+    status, value, growth = PyFBA.fba.run_fba(modeldata, reactions2run, media, biomass_eqtn)
     sys.stderr.write("After adding {} reactions without proteins ... last ditch ".format(len(without_p_reactions)) +
                      " we get {} (growth is {})\n\n".format(value, growth))
     if growth:
@@ -386,8 +378,7 @@ if __name__ == '__main__':
     # if this grows then we want to find the minimal set of reactions
     # that we need to add for growth and call it good.
     if growth:
-        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
-                                                 media, biomass_eqtn)
+        additions = resolve_additional_reactions(original_reactions, added_reactions, modeldata, media, biomass_eqtn)
         # print("Additional reactions required: " + str(additions) + "\n")
         # print("'reactions': {}".format(original_reactions.union(additions)))
         for r in original_reactions.union(additions):

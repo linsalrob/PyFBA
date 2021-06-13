@@ -80,8 +80,7 @@ if args.dev:
 import PyFBA
 
 # Load ModelSEED database
-compounds, reactions, enzymes =\
-    PyFBA.parse.model_seed.compounds_reactions_enzymes('gramnegative')
+modeldata = PyFBA.parse.model_seed.parse_model_seed_data('gramnegative', verbose=True)
 
 # Read in assigned functions file
 assigned_functions = PyFBA.parse.read_assigned_functions(args.functions)
@@ -106,14 +105,14 @@ if args.verbose:
 # Get reactions from only completed complexes
 reactions_to_run = set()
 for c in complexes["complete"]:
-    reactions_to_run.update(enzymes[c].reactions)
+    reactions_to_run.update(modeldata.enzymes[c].reactions)
 print("There are {}".format(len(reactions_to_run)),
       "unique reactions associated with this genome", file=sys.stderr)
 
 # Remove reactions IDs that do not not have a reaction equation associated
 tempset = set()
 for r in reactions_to_run:
-    if r in reactions:
+    if r in modeldata.reactions:
         tempset.add(r)
     elif args.verbose:
         print("Reaction ID {}".format(r),
@@ -122,7 +121,7 @@ for r in reactions_to_run:
 reactions_to_run = tempset
 if args.draft:
     outputReactions("origreactions", outsfx,
-                    reactions_to_run, reactions, enzymes, False, args.verbose)
+                    reactions_to_run, modeldata.reactions, modeldata.enzymes, gf=None, v=args.verbose)
 
 # Load our media
 media = PyFBA.parse.read_media_file(args.media)
@@ -133,8 +132,7 @@ biomass_equation = PyFBA.metabolism.biomass_equation('gramnegative')
 
 
 # Run FBA on our media
-status, value, growth = PyFBA.fba.run_fba(compounds,
-                                          reactions,
+status, value, growth = PyFBA.fba.run_fba(modeldata,
                                           reactions_to_run,
                                           media,
                                           biomass_equation)
@@ -153,7 +151,7 @@ original_reactions_to_run = copy.copy(reactions_to_run)
 # Media import reactions
 if not growth:
     print("Adding media import reactions", file=sys.stderr)
-    media_reactions = PyFBA.gapfill.suggest_from_media(compounds, reactions,
+    media_reactions = PyFBA.gapfill.suggest_from_media(modeldata,
                                                        reactions_to_run, media)
     added_reactions.append(("media", media_reactions))
     reactions_to_run.update(media_reactions)
@@ -161,8 +159,7 @@ if not growth:
           file=sys.stderr)
     print("Total # reactions:", len(reactions_to_run), file=sys.stderr)
 
-    status, value, growth = PyFBA.fba.run_fba(compounds,
-                                              reactions,
+    status, value, growth = PyFBA.fba.run_fba(modeldata,
                                               reactions_to_run,
                                               media,
                                               biomass_equation)
@@ -179,8 +176,7 @@ if not growth:
           file=sys.stderr)
     print("Total # reactions:", len(reactions_to_run), file=sys.stderr)
 
-    status, value, growth = PyFBA.fba.run_fba(compounds,
-                                              reactions,
+    status, value, growth = PyFBA.fba.run_fba(modeldata,
                                               reactions_to_run,
                                               media,
                                               biomass_equation)
@@ -191,15 +187,14 @@ if not growth:
 if not growth:
     print("Adding close organisms reactions", file=sys.stderr)
     reactions_from_other_orgs =\
-        PyFBA.gapfill.suggest_from_roles(args.cgfunctions, reactions)
+        PyFBA.gapfill.suggest_from_roles(args.cgfunctions, modeldata.reactions)
     added_reactions.append(("close genomes", reactions_from_other_orgs))
     reactions_to_run.update(reactions_from_other_orgs)
     print("Attempting to add", len(reactions_from_other_orgs), "reacitons",
           file=sys.stderr)
     print("Total # reactions:", len(reactions_to_run), file=sys.stderr)
 
-    status, value, growth = PyFBA.fba.run_fba(compounds,
-                                              reactions,
+    status, value, growth = PyFBA.fba.run_fba(modeldata,
                                               reactions_to_run,
                                               media,
                                               biomass_equation)
@@ -210,7 +205,7 @@ if not growth:
 if not growth:
     print("Adding subsystem reactions", file=sys.stderr)
     subsystem_reactions =\
-        PyFBA.gapfill.suggest_reactions_from_subsystems(reactions,
+        PyFBA.gapfill.suggest_reactions_from_subsystems(modeldata.reactions,
                                                         reactions_to_run,
                                                         threshold=0.5)
     added_reactions.append(("subsystems", subsystem_reactions))
@@ -219,8 +214,7 @@ if not growth:
           file=sys.stderr)
     print("Total # reactions:", len(reactions_to_run), file=sys.stderr)
 
-    status, value, growth = PyFBA.fba.run_fba(compounds,
-                                              reactions,
+    status, value, growth = PyFBA.fba.run_fba(modeldata,
                                               reactions_to_run,
                                               media,
                                               biomass_equation)
@@ -231,7 +225,7 @@ if not growth:
 if not growth:
     print("Adding EC-related reactions", file=sys.stderr)
     ec_reactions = PyFBA.gapfill.suggest_reactions_using_ec(roles,
-                                                            reactions,
+                                                            modeldata.reactions,
                                                             reactions_to_run)
     added_reactions.append(("ec", ec_reactions))
     reactions_to_run.update(ec_reactions)
@@ -239,8 +233,7 @@ if not growth:
           file=sys.stderr)
     print("Total # reactions:", len(reactions_to_run), file=sys.stderr)
 
-    status, value, growth = PyFBA.fba.run_fba(compounds,
-                                              reactions,
+    status, value, growth = PyFBA.fba.run_fba(modeldata,
                                               reactions_to_run,
                                               media,
                                               biomass_equation)
@@ -250,7 +243,7 @@ if not growth:
 # Compound-probability-based reactions
 if not growth:
     print("Adding compound-probability-based reactions", file=sys.stderr)
-    probable_reactions = PyFBA.gapfill.compound_probability(reactions,
+    probable_reactions = PyFBA.gapfill.compound_probability(modeldata.reactions,
                                                             reactions_to_run,
                                                             cutoff=0,
                                                             rxn_with_proteins=True)
@@ -260,8 +253,7 @@ if not growth:
           file=sys.stderr)
     print("Total # reactions:", len(reactions_to_run), file=sys.stderr)
 
-    status, value, growth = PyFBA.fba.run_fba(compounds,
-                                              reactions,
+    status, value, growth = PyFBA.fba.run_fba(modeldata,
                                               reactions_to_run,
                                               media,
                                               biomass_equation)
@@ -272,8 +264,7 @@ if not growth:
 if not growth:
     print("Adding orphan-compound reactions", file=sys.stderr)
     orphan_reactions =\
-        PyFBA.gapfill.suggest_by_compound(compounds,
-                                          reactions,
+        PyFBA.gapfill.suggest_by_compound(modeldata,
                                           reactions_to_run,
                                           max_reactions=1)
     added_reactions.append(("orphans", orphan_reactions))
@@ -282,8 +273,7 @@ if not growth:
           file=sys.stderr)
     print("Total # reactions:", len(reactions_to_run), file=sys.stderr)
 
-    status, value, growth = PyFBA.fba.run_fba(compounds,
-                                              reactions,
+    status, value, growth = PyFBA.fba.run_fba(modeldata,
                                               reactions_to_run,
                                               media,
                                               biomass_equation)
@@ -314,22 +304,21 @@ while added_reactions:
     new_essential =\
         PyFBA.gapfill.minimize_additional_reactions(ori,
                                                     new,
-                                                    compounds,
-                                                    reactions,
+                                                    modeldata,
                                                     media,
                                                     biomass_equation)
     # Record the method used to determine
     # how the reaction was gap-filled
     for new_r in new_essential:
-        reactions[new_r].is_gapfilled = True
-        reactions[new_r].gapfill_method = how
+        modeldata.reactions[new_r].is_gapfilled = True
+        modeldata.reactions[new_r].gapfill_method = how
     reqd_additional.update(new_essential)
 
 # Combine old and new reactions
 all_reactions = original_reactions_to_run.union(reqd_additional)
 
 
-status, value, growth = PyFBA.fba.run_fba(compounds, reactions, all_reactions,
+status, value, growth = PyFBA.fba.run_fba(modeldata, all_reactions,
                                           media, biomass_equation)
 print("The biomass reaction has a flux of",
       "{} --> Growth: {}".format(value, growth), file=sys.stderr)
@@ -338,5 +327,5 @@ print("The biomass reaction has a flux of",
 outputFlux("flux", outsfx)
 
 # Save all reactions
-outputReactions("allreactions", outsfx, all_reactions,
-                reactions, enzymes, reqd_additional, args.verbose)
+outputReactions("allreactions", outsfx, all_reactions, modeldata.reactions, modeldata.enzymes, reqd_additional,
+                args.verbose)

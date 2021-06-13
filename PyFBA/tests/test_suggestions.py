@@ -10,8 +10,8 @@ elif os.path.exists('PyFBA/tests/roles.txt'):
 
 
 class SuggestionTest(unittest.TestCase):
-    compounds, reactions, enzymes = PyFBA.parse.model_seed.compounds_reactions_enzymes()
-
+    modeldata = PyFBA.parse.model_seed.parse_model_seed_data('gramnegative', verbose=False)
+    compounds, reactions, enzymes = PyFBA.parse.model_seed.compounds_reactions_enzymes(organism_type='gramnegative')
     def test_essential(self):
         """Test the essential reactions"""
         suggested = PyFBA.gapfill.suggest_essential_reactions()
@@ -19,7 +19,7 @@ class SuggestionTest(unittest.TestCase):
 
     def test_limit_by_compound(self):
         """Test limiting adding reactions by the compounds that are present"""
-        suggested = PyFBA.gapfill.suggest_by_compound(self.__class__.compounds, self.__class__.reactions,
+        suggested = PyFBA.gapfill.suggest_by_compound(self.__class__.modeldata,
                                                       {'rxn00001'}, 2)
         self.assertGreaterEqual(len(suggested), 22712)
         limited = PyFBA.gapfill.limit_reactions_by_compound(self.__class__.reactions, {'rxn00001'}, suggested, 5)
@@ -38,12 +38,12 @@ class SuggestionTest(unittest.TestCase):
     def test_media(self):
         """Test suggestions based on a media"""
         toy_media = {PyFBA.metabolism.Compound('cpd00013', 'NH3', 'e')}
-        suggested = PyFBA.gapfill.suggest_from_media(self.__class__.compounds, self.__class__.reactions, {}, toy_media)
+        suggested = PyFBA.gapfill.suggest_from_media(self.__class__.modeldata, {}, toy_media)
         self.assertEqual(len(suggested), 13)
 
     def test_orphan_compound(self):
         """Test suggestions based on orphan compounds"""
-        suggested = PyFBA.gapfill.suggest_by_compound(self.__class__.compounds, self.__class__.reactions,
+        suggested = PyFBA.gapfill.suggest_by_compound(self.__class__.modeldata,
                                                       {'rxn00001'}, 2)
         self.assertGreaterEqual(len(suggested), 22712)
 

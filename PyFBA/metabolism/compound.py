@@ -168,7 +168,7 @@ class Compound:
         """
         Return a set of all the reactions that this compound is involved in
 
-        :rtype: int
+        :rtype: Set[str]
         """
         return self.reactions
 

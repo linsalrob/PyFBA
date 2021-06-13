@@ -3,7 +3,7 @@ import PyFBA
 from PyFBA import lp, log_and_message
 
 
-def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, biomass_equation,
+def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equation,
                                  uptake_secretion=None, verbose=False):
     """Given the reactions data and a list of RIDs to include, build a
     stoichiometric matrix and load that into the linear solver.
@@ -14,18 +14,16 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
 
     We also take this opportunity to set the objective function (as it is a member of the SM).
 
-    :param uptake_secretion: An optional hash of uptake and secretion reactions that should be added to the model
-    :type uptake_secretion: a dict of Reactions
-    :param compounds: a set of the compounds present
-    :type compounds: set[PyFBA.metabolism.CompoundWithLocation]
-    :param reactions: a dict of all the reactions
-    :type reactions: dict[PyFBA.metabolism.Reaction]
     :param reactions_to_run: just the reaction ids that we want to include in our model
     :type reactions_to_run: set
+    :param modeldata: the model seed object that includes compounds and reactions
+    :type modeldata: PyFBA.model_seed.ModelSeed
     :param media: a set of compounds that would make up the media
     :type media: set
     :param biomass_equation: the biomass_equation equation as a Reaction object
     :type biomass_equation: metabolism.Reaction
+    :param uptake_secretion: An optional hash of uptake and secretion reactions that should be added to the model
+    :type uptake_secretion: a dict of Reactions
     :param verbose: print more information
     :type verbose: bool
     :returns: Sorted lists of all the compounds and reactions in the model, and a revised reactions dict that includes the uptake and secretion reactions
@@ -33,48 +31,55 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
 
     """
 
+    if not isinstance(modeldata, PyFBA.model_seed.ModelSeed):
+        msg = f"DEPRECTED: Please convert {type(modeldata)} that was passed to create_stoichiometric_matrix to a ModelSeed object"
+        log_and_message(msg)
+        raise DeprecationWarning(msg)
+
     sm = {}  # the matrix
     reaction_cpds = set()  # all the cpds in the matrix
 
-    # unify compounds from dicts and sets
-    if type(compounds) == dict:
-        log_and_message("create_stoichiometric_matrix is converting compounds from a dict to a set")
-        compounds = set(compounds.values())
+
+    # compounds is now deprecated since we don't need to parse that. We use the compounds
+    # from the media, reactions, and biomass equation, but don't look at the compounds
+    # any more
 
     # initialize the compounds set and the stoichiometric matrix with
     # everything in the media. The order of compounds is irrelevant
     for c in media:
-        if c not in compounds:
-            log_and_message(f"create_stoichiometric_matrix is adding compound {c} from media to compounds", stderr=True)
-            compounds.add(c)
+        if not modeldata.get_compound_by_name(c.name):
+            log_and_message(f"create_sm did not find media compound {c.name} in the compounds database",
+                            stderr=verbose)
+            # modelseed.compounds.add(c)
         if verbose and type(c) != PyFBA.metabolism.compound.CompoundWithLocation:
-            log_and_message(f"create_stoichiometric_matrix is parsing the media, {c} is a {type(c)} " +
-                            f"(not a cpod with location)", stderr=True)
+            log_and_message(f"create_sm is parsing the media, {c} is a {type(c)} " +
+                            f"(not a cpod with location)", stderr=verbose)
         reaction_cpds.add(c)
         sm[c] = {}
 
     # iterate through the reactions
     for r in reactions_to_run:
-        for c in reactions[r].left_compounds:
+        for c in modeldata.reactions[r].left_compounds:
             reaction_cpds.add(c)
             if c not in sm:
                 sm[c] = {}
             if not isinstance(c, PyFBA.metabolism.compound.CompoundWithLocation):
                 log_and_message(f"Warning. In parsing left compounds for the SM, {c} is a {type(c)}", stderr=verbose)
-            sm[c][r] = 0 - reactions[r].get_left_compound_abundance(c)
+            sm[c][r] = 0 - modeldata.reactions[r].get_left_compound_abundance(c)
 
-        for c in reactions[r].right_compounds:
+        for c in modeldata.reactions[r].right_compounds:
             reaction_cpds.add(c)
             if c not in sm:
                 sm[c] = {}
             if not isinstance(c, PyFBA.metabolism.compound.CompoundWithLocation):
                 log_and_message(f"Warning. In parsing right compounds for the SM, {c} is a {type(c)}", stderr=verbose)
-            sm[c][r] = reactions[r].get_right_compound_abundance(c)
+            sm[c][r] = modeldata.reactions[r].get_right_compound_abundance(c)
 
     for c in biomass_equation.left_compounds:
-        if c not in compounds:
-            compounds.add(c)
-            log_and_message(f"create_stoichiometric_matrix added compound {c} from biomass to compounds", stderr=True)
+        if not modeldata.get_compound_by_name(c.name):
+            # compounds.add(c)
+            log_and_message(f"create_sm did not find biomass left compound {c.name} in the compounds database",
+                            stderr=verbose)
         if verbose and type(c) != PyFBA.metabolism.compound.CompoundWithLocation:
             log_and_message(f"In parsing biomass left, {c} is a {type(c)}", stderr=True)
         reaction_cpds.add(c)
@@ -82,9 +87,10 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
             sm[c] = {}
         sm[c]["BIOMASS_EQN"] = 0 - biomass_equation.get_left_compound_abundance(c)
     for c in biomass_equation.right_compounds:
-        if c not in compounds:
-            compounds.add(c)
-            log_and_message(f"create_stoichiometric_matrix added compound {c} from biomass to compounds", stderr=True)
+        if not modeldata.get_compound_by_name(c.name):
+            #compounds.add(c)
+            log_and_message(f"create_sm did not find biomass right compound {c.name} in the compounds database",
+                            stderr=verbose)
         if verbose and type(c) != PyFBA.metabolism.compound.CompoundWithLocation:
             log_and_message(f"In parsing biomass right, {c} is a {type(c)}", stderr=True)
         reaction_cpds.add(c)
@@ -105,7 +111,7 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
         log_and_message(f"create_stoichiometric_matrix found {len(uptake_secretion)} uptake and secretion reactions",
                         stderr=True)
     for r in uptake_secretion:
-        reactions[uptake_secretion[r].id] = uptake_secretion[r]
+        # reactions[uptake_secretion[r].id] = uptake_secretion[r]
         for c in uptake_secretion[r].left_compounds:
             reaction_cpds.add(c)
             if c not in sm:
@@ -148,4 +154,4 @@ def create_stoichiometric_matrix(reactions_to_run, reactions, compounds, media, 
 
     PyFBA.lp.objective_coefficients(ob)
 
-    return cp, rc, reactions
+    return cp, rc

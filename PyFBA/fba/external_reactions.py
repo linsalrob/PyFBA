@@ -23,7 +23,7 @@ def uptake_and_secretion_reactions(model_compounds):
             # this is an uptake or secretion reaction
             # we need to add a new compound like this with a false location
             us_leftside = c
-            us_rightside = copy.copy(us_leftside)
+            us_rightside = copy.deepcopy(us_leftside)
             # The uptake and secretion compounds typically have reaction bounds that allow them to be consumed
             # (i.e. diffuse away from the cell) but not produced. However, our media components can also increase
             # in concentration (i.e. diffuse to the cell) and thus the bounds are set higher. Whenever you change the

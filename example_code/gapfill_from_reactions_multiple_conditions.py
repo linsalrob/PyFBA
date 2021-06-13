@@ -14,25 +14,24 @@ We will handle multiple positive files and negative files and try and resolve in
 """
 
 
-def resolve_additional_reactions(ori_reactions, adnl_reactions, cpds, rcts, growth_media, no_growth_media, biomass_eqn,
+def resolve_additional_reactions(ori_reactions, adnl_reactions, md, gm, ngm, biomass_eqn,
                                  minimum_tp=0, minimum_accuracy=0.5, verbose=False):
     """
-    Iteratively resolve additional reactions that are required.
-
-    :param cpds: Our compounds dictionary object
-    :type cpds: dict
+    Iteratively resolve additional reactions that are required
     :param ori_reactions: the set of original reactions that form the base of the model
-    :type ori_reactions: set
+    :type ori_reactions: Set[str]
     :param adnl_reactions: a list of tuples of how the reactions were suggested, and the set of additional reactions
-    :type adnl_reactions: list of tuple
-    :param rcts: our reactions object
-    :type rcts: dict
-    :param growth_media: A list of media where we should grow
-    :type growth_media: list of Set of Compounds
-    :param no_growth_media: A list of media where we should not grow
-    :type no_growth_media: list of Set of Compounds
+    :param md: The modeldata object
+    :type md: PyFBA.model_seed.ModelSeed
+    :param gm: A list of media where we should grow
+    :type gm: List[Set[PyFBA.metabolism.CompoundWithLocation]]
+    :param ngm: A list of media where we should NOT grow
+    :type ngm: List[Set[PyFBA.metabolism.CompoundWithLocation]]
     :param biomass_eqn: our biomass object
-    :type biomass_eqn: metabolism.Reaction
+    :type biomass_eqn: PyFBA.metabolism.Reaction
+    :param minimum_tp: minimum true positives allowed
+    :param minimum_accuracy:  minimum accuracy desired
+    :param verbose:  more output
     :return: set of additional reactions from all of the added_reactions
     :rtype: set
     """
@@ -47,11 +46,11 @@ def resolve_additional_reactions(ori_reactions, adnl_reactions, cpds, rcts, grow
         # get all the other reactions we need to add
         for tple in adnl_reactions:
             ori.update(tple[1])
-        new_essential = PyFBA.gapfill.minimize_by_accuracy(ori, new, cpds, rcts, growth_media, no_growth_media,
+        new_essential = PyFBA.gapfill.minimize_by_accuracy(ori, new, md, gm, ngm,
                                                            biomass_eqn, minimum_tp, minimum_accuracy, verbose=verbose)
         for new_r in new_essential:
-            reactions[new_r].is_gapfilled = True
-            reactions[new_r].gapfill_method = how
+            md.reactions[new_r].is_gapfilled = True
+            md.reactions[new_r].gapfill_method = how
         reqd_additional.update(new_essential)
 
     return reqd_additional
@@ -67,8 +66,8 @@ if __name__ == '__main__':
     parser.add_argument('-f', help='fraction of growth conditions on which we want growth', default=0.8, type=float)
     parser.add_argument('-c', help='close genomes reactions file')
     parser.add_argument('-g', help='other genera reactions file')
-    parser.add_argument('-t', help='organism type for the model (currently allowed are {}). Default=gramnegative'.format(
-        orgtypes), default='gramnegative')
+    parser.add_argument('-t', default='gramnegative',
+                        help=f'organism type for the model (currently allowed are {orgtypes}). Default=gramnegative')
     parser.add_argument('-v', help='verbose output', action='store_true')
     args = parser.parse_args()
 
@@ -76,7 +75,8 @@ if __name__ == '__main__':
         sys.exit("Sorry, {} is not a valid organism type".format(args.t))
 
     # read the enzyme data
-    compounds, reactions, enzymes = PyFBA.parse.model_seed.compounds_reactions_enzymes(args.t)
+    # compounds, reactions, enzymes = PyFBA.parse.model_seed.compounds_reactions_enzymes(args.t)
+    modeldata = PyFBA.parse.model_seed.parse_model_seed_data('gramnegative', verbose=args.v)
 
     reactionsource = {}
 
@@ -85,12 +85,12 @@ if __name__ == '__main__':
         for l in f:
             if l.startswith('#'):
                 continue
-            if "biomass" in l:
+            if "biomass" in l.lower():
                 if args.v:
                     sys.stderr.write("Biomass reaction was skipped from the list as it is auto-imported\n")
                 continue
             r = l.strip()
-            if r in reactions:
+            if r in modeldata.reactions:
                 reactions2run.add(r)
 
     for r in reactions2run:
@@ -107,7 +107,7 @@ if __name__ == '__main__':
 
     sys.stderr.write("Looking for growth on at least {} media\n".format(min_growth_conditions))
 
-    pr = PyFBA.gapfill.calculate_precision_recall(growth_media, no_growth_media, compounds, reactions, reactions2run, biomass_eqtn)
+    pr = PyFBA.gapfill.calculate_precision_recall(growth_media, no_growth_media, modeldata, reactions2run, biomass_eqtn)
     acc = PyFBA.gapfill.reaction_minimization.accuracy(pr)
 
     sys.stderr.write("For the initial run we get: ")
@@ -143,7 +143,7 @@ if __name__ == '__main__':
     sys.stderr.write("Gap filling from MEDIA\n")
     media_reactions = set()
     for media in growth_media:
-        media_reactions.update(PyFBA.gapfill.suggest_from_media(compounds, reactions, reactions2run, media, verbose=args.v))
+        media_reactions.update(PyFBA.gapfill.suggest_from_media(modeldata, reactions2run, media, verbose=args.v))
     added_reactions.append(("media", media_reactions))
     reactions2run.update(media_reactions)
 
@@ -151,7 +151,7 @@ if __name__ == '__main__':
         if r not in reactionsource:
             reactionsource[r] = 'media_reactions'
 
-    pr = PyFBA.gapfill.calculate_precision_recall(growth_media, no_growth_media, compounds, reactions, reactions2run,
+    pr = PyFBA.gapfill.calculate_precision_recall(growth_media, no_growth_media, modeldata, reactions2run,
                                                   biomass_eqtn)
     acc = PyFBA.gapfill.reaction_minimization.accuracy(pr)
 
@@ -161,7 +161,7 @@ if __name__ == '__main__':
     sys.stderr.write("Accuracy: {}\n".format(acc))
 
     if pr['tp'] > min_growth_conditions:
-        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
+        additions = resolve_additional_reactions(original_reactions, added_reactions, modeldata,
                                                  growth_media, no_growth_media, biomass_eqtn,
                                                  minimum_tp=min_growth_conditions, verbose=args.v)
         for r in original_reactions.union(additions):
@@ -178,7 +178,7 @@ if __name__ == '__main__':
     close_reactions = set()
     if args.c:
         # add reactions from roles in close genomes
-        close_reactions = PyFBA.gapfill.suggest_from_roles(args.c, reactions, threshold=0, verbose=True)
+        close_reactions = PyFBA.gapfill.suggest_from_roles(args.c, modeldata.reactions, threshold=0, verbose=True)
         # find the new reactions
         close_reactions.difference_update(reactions2run)
         added_reactions.append(("close genomes ", close_reactions))
@@ -187,7 +187,7 @@ if __name__ == '__main__':
             if r not in reactionsource:
                 reactionsource[r] = 'close_reactions'
 
-        pr = PyFBA.gapfill.calculate_precision_recall(growth_media, no_growth_media, compounds, reactions, reactions2run,
+        pr = PyFBA.gapfill.calculate_precision_recall(growth_media, no_growth_media, modeldata, reactions2run,
                                                       biomass_eqtn)
         acc = PyFBA.gapfill.reaction_minimization.accuracy(pr)
 
@@ -197,7 +197,7 @@ if __name__ == '__main__':
         sys.stderr.write("Accuracy: {}\n".format(acc))
 
         if pr['tp'] > min_growth_conditions:
-            additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
+            additions = resolve_additional_reactions(original_reactions, added_reactions, modeldata,
                                                      growth_media, no_growth_media, biomass_eqtn,
                                                      minimum_tp=min_growth_conditions, verbose=args.v)
             for r in original_reactions.union(additions):
@@ -209,7 +209,7 @@ if __name__ == '__main__':
     genus_reactions = set()
     if args.g:
         # add reactions from roles in similar genera
-        genus_reactions = PyFBA.gapfill.suggest_from_roles(args.g, reactions, threshold=0, verbose=True)
+        genus_reactions = PyFBA.gapfill.suggest_from_roles(args.g, modeldata.reactions, threshold=0, verbose=True)
         genus_reactions.difference_update(reactions2run)
         added_reactions.append(("other genera", genus_reactions))
         reactions2run.update(genus_reactions)
@@ -218,7 +218,7 @@ if __name__ == '__main__':
             if r not in reactionsource:
                 reactionsource[r] = 'genus_reactions'
 
-        pr = PyFBA.gapfill.calculate_precision_recall(growth_media, no_growth_media, compounds, reactions, reactions2run,
+        pr = PyFBA.gapfill.calculate_precision_recall(growth_media, no_growth_media, modeldata, reactions2run,
                                                       biomass_eqtn)
         acc = PyFBA.gapfill.reaction_minimization.accuracy(pr)
 
@@ -228,7 +228,7 @@ if __name__ == '__main__':
         sys.stderr.write("Accuracy: {}\n".format(acc))
 
         if pr['tp'] > min_growth_conditions:
-            additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
+            additions = resolve_additional_reactions(original_reactions, added_reactions, modeldata,
                                                      growth_media, no_growth_media, biomass_eqtn,
                                                      minimum_tp=min_growth_conditions, verbose=args.v)
             for r in original_reactions.union(additions):
@@ -252,7 +252,7 @@ if __name__ == '__main__':
         if r not in reactionsource:
             reactionsource[r] = 'essential_reactions'
 
-    pr = PyFBA.gapfill.calculate_precision_recall(growth_media, no_growth_media, compounds, reactions,
+    pr = PyFBA.gapfill.calculate_precision_recall(growth_media, no_growth_media, modeldata,
                                                   reactions2run,
                                                   biomass_eqtn)
     acc = PyFBA.gapfill.reaction_minimization.accuracy(pr)
@@ -263,7 +263,7 @@ if __name__ == '__main__':
     sys.stderr.write("Accuracy: {}\n".format(acc))
 
     if pr['tp'] > min_growth_conditions:
-        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
+        additions = resolve_additional_reactions(original_reactions, added_reactions, modeldata,
                                                  growth_media, no_growth_media, biomass_eqtn,
                                                  minimum_tp=min_growth_conditions, verbose=args.v)
         for r in original_reactions.union(additions):
@@ -277,14 +277,15 @@ if __name__ == '__main__':
     #############################################################################################
 
     sys.stderr.write("Gap filling from SUBSYSTEMS\n")
-    subsystem_reactions = PyFBA.gapfill.suggest_reactions_from_subsystems(reactions, reactions2run, threshold=0.5, verbose=args.v)
+    subsystem_reactions = PyFBA.gapfill.suggest_reactions_from_subsystems(modeldata.reactions, reactions2run,
+                                                                          threshold=0.5, verbose=args.v)
     added_reactions.append(("subsystems", subsystem_reactions))
     reactions2run.update(subsystem_reactions)
     for r in subsystem_reactions:
         if r not in reactionsource:
             reactionsource[r] = 'subsystem_reactions'
 
-    pr = PyFBA.gapfill.calculate_precision_recall(growth_media, no_growth_media, compounds, reactions,
+    pr = PyFBA.gapfill.calculate_precision_recall(growth_media, no_growth_media, modeldata,
                                                   reactions2run,
                                                   biomass_eqtn)
     acc = PyFBA.gapfill.reaction_minimization.accuracy(pr)
@@ -295,7 +296,7 @@ if __name__ == '__main__':
     sys.stderr.write("Accuracy: {}\n".format(acc))
 
     if pr['tp'] > min_growth_conditions:
-        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
+        additions = resolve_additional_reactions(original_reactions, added_reactions, modeldata,
                                                  growth_media, no_growth_media, biomass_eqtn,
                                                  minimum_tp=min_growth_conditions, verbose=args.v)
         for r in original_reactions.union(additions):
@@ -309,14 +310,14 @@ if __name__ == '__main__':
     #############################################################################################
 
     sys.stderr.write("Gap filling from ORPHAN COMPOUNDS\n")
-    orphan_compounds = PyFBA.gapfill.suggest_by_compound(compounds, reactions, reactions2run, 1)
+    orphan_compounds = PyFBA.gapfill.suggest_by_compound(modeldata, reactions2run, 1)
     added_reactions.append(("orphans", orphan_compounds))
     reactions2run.update(orphan_compounds)
     for r in orphan_compounds:
         if r not in reactionsource:
             reactionsource[r] = 'orphan_compounds'
 
-    pr = PyFBA.gapfill.calculate_precision_recall(growth_media, no_growth_media, compounds, reactions,
+    pr = PyFBA.gapfill.calculate_precision_recall(growth_media, no_growth_media, modeldata,
                                                   reactions2run,
                                                   biomass_eqtn)
     acc = PyFBA.gapfill.reaction_minimization.accuracy(pr)
@@ -327,7 +328,7 @@ if __name__ == '__main__':
     sys.stderr.write("Accuracy: {}\n".format(acc))
 
     if pr['tp'] > min_growth_conditions:
-        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
+        additions = resolve_additional_reactions(original_reactions, added_reactions, modeldata,
                                                  growth_media, no_growth_media, biomass_eqtn,
                                                  minimum_tp=min_growth_conditions, verbose=args.v)
         for r in original_reactions.union(additions):
@@ -336,14 +337,13 @@ if __name__ == '__main__':
             print("{}\t{}".format(r, reactionsource[r]))
         sys.exit(0)
 
-
     #############################################################################################
     #                                        Probability of inclusion                           #
     #############################################################################################
 
     sys.stderr.write("Gap filling from PROBABILITY\n")
     # use reactions wtih pLR or pRL > cutoff
-    prob_reactions = PyFBA.gapfill.compound_probability(reactions, reactions2run, 0, True, True)
+    prob_reactions = PyFBA.gapfill.compound_probability(modeldata.reactions, reactions2run, 0, True, True)
     prob_reactions.difference_update(reactions2run)
     added_reactions.append(("probability", prob_reactions))
     reactions2run.update(prob_reactions)
@@ -352,7 +352,7 @@ if __name__ == '__main__':
         if r not in reactionsource:
             reactionsource[r] = 'probable_reactions'
 
-    pr = PyFBA.gapfill.calculate_precision_recall(growth_media, no_growth_media, compounds, reactions,
+    pr = PyFBA.gapfill.calculate_precision_recall(growth_media, no_growth_media, modeldata,
                                                   reactions2run,
                                                   biomass_eqtn)
     acc = PyFBA.gapfill.reaction_minimization.accuracy(pr)
@@ -363,7 +363,7 @@ if __name__ == '__main__':
     sys.stderr.write("Accuracy: {}\n".format(acc))
 
     if pr['tp'] > min_growth_conditions:
-        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
+        additions = resolve_additional_reactions(original_reactions, added_reactions, modeldata,
                                                  growth_media, no_growth_media, biomass_eqtn,
                                                  minimum_tp=min_growth_conditions, verbose=args.v)
         for r in original_reactions.union(additions):
@@ -378,7 +378,7 @@ if __name__ == '__main__':
 
     sys.stderr.write("Gap filling from ALL OTHER REACTIONS WITH PROTEINS\n")
     # propose other reactions that we have proteins for
-    with_p_reactions = PyFBA.gapfill.suggest_reactions_with_proteins(reactions, True)
+    with_p_reactions = PyFBA.gapfill.suggest_reactions_with_proteins(modeldata.reactions, True)
     # find the new reactions
     with_p_reactions.difference_update(reactions2run)
     added_reactions.append(("With proteins", with_p_reactions))
@@ -387,7 +387,7 @@ if __name__ == '__main__':
         if r not in reactionsource:
             reactionsource[r] = 'reactions_with_proteins'
 
-    pr = PyFBA.gapfill.calculate_precision_recall(growth_media, no_growth_media, compounds, reactions,
+    pr = PyFBA.gapfill.calculate_precision_recall(growth_media, no_growth_media, modeldata,
                                                   reactions2run,
                                                   biomass_eqtn)
     acc = PyFBA.gapfill.reaction_minimization.accuracy(pr)
@@ -398,7 +398,7 @@ if __name__ == '__main__':
     sys.stderr.write("Accuracy: {}\n".format(acc))
 
     if pr['tp'] > min_growth_conditions:
-        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
+        additions = resolve_additional_reactions(original_reactions, added_reactions, modeldata,
                                                  growth_media, no_growth_media, biomass_eqtn,
                                                  minimum_tp=min_growth_conditions, verbose=args.v)
         for r in original_reactions.union(additions):
@@ -418,10 +418,11 @@ if __name__ == '__main__':
 
     sys.stderr.write("Gap filling from ALL OTHER REACTIONS WITHOUT PROTEINS\n")
     # propose other reactions that we have proteins for
-    without_p_reactions = PyFBA.gapfill.suggest_reactions_without_proteins(reactions, True)
+    without_p_reactions = PyFBA.gapfill.suggest_reactions_without_proteins(modeldata.reactions, True)
     # we have to limit this to things we have compounds in our reaction list, or we will not be able to solve the
     # FBA (We may not be able to anyway)
-    without_p_reactions = PyFBA.gapfill.limit_reactions_by_compound(reactions, reactions2run, without_p_reactions)
+    without_p_reactions = PyFBA.gapfill.limit_reactions_by_compound(modeldata.reactions, reactions2run,
+                                                                    without_p_reactions)
     # find the new reactions
     without_p_reactions.difference_update(reactions2run)
     added_reactions.append(("Without proteins", without_p_reactions))
@@ -431,7 +432,7 @@ if __name__ == '__main__':
         if r not in reactionsource:
             reactionsource[r] = 'reactions_without_proteins'
 
-    pr = PyFBA.gapfill.calculate_precision_recall(growth_media, no_growth_media, compounds, reactions,
+    pr = PyFBA.gapfill.calculate_precision_recall(growth_media, no_growth_media, modeldata,
                                                   reactions2run, biomass_eqtn)
     acc = PyFBA.gapfill.reaction_minimization.accuracy(pr)
 
@@ -441,7 +442,7 @@ if __name__ == '__main__':
     sys.stderr.write("Accuracy: {}\n".format(acc))
 
     if pr['tp'] > min_growth_conditions:
-        additions = resolve_additional_reactions(original_reactions, added_reactions, compounds, reactions,
+        additions = resolve_additional_reactions(original_reactions, added_reactions, modeldata,
                                                  growth_media, no_growth_media, biomass_eqtn,
                                                  minimum_tp=min_growth_conditions, verbose=args.v)
         for r in original_reactions.union(additions):

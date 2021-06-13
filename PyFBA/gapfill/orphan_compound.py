@@ -1,9 +1,10 @@
 import sys
 
 
-def suggest_by_compound(compounds, reactions, reactions2run, max_reactions, verbose=False):
+def suggest_by_compound(modeldata, reactions2run, max_reactions, verbose=False):
     """
-    Identify a set of reactions that you should add to your model for growth because they contain orphan compounds
+    Identify a set of reactions that you should add to your model for growth because
+    they contain orphan compounds
 
     This is a slightly different approach to suggesting by compound.
     We look for "orphan" compounds that only have a few connections to
@@ -11,7 +12,7 @@ def suggest_by_compound(compounds, reactions, reactions2run, max_reactions, verb
     happens.
 
     Note: that our notion of two compounds being equal normally
-    includes their location (and str(c) includes the location).
+    includes their location.
     However, we probably have several instances of:
 
         cpd [e] -> cpd [c]
@@ -21,10 +22,8 @@ def suggest_by_compound(compounds, reactions, reactions2run, max_reactions, verb
     These should be considered to be the same, and we probably
     don't want to consider external compounds any way
 
-    :param reactions: The reactions dictionary
-    :type reactions: dict
-    :param compounds: The compounds dictionary
-    :type compounds: dict
+    :param modeldata: the model seed object that includes compounds and reactions
+    :type modeldata: PyFBA.model_seed.ModelSeed
     :param reactions2run: The set of reactions that we will already run
     :type reactions2run: set
     :param max_reactions: The maximum number of reactions that a compound can be associated with. Avoids, eg. H2O
@@ -38,27 +37,27 @@ def suggest_by_compound(compounds, reactions, reactions2run, max_reactions, verb
 
     cpd = {}
     for r in reactions2run:
-        for c in reactions[r].all_compounds():
-            cpd[str(c)] = cpd.get(str(c), 0) + 1
+        for c in modeldata.reactions[r].all_compounds():
+            cpd[c] = cpd.get(c, 0) + 1
 
     ikeep = set()
     ekeep = set()
 
     external = 0
     internal = 0
-    for c in compounds:
-        if str(compounds[c]) in cpd and cpd[str(compounds[c])] <= max_reactions:
-            if compounds[c].location == 'e':
+    for c in cpd:
+        if cpd[c] <= max_reactions:
+            if c.location == 'e':
                 external += 1
-                ekeep.update(compounds[c].all_reactions())
+                ekeep.update(c.all_reactions())
             else:
                 internal += 1
-                ikeep.update(compounds[c].all_reactions())
+                ikeep.update(c.all_reactions())
 
     if verbose:
         sys.stdout.write("{} | {} | {} | {} | {}\n".format(max_reactions, internal, len(ikeep), external, len(ekeep)))
 
-    ikeep = {r for r in ikeep if r in reactions and r not in reactions2run}
-    ekeep = {r for r in ekeep if r in reactions and r not in reactions2run}
+    ikeep = {r for r in ikeep if r in modeldata.reactions and r not in reactions2run}
+    ekeep = {r for r in ekeep if r in modeldata.reactions and r not in reactions2run}
 
     return ikeep

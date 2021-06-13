@@ -5,6 +5,7 @@ from typing import Dict, Set
 
 import PyFBA
 
+
 class ModelSeed:
     """
      A class to hold model seed objects so that we only need to parse them once.
@@ -22,7 +23,7 @@ class ModelSeed:
     reactions: Dict[str, PyFBA.metabolism.Reaction]
 
     def __init__(self, compounds=None, reactions=None, enzymes=None,
-                complexes=None, roles=None, organism_type=None):
+                 complexes=None, roles=None, organism_type=None):
         self.compounds = compounds
         if reactions:
             self.reactions = reactions
@@ -31,7 +32,7 @@ class ModelSeed:
         self.enzymes = enzymes
         self.complexes = complexes
         self.roles = roles
-        self.organism_type=organism_type
+        self.organism_type = organism_type
         self.compounds_by_id = {}
         self.compounds_by_name = {}
         self.last_compound_by_id_sz = 0

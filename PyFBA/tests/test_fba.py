@@ -25,6 +25,7 @@ else:
 
 class TestFBA(unittest.TestCase):
 
+    modeldata = PyFBA.parse.model_seed.parse_model_seed_data('gramnegative', verbose=True)
     compounds, reactions, enzymes = PyFBA.parse.model_seed.compounds_reactions_enzymes('gram_negative')
 
     def setUp(self):
@@ -37,15 +38,13 @@ class TestFBA(unittest.TestCase):
         compounds = PyFBA.parse.model_seed.compounds()
         reactions = PyFBA.parse.model_seed.reactions()
         # create a few external compounds
-        cpds = list(compounds.keys())[0:10]
+        cpds = list(compounds)[0:10]
         model_cpds = set()
         for c in cpds:
-            new_comp = copy.copy(compounds[c])
-            new_comp.location = 'e'
-            compounds[str(new_comp)] = new_comp
-            model_cpds.add(str(new_comp))
+            new_comp = PyFBA.metabolism.CompoundWithLocation.from_compound(c, 'e')
+            model_cpds.add(new_comp)
 
-        upsec = PyFBA.fba.uptake_and_secretion_reactions(model_cpds, compounds)
+        upsec = PyFBA.fba.uptake_and_secretion_reactions(model_cpds)
         self.assertEqual(len(upsec), 10)
 
         # now remove them and see there is nothing left
@@ -58,8 +57,7 @@ class TestFBA(unittest.TestCase):
         reactions2run = set(list(self.__class__.reactions.keys())[0:20])
         biomass_equation = PyFBA.metabolism.biomass_equation('gram_negative')
         cp, rc, reactions = PyFBA.fba.create_stoichiometric_matrix(reactions_to_run=reactions2run,
-                                                                   reactions=self.__class__.reactions,
-                                                                   compounds=self.__class__.compounds,
+                                                                   modeldata=self.__class__.modeldata,
                                                                    media=set(),
                                                                    biomass_equation=biomass_equation)
         # this allows some wiggle room as the data changes
