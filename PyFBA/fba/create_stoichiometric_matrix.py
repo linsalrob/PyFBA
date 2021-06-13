@@ -55,6 +55,7 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
                             f"(not a cpod with location)", stderr=verbose)
         reaction_cpds.add(c)
         sm[c] = {}
+    log_and_message(f"csm: after adding {len(media)} media, cp: {len(reaction_cpds)}, sm has {len(sm)}", stderr=verbose)
 
     # iterate through the reactions
     for r in reactions_to_run:
@@ -73,6 +74,8 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
             if not isinstance(c, PyFBA.metabolism.compound.CompoundWithLocation):
                 log_and_message(f"Warning. In parsing right compounds for the SM, {c} is a {type(c)}", stderr=verbose)
             sm[c][r] = modeldata.reactions[r].get_right_compound_abundance(c)
+
+    log_and_message(f"csm: after adding {len(reactions_to_run)} r2r, cp: {len(reaction_cpds)}, sm has {len(sm)}", stderr=verbose)
 
     for c in biomass_equation.left_compounds:
         if not modeldata.get_compound_by_name(c.name):
@@ -96,6 +99,8 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
         if c not in sm:
             sm[c] = {}
         sm[c]["BIOMASS_EQN"] = biomass_equation.get_right_compound_abundance(c)
+
+    log_and_message(f"csm: after adding biomass, cp: {len(reaction_cpds)}, sm has {len(sm)}", stderr=verbose)
 
     # Add the uptake/secretion reactions. These are reactions that allow things to flow from the media
     # into the reaction, or from the cell outwards.
@@ -123,7 +128,9 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
     cp.sort()
     rc = list(reactions_to_run)
     rc.sort()
+    log_and_message(f"csm: before adding {len(uptake_secretion)} upsr, cp x rxn: {len(cp)} x {len(rc)}", stderr=verbose)
     rc += [uptake_secretion[x].id for x in uptake_secretion]
+    log_and_message(f"csm: after adding {len(uptake_secretion)} upsr, cp x rxn: {len(cp)} x {len(rc)}", stderr=verbose)
 
     # it is important that we add these at the end
     rc.append("BIOMASS_EQN")
