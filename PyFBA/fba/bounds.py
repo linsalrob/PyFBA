@@ -3,7 +3,7 @@ import sys
 from PyFBA import lp
 
 
-def reaction_bounds(reactions, reactions_to_run, media, lower=-1000.0, mid=0.0, upper=1000.0, verbose=False):
+def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions={}, lower=-1000.0, mid=0.0, upper=1000.0, verbose=False):
     """
     Set the bounds for each reaction. We set the reactions to run between
     either lower/mid, mid/upper, or lower/upper depending on whether the
@@ -15,6 +15,8 @@ def reaction_bounds(reactions, reactions_to_run, media, lower=-1000.0, mid=0.0, 
     :type reactions_to_run: set
     :param media: The media compounds
     :type media: set
+    :param uptakesecretionreactions: The optional uptake and secretion reactions
+    :type uptakesecretionreactions: Dict[str, PyFBA.metabolism.Reaction]
     :param lower: The default lower bound
     :type lower: float
     :param mid: The default mid value (typically 0)
@@ -86,6 +88,7 @@ def reaction_bounds(reactions, reactions_to_run, media, lower=-1000.0, mid=0.0, 
                          "and secretion reactions and {} other u/s reactions\n".format(other_uptake_secretion_count))
 
     rbounds = [rbvals[r] for r in reactions_to_run]
+    rbounds += [(lower, upper) for x in uptakesecretionreactions]
     lp.col_bounds(rbounds)
     return rbvals
 

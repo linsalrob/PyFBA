@@ -53,7 +53,7 @@ class TestFBA(unittest.TestCase):
 
         reactions2run = set(list(self.__class__.modeldata.reactions.keys())[0:20])
         biomass_equation = PyFBA.metabolism.biomass_equation('gram_negative')
-        cp, rc, reactions = PyFBA.fba.create_stoichiometric_matrix(reactions_to_run=reactions2run,
+        cp, rc, upsr = PyFBA.fba.create_stoichiometric_matrix(reactions_to_run=reactions2run,
                                                                    modeldata=self.__class__.modeldata,
                                                                    media=set(),
                                                                    biomass_equation=biomass_equation)
@@ -62,8 +62,8 @@ class TestFBA(unittest.TestCase):
         self.assertLessEqual(len(cp), 150)
         self.assertGreaterEqual(len(rc), 20)
         self.assertLessEqual(len(rc), 30)
-        self.assertGreaterEqual(len(reactions), 34000)
-        self.assertLessEqual(len(reactions), 35000)
+        self.assertGreaterEqual(len(upsr), 34000)
+        self.assertLessEqual(len(upsr), 35000)
 
     def test_run_fba(self):
         """Test running the fba. We build a run a complete FBA based on reaction_list.txt"""

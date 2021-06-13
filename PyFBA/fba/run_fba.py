@@ -29,7 +29,7 @@ def run_fba(modeldata, reactions_to_run, media, biomass_equation, uptake_secreti
 
     """
 
-    cp, rc = PyFBA.fba.create_stoichiometric_matrix(reactions_to_run, modeldata, media,
+    cp, rc, upsr = PyFBA.fba.create_stoichiometric_matrix(reactions_to_run, modeldata, media,
                                                     biomass_equation, uptake_secretion, verbose=verbose)
 
     rbvals = PyFBA.fba.reaction_bounds(modeldata.reactions, rc, media)
