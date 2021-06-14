@@ -59,6 +59,10 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
 
     # iterate through the reactions
     for r in reactions_to_run:
+        if 'biomass' in r.lower():
+            log_and_message(f"Found a potential biomass equation in reactions to run ({r}). Skipped", stderr=verbose)
+            continue
+
         for c in modeldata.reactions[r].left_compounds:
             reaction_cpds.add(c)
             if c not in sm:
@@ -82,7 +86,7 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
             # compounds.add(c)
             log_and_message(f"csm: did not find biomass left compound {c.name} in the compounds database",
                             stderr=verbose, loglevel="WARNING")
-        if verbose and type(c) != PyFBA.metabolism.compound.CompoundWithLocation:
+        if verbose and not isinstance(c, PyFBA.metabolism.compound.CompoundWithLocation):
             log_and_message(f"In parsing biomass left, {c} is a {type(c)}", stderr=True)
         reaction_cpds.add(c)
         if c not in sm:
@@ -93,7 +97,7 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
             # compounds.add(c)
             log_and_message(f"csm: did not find biomass right compound {c.name} in the compounds database",
                             stderr=verbose, loglevel="WARNING")
-        if verbose and type(c) != PyFBA.metabolism.compound.CompoundWithLocation:
+        if verbose and not isinstance(c, PyFBA.metabolism.compound.CompoundWithLocation):
             log_and_message(f"In parsing biomass right, {c} is a {type(c)}", stderr=True)
         reaction_cpds.add(c)
         if c not in sm:
@@ -110,6 +114,7 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
 
     if not uptake_secretion:
         uptake_secretion = PyFBA.fba.uptake_and_secretion_reactions(reaction_cpds)
+        modeldata.reactions.update(uptake_secretion)
     for r in uptake_secretion:
         # modeldata.reactions[uptake_secretion[r].id] = uptake_secretion[r]
         for c in uptake_secretion[r].left_compounds:
