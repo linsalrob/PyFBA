@@ -77,7 +77,7 @@ def run_fba_sbml(sbmlfile, verbose=False):
     ms = PyFBA.model_seed.ModelData(compounds=filtered_compounds, reactions=reactions)
     status, value, growth = PyFBA.fba.run_fba(ms,
                                               reactions_to_run, media, biomass_equation,
-                                              uptake_secretion_reactions, verbose=True)
+                                              uptake_secretion_reactions, verbose=verbose)
     print("The FBA completed with a flux value of {} --> growth: {}".format(value, growth))
     return value, growth
 
