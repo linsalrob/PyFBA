@@ -35,7 +35,7 @@ def run_fba(reactions_to_run, mediafile, verbose=False):
     print(f"The media has {len(media)} compounds")
 
     status, value, growth = PyFBA.fba.run_fba(modeldata, reactions_to_run, media, biomass_equation,
-                                              {}, verbose=False)
+                                              {}, verbose=verbose)
     print(f"Running FBA on {mediafile} completed with a flux value of {value} --> growth: {growth}")
 
 
