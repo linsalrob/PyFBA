@@ -39,8 +39,6 @@ def run_fba(modeldata, reactions_to_run, media, biomass_equation, uptake_secreti
         log_and_message(f"Number of compounds in SM: {len(cp)}", stderr=verbose)
         log_and_message(f"Number of reactions in SM: {len(rc)}", stderr=verbose)
         log_and_message(f"Number of uptake/secretion reactions {len(upsr)}", stderr=verbose)
-        log_and_message(f"Revised number of total reactions: {len(modeldata.reactions)}", stderr=verbose)
-        log_and_message(f"Revised number of total compounds: {len(modeldata.compounds)}", stderr=verbose)
         log_and_message(f"SMat dimensions: {len(cp)} x {len(rc)}", stderr=verbose)
 
     status, value = PyFBA.lp.solve()
