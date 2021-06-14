@@ -31,18 +31,15 @@ def suggest_from_media(modeldata, reactions2run, media, verbose=False):
         # can we find it by name
         if m.name in cpdnames:
             rxns = cpdnames[m.name].all_reactions()
-            if verbose:
-                log_and_message(f"For {m.name} added {len(rxns)} reactions", stderr=True)
+            log_and_message(f"Adding from media: For {m.name} added {len(rxns)} reactions", stderr=verbose)
             suggest.update(rxns)
         elif m.name in cpdaliases:
-            if verbose:
-                log_and_message(f"Found {m.name} as an alias. Added {cpdaliases[m.name].name} and reactions " +
-                                f"{cpdaliases[m.name].all_reactions()}", stderr=True)
+            log_and_message(f"Adding from media: Found {m.name} as an alias. Added {cpdaliases[m.name].name} and "
+                            f"reactions {cpdaliases[m.name].all_reactions()}", stderr=verbose)
             rxns = cpdaliases[m.name].all_reactions()
             suggest.update(rxns)
         else:
-            if verbose:
-                log_and_message(f"Compound {m.name} does not exist in the compound database", stderr=True)
+            log_and_message(f"Compound {m.name} does not exist in the compound database", stderr=verbose)
 
     suggest = {r for r in suggest if r in modeldata.reactions and r not in reactions2run}
 

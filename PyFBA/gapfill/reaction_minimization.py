@@ -2,6 +2,7 @@ import sys
 from random import shuffle
 
 import PyFBA
+from PyFBA import log_and_message
 
 
 def accuracy(precision_recall):
@@ -91,16 +92,14 @@ def iterate_reactions_to_run(base_reactions, optional_reactions, modeldata, medi
     for r in range(num_elements):
         removed_reaction = optional_reactions.pop()
         r2r = base_reactions.union(optional_reactions).union(required_optionals)
-        if verbose:
-            sys.stderr.write(f"Single reaction iteration {i} of {num_elements}: Attempting without {removed_reaction}: "
-                             f"{modeldata.reactions[removed_reaction].equation}\n")
+        log_and_message(f"Single reaction iteration {i} of {num_elements}: Attempting without {removed_reaction}: "
+                        f"{modeldata.reactions[removed_reaction].equation}", stderr=verbose)
         status, value, growth = PyFBA.fba.run_fba(modeldata, r2r, media, biomass_eqn)
         if not growth:
-            if verbose:
-                sys.stderr.write("Result: REQUIRED\n")
+            log_and_message("Result: REQUIRED", stderr=verbose)
             required_optionals.add(removed_reaction)
         elif verbose:
-            sys.stderr.write("Result: NOT REQUIRED\n")
+            log_and_message("Result: NOT REQUIRED", stderr=verbose)
         i += 1
 
     return list(required_optionals)
@@ -138,7 +137,8 @@ def minimize_additional_reactions(base_reactions, optional_reactions, modeldata,
     # + optional set does grow
     status, value, growth = PyFBA.fba.run_fba(modeldata, base_reactions, media, biomass_eqn)
     if growth:
-        sys.stderr.write("The set of 'base' reactions results in growth so we don't need to bisect the optional set\n")
+        log_and_message("The set of 'base' reactions results in growth so we don't need to bisect the optional set",
+                        stderr=True)
         return set()
 
     status, value, growth = PyFBA.fba.run_fba(modeldata, base_reactions.union(optional_reactions), media,
@@ -152,8 +152,8 @@ def minimize_additional_reactions(base_reactions, optional_reactions, modeldata,
                                               biomass_eqn)
     if growth:
         if verbose:
-            sys.stderr.write("Successfully limited the reactions by compound and reduced " +
-                             " from {} to {}\n".format(len(optional_reactions), len(limited_rxn)))
+            log_and_message("Successfully limited the reactions by compound and reduced from "
+                            "{len(optional_reactions)} to {len(limited_rxn)}", stderr=verbose)
         optional_reactions = limited_rxn
 
     test = True
@@ -161,8 +161,8 @@ def minimize_additional_reactions(base_reactions, optional_reactions, modeldata,
     maxtries = 5
     current_rx_list = list(optional_reactions)
     itera = 0
-    sys.stderr.write("At the beginning the base list has {} ".format(len(base_reactions)) +
-                     " and the optional list has {} reactions\n".format(len(current_rx_list)))
+    log_and_message(f"At the beginning the base list has {len(base_reactions)} and"
+                    f" the optional list has {len(current_rx_list)} reactions", stderr=verbose)
 
     left = []
     right = []
@@ -179,15 +179,13 @@ def minimize_additional_reactions(base_reactions, optional_reactions, modeldata,
             if len(left) == 1:
                 test = False
                 right = []
-            if verbose:
-                sys.stderr.write("Iteration: {} Try: {} Length: {} and {}".format(itera, tries, len(left), len(right)) +
-                                 " Growth: {} and NOT TESTED\n".format(lgrowth))
+            log_and_message(f"Iteration: {itera} Try: {tries} Length: {len(left)} and {len(right)} "
+                            f"Growth: {lgrowth} and NOT TESTED", stderr=verbose)
         else:
             r2r = base_reactions.union(set(right))
             status, value, rgrowth = PyFBA.fba.run_fba(modeldata, r2r, media, biomass_eqn)
-            if verbose:
-                sys.stderr.write("Iteration: {} Try: {} Length: {} and {}".format(itera, tries, len(left), len(right)) +
-                                 " Growth: {} and {}\n".format(lgrowth, rgrowth))
+            log_and_message(f"Iteration: {itera} Try: {tries} Length: {len(left)} and {len(right)} "
+                            f"Growth: {lgrowth} and {rgrowth}", stderr=verbose)
 
             if rgrowth:
                 # the right list grows so we can use it
@@ -221,10 +219,8 @@ def minimize_additional_reactions(base_reactions, optional_reactions, modeldata,
                         # status, value, lgrowth = PyFBA.fba.run_fba(compounds, reactions, r2r, media, biomass_eqn)
                         r2r = base_reactions.union(set(right))
                         status, value, rgrowth = PyFBA.fba.run_fba(modeldata, r2r, media, biomass_eqn)
-                        if verbose:
-                            sys.stderr.write(
-                                "Iteration: {} Try: {} Length: {} and {}".format(itera, tries, len(left), len(right)) +
-                                " Growth: {} and {}\n".format(lgrowth, rgrowth))
+                        log_and_message(f"Iteration: {itera} Try: {tries} Length: {len(left)} and {len(right)} "
+                                        f"Growth: {lgrowth} and {rgrowth}", stderr=verbose)
                         # if lgrowth:
                         #    tries = 0
                         #    current_rx_list = left
@@ -247,8 +243,7 @@ def minimize_additional_reactions(base_reactions, optional_reactions, modeldata,
                     test = False
 
     remaining = set(left + right)
-    if verbose:
-        sys.stderr.write("There are {} reactions remaining: {}\n".format(len(remaining), remaining))
+    log_and_message(f"There are {len(remaining)} reactions remaining: {remaining}", stderr=verbose)
     return remaining
 
 
@@ -298,14 +293,16 @@ def minimize_by_accuracy(base_reactions, optional_reactions, modeldata, growth_m
     base_precision = calculate_precision_recall(growth_media, no_growth_media, modeldata, base_reactions,
                                                 biomass_eqn)
     if base_precision['tp'] > minimum_tp:
-        sys.stderr.write("The set of 'base' reactions results in {} ".format(base_precision['tp']))
-        sys.stderr.write("positive reactions. Bigger than {} so no need to bisect\n".format(minimum_tp))
+        msg = f"The set of 'base' reactions results in {base_precision['tp']} positive reactions. " \
+              f"Bigger than {minimum_tp} so no need to bisect"
+        log_and_message(msg, stderr=verbose)
         return set()
 
     base_accuracy = accuracy(base_precision)
     if base_accuracy > minimum_accuracy:
-        sys.stderr.write("The set of 'base' reactions has an accuracy of {} ".format(base_accuracy))
-        sys.stderr.write("which is bigger than the threshold of {}. No need to bisect\n".format(minimum_accuracy))
+        msg = f"The set of 'base' reactions has an accuracy of {base_accuracy}. " \
+              f"Bigger than the threshold of {minimum_accuracy}. No need to bisect"
+        log_and_message(msg, stderr=verbose)
         return set()
 
     beginning_precision = calculate_precision_recall(growth_media, no_growth_media, modeldata,
@@ -314,23 +311,25 @@ def minimize_by_accuracy(base_reactions, optional_reactions, modeldata, growth_m
     beginning_accuracy = accuracy(beginning_precision)
 
     if beginning_precision['tp'] < minimum_tp:
-        sys.stderr.write(f"If we combine all reactions, we have get {beginning_precision['tp']} true positives\n")
-        sys.stderr.write(f"We can not get more than this, so we can't exceed {minimum_tp}\n")
-        sys.stderr.write("No point in continuing\n")
+        msg = f"If we combine all reactions, we have {beginning_precision['tp']} true positives. We can not get more" \
+              f" than this, so we can't exceed {minimum_tp}. No point in continuing"
+        log_and_message(msg, stderr=verbose)
         return set()
 
-    sys.stderr.write(f"The beginning accuracy is {beginning_accuracy}. We aim to improve this\n")
+    msg = f"The beginning accuracy is {beginning_accuracy}. We aim to improve this"
+    log_and_message(msg, stderr=verbose)
 
     # first, lets see if we can limit the reactions based on compounds present and get better accuracy
     limited_rxn = PyFBA.gapfill.limit_reactions_by_compound(modeldata.reactions, base_reactions, optional_reactions)
     new_precision = calculate_precision_recall(growth_media, no_growth_media, modeldata,
                                                base_reactions.union(limited_rxn), biomass_eqn)
     new_accuracy = accuracy(new_precision)
-    sys.stderr.write(f"The improved accuracy is {new_accuracy}.\n")
+    msg = f"The improved accuracy is {new_accuracy}."
+    log_and_message(msg, stderr=verbose)
 
     if new_precision['tp'] > minimum_tp:
-        if verbose:
-            sys.stderr.write(f"Limited reactions by compound from {len(optional_reactions)} to {len(limited_rxn)}\n")
+        log_and_message(f"Limited reactions by compound from {len(optional_reactions)} to {len(limited_rxn)}",
+                        stderr=verbose)
         optional_reactions = limited_rxn
 
     test = True
@@ -338,16 +337,15 @@ def minimize_by_accuracy(base_reactions, optional_reactions, modeldata, growth_m
     maxtries = 5
     current_rx_list = list(optional_reactions)
     itera = 0
-    if verbose:
-        sys.stderr.write(f"At the beginning the base list has {len(base_reactions)} " +
-                         f" and the optional list has {len(current_rx_list)} reactions\n")
+    msg = f"At the beginning the base list has {len(base_reactions)} and the " \
+          f"optional list has {len(current_rx_list)} reactions"
+    log_and_message(msg, stderr=verbose)
     left = []
     right = []
     while test:
         itera += 1
         left, right = PyFBA.gapfill.bisections.bisect(current_rx_list)
-        if verbose:
-            sys.stderr.write("Lengths: left {} right {}\n".format(len(left), len(right)))
+        log_and_message(f"Lengths: left {len(left)} right {len(right)}", stderr=verbose)
         # left, right = percent_split(current_rx_list, percent)
         r2r = base_reactions.union(set(left))
         l_precision = calculate_precision_recall(growth_media, no_growth_media, modeldata, r2r, biomass_eqn)
@@ -358,9 +356,8 @@ def minimize_by_accuracy(base_reactions, optional_reactions, modeldata, growth_m
         r_accuracy = accuracy(r_precision)
 
         if l_precision['tp'] > minimum_tp and r_precision['tp'] > minimum_tp:
-            if verbose:
-                sys.stderr.write("Both left {} and right {} are above {}\n".format(l_precision['tp'],
-                                                                                   r_precision['tp'], minimum_tp))
+            log_and_message(f"Both left {l_precision['tp']} and right {r_precision['tp']} are above {minimum_tp}",
+                            stderr=verbose)
             # now we want to use the one that increases the accuracy the most
             if l_accuracy > r_accuracy:
                 current_rx_list = left
