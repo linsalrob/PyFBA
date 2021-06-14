@@ -107,7 +107,8 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
     rbounds = [rbvals[r] for r in reactions_to_run]
     # set the bounds in the reactions
     for r in rbvals:
-        reactions[r].lower_bound, reactions[r].upper_bound = rbvals[r]
+        if r in reactions:
+            reactions[r].lower_bound, reactions[r].upper_bound = rbvals[r]
 
     lp.col_bounds(rbounds)
     return rbvals
