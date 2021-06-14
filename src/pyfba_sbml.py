@@ -3,7 +3,10 @@ Run PyFBA on an SBML file.
 
 Much of this code is taken from the complimentary jupyter notebook, Using_an_SBML_model
 """
+import os
 import argparse
+import sys
+
 import PyFBA
 
 
@@ -84,5 +87,9 @@ if __name__ == "__main__":
     parser.add_argument('-s', help='SBML input file', required=True)
     parser.add_argument('-v', help='verbose output', action='store_true')
     args = parser.parse_args()
+
+    if not os.path.exists(args.s):
+        sys.stderr.write(f"ERROR: {args.s} was not found. Please check the path and try again\n")
+        exit(-1)
 
     run_fba_sbml(args.s, args.v)
