@@ -66,6 +66,7 @@ def template_reactions(modeltype):
             p = li.strip().split("\t")
             new_enz[p[0]] = {}
             new_enz[p[0]]['direction'] = p[2]
+            new_enz[p[0]]['gfdirection'] = p[3]
             new_enz[p[0]]['enzymes'] = set(p[-1].split("|"))
     reactionsf.close()
 
@@ -338,6 +339,7 @@ def reactions(organism_type=None, rctf='reactions.json', verbose=False) \
     new_rcts = template_reactions(organism_type)
     for r in new_rcts:
         modelseedstore.reactions[r].direction = new_rcts[r]['direction']
+        modelseedstore.reactions[r].gfdirection = new_rcts[r]['gfdirection']
         modelseedstore.reactions[r].enzymes = new_rcts[r]['enzymes']
 
     return modelseedstore.reactions

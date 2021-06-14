@@ -76,6 +76,7 @@ class Reaction:
         self.description = description
         self.equation = equation
         self.direction = direction
+        self.gfdirection = direction # the gap filling direction
         self.left_compounds = set()  # type: set[PyFBA.metabolism.CompoundWithLocation]
         self.left_abundance = {}
         self.right_compounds = set()  # type: set[PyFBA.metabolism.CompoundWithLocation]
@@ -239,6 +240,8 @@ class Reaction:
         allowable_directions = {'>', '<', '=', None}
         if direction in allowable_directions:
             self.direction = direction
+            if not self.gfdirection:
+                self.gfdirection = direction
         else:
             sys.stderr.write("Direction: " + str(direction) + " is not a permitted direction. Ignored\n")
             self.direction = None
@@ -607,6 +610,12 @@ class Reaction:
             self.direction = '<'
         elif self.direction == '<':
             self.direction = '>'
+
+        # we only need to reverse two gfdirections
+        if self.gfdirection == '>':
+            self.gfdirection = '<'
+        elif self.gfdirection == '<':
+            self.gfdirection = '>'
 
         (self.pLR, self.pRL) = (self.pRL, self.pLR)
         self.deltaG = -self.deltaG
