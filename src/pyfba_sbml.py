@@ -10,10 +10,11 @@ import sys
 import PyFBA
 
 
-def run_fba_sbml(sbmlfile, verbose=False):
+def run_fba_sbml(sbmlfile, medianame, verbose=False):
     """
     Run the FBA on the SBML file and return the output
     :param sbmlfile: The SBML file to parse
+    :param medianame: The name of the media
     :param verbose: More output
     :return: the flux and whether the model grew
     """
@@ -42,11 +43,6 @@ def run_fba_sbml(sbmlfile, verbose=False):
         else:
             reactions_to_run.add(r)
 
-    print(f"The biomass equation is {biomass_equation}")
-    print(f"There are {len(reactions)} reactions in the model")
-    print(f"There are {len(uptake_secretion_reactions)} uptake/secretion reactions in the model")
-    print(f"There are {len(reactions_to_run)} reactions to be run in the model")
-
     all_compounds = sbml.compounds
     # Filter for compounds that are boundary compounds
     filtered_compounds = set()
@@ -54,14 +50,19 @@ def run_fba_sbml(sbmlfile, verbose=False):
         if not c.uptake_secretion:
             filtered_compounds.add(c)
 
-    print(f"There are {len(all_compounds)} total compounds in the model")
-    print(f"There are {len(filtered_compounds)} compounds that are not involved in uptake and secretion")
-
     # Read the media file
-    media = PyFBA.parse.pyfba_media('ArgonneLB')
+    media = PyFBA.parse.pyfba_media(medianame)
     # Correct the names
     media = sbml.correct_media(media)
-    print(f"The media has {len(media)} compounds")
+
+    if verbose:
+        print(f"The biomass equation is {biomass_equation}")
+        print(f"There are {len(reactions)} reactions in the model")
+        print(f"There are {len(uptake_secretion_reactions)} uptake/secretion reactions in the model")
+        print(f"There are {len(reactions_to_run)} reactions to be run in the model")
+        print(f"There are {len(all_compounds)} total compounds in the model")
+        print(f"There are {len(filtered_compounds)} compounds that are not involved in uptake and secretion")
+        print(f"There are {len(media)} media compounds")
 
     # Adjust the lower bounds of uptake secretion reactions
     # for things that are not in the media
@@ -78,7 +79,7 @@ def run_fba_sbml(sbmlfile, verbose=False):
     status, value, growth = PyFBA.fba.run_fba(ms,
                                               reactions_to_run, media, biomass_equation,
                                               uptake_secretion_reactions, verbose=verbose)
-    print("The FBA completed with a flux value of {} --> growth: {}".format(value, growth))
+    print(f"The FBA on {medianame} completed with a flux value of {value} --> growth: {growth}")
     return value, growth
 
 
@@ -98,4 +99,4 @@ if __name__ == "__main__":
         sys.stderr.write("\n".join(PyFBA.Biochemistry.media.keys()))
         sys.exit(-1)
 
-    run_fba_sbml(args.s, args.v)
+    run_fba_sbml(args.s, args.m, args.v)
