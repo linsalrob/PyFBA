@@ -53,7 +53,7 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
                             stderr=verbose)
         if not isinstance(c, PyFBA.metabolism.compound.CompoundWithLocation):
             log_and_message(f"csm is parsing the media, {c} is a {type(c)} " +
-                            f"(not a cpod with location)", stderr=verbose, loglevel="WARNING")
+                            f"(not a cpd with location)", stderr=verbose, loglevel="WARNING")
         reaction_cpds.add(c)
         sm[c] = {}
 

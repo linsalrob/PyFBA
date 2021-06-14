@@ -101,9 +101,8 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
             sys.stderr.write("DO NOT UNDERSTAND DIRECTION " + direction + " for " + r + "\n")
             rbvals[r] = (mid, upper)
 
-    if verbose:
-        sys.stderr.write("In parsing the bounds we found {} media uptake ".format(media_uptake_secretion_count) +
-                         "and secretion reactions and {} other u/s reactions\n".format(other_uptake_secretion_count))
+    log_and_message(f"In parsing the bounds we found {media_uptake_secretion_count} media uptake " +
+                    f"and secretion reactions and {other_uptake_secretion_count} other u/s reactions", stderr=verbose)
 
     rbounds = [rbvals[r] for r in reactions_to_run]
     # set the bounds in the reactions
