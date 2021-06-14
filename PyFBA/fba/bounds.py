@@ -80,8 +80,8 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
                 rbvals[r] = (lower, upper)
                 media_uptake_secretion_count += 1
             else:
-                #rbvals[r] = (0.0, upper) # RAE 14/6/21 This may not be right!
-                rbvals[r] = (lower, upper)
+                rbvals[r] = (0.0, upper)
+                # rbvals[r] = (lower, upper)  # RAE 14/6/21 This may not be right!
                 other_uptake_secretion_count += 1
             continue
 
@@ -95,8 +95,8 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
             # rbvals[r] =  (lower, upper)
         elif direction == "<":
             # This is what I think it should be:
-            # rbvals[r] = (lower, mid)
-            rbvals[r] = (lower, upper)
+            rbvals[r] = (lower, mid)  # RAE 14/6/21 This may not be right!
+            # rbvals[r] = (lower, upper)
         else:
             sys.stderr.write("DO NOT UNDERSTAND DIRECTION " + direction + " for " + r + "\n")
             rbvals[r] = (mid, upper)
