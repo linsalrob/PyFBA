@@ -45,6 +45,7 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
                     uptakesecretionreactions[r].upper_bound != None:
                 rbvals[r] = (uptakesecretionreactions[r].lower_bound, uptakesecretionreactions[r].upper_bound)
                 continue
+
         if r in reactions:
             direction = reactions[r].direction
             is_transport = reactions[r].is_transport

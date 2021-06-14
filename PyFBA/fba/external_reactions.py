@@ -33,7 +33,8 @@ def uptake_and_secretion_reactions(model_compounds):
             # this is similar name that they use in the model seed
             # us_reaction = Reaction('us_001', "EX_" + us_leftside.model_seed_id + "_" + us_leftside.location + "0")
             # but we normally use a different name
-            us_reaction = PyFBA.metabolism.Reaction(f"upsr_{count}", f"UPTAKE_SECRETION_REACTION {count}")
+            us_reaction_id = f"upsr_{count}"
+            us_reaction = PyFBA.metabolism.Reaction(us_reaction_id, f"UPTAKE_SECRETION_REACTION {count}")
             count += 1
             us_reaction.equation = '(1) + ' + str(us_leftside) + " <=> (1) + " + str(us_rightside)
             us_reaction.add_left_compounds({us_leftside})
@@ -42,12 +43,11 @@ def uptake_and_secretion_reactions(model_compounds):
             us_reaction.set_right_compound_abundance(us_rightside, 1)
             us_reaction.set_direction('=')
             us_reaction.is_uptake_secretion = True
-            uptake_sec_reactions[str(us_reaction)] = us_reaction
             us_leftside.add_reactions({us_reaction})
             us_rightside.add_reactions({us_reaction})
             us_reaction.lower_bound = -1000
             us_reaction.upper_bound = 1000
-
+            uptake_sec_reactions[us_reaction_id] = us_reaction
 
     return uptake_sec_reactions
 
