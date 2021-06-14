@@ -26,13 +26,15 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
     :type uptake_secretion: a dict of Reactions
     :param verbose: print more information
     :type verbose: bool
-    :returns: Sorted lists of all the compounds and reactions in the model, and a revised reactions dict that includes the uptake and secretion reactions
+    :returns: Sorted lists of all the compounds and reactions in the model, and a revised reactions dict that includes
+    the uptake and secretion reactions
     :rtype: list, list, dict
 
     """
 
     if not isinstance(modeldata, PyFBA.model_seed.ModelData):
-        msg = f"DEPRECTED: Please convert {type(modeldata)} that was passed to create_stoichiometric_matrix to a ModelData object"
+        msg = f"DEPRECTED: Please convert {type(modeldata)} that was passed to create_stoichiometric_matrix to " \
+              f"a ModelData object"
         log_and_message(msg)
         raise DeprecationWarning(msg)
 
@@ -55,7 +57,6 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
                             f"(not a cpod with location)", stderr=verbose)
         reaction_cpds.add(c)
         sm[c] = {}
-    log_and_message(f"csm: after adding {len(media)} media, cp: {len(reaction_cpds)}, sm has {len(sm)}", stderr=verbose)
 
     # iterate through the reactions
     for r in reactions_to_run:
@@ -75,8 +76,6 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
                 log_and_message(f"Warning. In parsing right compounds for the SM, {c} is a {type(c)}", stderr=verbose)
             sm[c][r] = modeldata.reactions[r].get_right_compound_abundance(c)
 
-    log_and_message(f"csm: after adding {len(reactions_to_run)} r2r, cp: {len(reaction_cpds)}, sm has {len(sm)}", stderr=verbose)
-
     for c in biomass_equation.left_compounds:
         if not modeldata.get_compound_by_name(c.name):
             # compounds.add(c)
@@ -90,7 +89,7 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
         sm[c]["BIOMASS_EQN"] = 0 - biomass_equation.get_left_compound_abundance(c)
     for c in biomass_equation.right_compounds:
         if not modeldata.get_compound_by_name(c.name):
-            #compounds.add(c)
+            # compounds.add(c)
             log_and_message(f"create_sm did not find biomass right compound {c.name} in the compounds database",
                             stderr=verbose)
         if verbose and type(c) != PyFBA.metabolism.compound.CompoundWithLocation:
@@ -99,8 +98,6 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
         if c not in sm:
             sm[c] = {}
         sm[c]["BIOMASS_EQN"] = biomass_equation.get_right_compound_abundance(c)
-
-    log_and_message(f"csm: after adding biomass, cp: {len(reaction_cpds)}, sm has {len(sm)}", stderr=verbose)
 
     # Add the uptake/secretion reactions. These are reactions that allow things to flow from the media
     # into the reaction, or from the cell outwards.
