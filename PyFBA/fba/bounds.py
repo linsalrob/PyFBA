@@ -81,7 +81,8 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
                 rbvals[r] = (lower, upper)
                 media_uptake_secretion_count += 1
             else:
-                rbvals[r] = (0.0, upper)
+                rbvals[r] = (lower, 0) # RAE 14/6/21 : I think this is secretion not uptake??
+                # rbvals[r] = (0.0, upper)
                 # rbvals[r] = (lower, upper)  # RAE 14/6/21 This may not be right!
                 other_uptake_secretion_count += 1
             continue
