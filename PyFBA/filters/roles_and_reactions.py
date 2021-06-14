@@ -80,7 +80,7 @@ def roles_to_reactions(roles, organism_type=None, verbose=False):
 
     if not organism_type:
         log_and_message("WARNING: Organism type is not defined while gleaning the reactions. You should probably "
-                        "specify e.g. Gram_Negative, Gram_Positive, etc")
+                        "specify e.g. Gram_Negative, Gram_Positive, etc", stderr=verbose, loglevel="WARNING")
     if isinstance(roles, list):
         roles = set(roles)
     elif isinstance(roles, str):
@@ -95,10 +95,11 @@ def roles_to_reactions(roles, organism_type=None, verbose=False):
     for r in roles:
         # check to see if it is a multifunctional role
         if '; ' in r or ' / ' in r or ' @ ' in r:
-            sys.stderr.write("It seems that {} is a multifunctional role. You should separate the roles\n".format(r))
+            log_and_message(f"{r} is a multifunctional role. You should separate the roles", stderr=verbose)
         if r not in seedroles:
-            if verbose:
-                log_and_message(f"Role {r} is not a role we understand. Skipped", stderr=True)
+            # I don't think we should report all missed roles as likely to be many
+            # if verbose:
+            #    log_and_message(f"Role {r} is not a role we understand. Skipped", stderr=verbose)
             continue
 
         rcts[r] = set()
@@ -107,10 +108,10 @@ def roles_to_reactions(roles, organism_type=None, verbose=False):
                 if verbose:
                     # this occurs because there are reactions like cpx.1898 where we don't yet have a
                     # reaction for the complex
-                    sys.stderr.write("ERROR: " + c + " was not found in the complexes file, but is from a reaction\n")
+                    log_and_message(f"ERROR: {c} was not found in the complexes file, but is from a reaction",
+                                    stderr=verbose)
                 continue
-            for rc in cmpxs[c]:
-                rcts[r].add(rc)
+            rcts[r].update(cmpxs[c])
 
     return rcts
 

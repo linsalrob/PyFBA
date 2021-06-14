@@ -110,7 +110,6 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
 
     if not uptake_secretion:
         uptake_secretion = PyFBA.fba.uptake_and_secretion_reactions(reaction_cpds)
-        log_and_message(f"csm: found {len(uptake_secretion)} uptake and secretion reactions", stderr=True)
     for r in uptake_secretion:
         # modeldata.reactions[uptake_secretion[r].id] = uptake_secretion[r]
         for c in uptake_secretion[r].left_compounds:
@@ -129,8 +128,6 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
 
     # it is important that we add these at the end
     rc.append("BIOMASS_EQN")
-
-    log_and_message(f"csm: In the model there are : {len(cp)} compounds and {len(rc)} reactions", stderr=verbose)
 
     # here we create the matrix from our sm hash
     data = []
@@ -153,5 +150,4 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
     ob[-1] = 1
 
     PyFBA.lp.objective_coefficients(ob)
-    log_and_message(f"csm: sm will be compounds {len(cp)} x reactions {len(rc)}", stderr=verbose)
     return cp, rc, uptake_secretion
