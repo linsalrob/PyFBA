@@ -212,7 +212,7 @@ def parse_sbml_file(sbml_file, verbose=False):
         else:
             try:
                 rxnid, rxnloc = r['id'].split("_")
-            except IndexError:
+            except (ValueError, IndexError):
                 if verbose:
                     sys.stderr.write("ERROR: Can't unpack " + r['id'] + "\n")
                 continue
