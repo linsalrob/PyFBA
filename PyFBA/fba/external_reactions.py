@@ -45,6 +45,9 @@ def uptake_and_secretion_reactions(model_compounds):
             uptake_sec_reactions[str(us_reaction)] = us_reaction
             us_leftside.add_reactions({us_reaction})
             us_rightside.add_reactions({us_reaction})
+            us_reaction.lower_bound = -1000
+            us_reaction.upper_bound = 1000
+
 
     return uptake_sec_reactions
 
