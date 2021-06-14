@@ -32,9 +32,9 @@ def suggest_from_media(modeldata, reactions2run, media, verbose=False):
         if m.name in cpdnames:
             rxns = set()
             for r in cpdnames[m.name].all_reactions():
-                for c in modeldata.reactions[r].all_compounds():
+                for c in r.all_compounds():
                     if c.name == m.name and c.location == 'e':
-                        rxns.add(r)
+                        rxns.add(r.id)
             log_and_message(f"Adding from media: For {m.name} added {len(rxns)} reactions", stderr=verbose)
             suggest.update(rxns)
         elif m.name in cpdaliases:
@@ -42,9 +42,9 @@ def suggest_from_media(modeldata, reactions2run, media, verbose=False):
                             f"reactions {cpdaliases[m.name].all_reactions()}", stderr=verbose)
             rxns = set()
             for r in cpdaliases[m.name].all_reactions():
-                for c in modeldata.reactions[r].all_compounds():
+                for c in r.all_compounds():
                     if c.name == m.name and c.location == 'e':
-                        rxns.add(r)
+                        rxns.add(r.id)
             suggest.update(rxns)
         else:
             log_and_message(f"Compound {m.name} does not exist in the compound database", stderr=verbose)
