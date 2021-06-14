@@ -152,8 +152,8 @@ def minimize_additional_reactions(base_reactions, optional_reactions, modeldata,
                                               biomass_eqn)
     if growth:
         if verbose:
-            log_and_message("Successfully limited the reactions by compound and reduced from "
-                            "{len(optional_reactions)} to {len(limited_rxn)}", stderr=verbose)
+            log_and_message(f"Successfully limited the reactions by compound and reduced from "
+                            f"{len(optional_reactions)} to {len(limited_rxn)}", stderr=verbose)
         optional_reactions = limited_rxn
 
     test = True
