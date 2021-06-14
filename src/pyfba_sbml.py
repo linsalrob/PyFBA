@@ -19,7 +19,7 @@ def run_fba_sbml(sbmlfile, medianame, verbose=False):
     :return: the flux and whether the model grew
     """
 
-    sbml = PyFBA.parse.parse_sbml_file(args.s)
+    sbml = PyFBA.parse.parse_sbml_file(sbmlfile)
 
     # Get a dict of reactions.
     # The key is the reaction ID, and the value is a metabolism.reaction.Reaction object
@@ -54,6 +54,7 @@ def run_fba_sbml(sbmlfile, medianame, verbose=False):
     media = PyFBA.parse.pyfba_media(medianame)
     # Correct the names
     media = sbml.correct_media(media)
+    print(f"In {medianame} there are {len(media)} media compounds")
 
     if verbose:
         print(f"The biomass equation is {biomass_equation}")
@@ -62,7 +63,7 @@ def run_fba_sbml(sbmlfile, medianame, verbose=False):
         print(f"There are {len(reactions_to_run)} reactions to be run in the model")
         print(f"There are {len(all_compounds)} total compounds in the model")
         print(f"There are {len(filtered_compounds)} compounds that are not involved in uptake and secretion")
-        print(f"There are {len(media)} media compounds")
+
 
     # Adjust the lower bounds of uptake secretion reactions
     # for things that are not in the media
