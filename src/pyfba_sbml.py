@@ -85,11 +85,17 @@ def run_fba_sbml(sbmlfile, verbose=False):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Parse an SBML file and run flux balance analysis')
     parser.add_argument('-s', help='SBML input file', required=True)
+    parser.add_argument('-m', help='media to choose [Default %(default)s]', default="ArgonneLB")
     parser.add_argument('-v', help='verbose output', action='store_true')
     args = parser.parse_args()
 
     if not os.path.exists(args.s):
         sys.stderr.write(f"ERROR: {args.s} was not found. Please check the path and try again\n")
-        exit(-1)
+        sys.exit(-1)
+
+    if args.m not in PyFBA.Biochemistry.media:
+        sys.stderr.write(f"Error: {args.m} is not a recognised media format. Please choose from this list:\n")
+        sys.stderr.write("\n".join(PyFBA.Biochemistry.media.keys()))
+        sys.exit(-1)
 
     run_fba_sbml(args.s, args.v)
