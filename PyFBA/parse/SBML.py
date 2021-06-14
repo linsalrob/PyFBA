@@ -288,19 +288,6 @@ def parse_sbml_file(sbml_file, verbose=False):
                     rxn.upper_bound = float(p['value'])
 
         sbml.add_reaction(rxn)
-        if rxnid == 'rxn05368':
-            log_and_message(f"Found rxn05368: {rxn.__dict__}", stderr=True)
-            for c in rxn.left_compounds:
-                log_and_message(f"Left Compound: {c}", stderr=True)
-            for c in rxn.right_compounds:
-                log_and_message(f"Right Compound: {c}", stderr=True)
-        if 'rxn05368' in sbml.reactions:
-            for c in sbml.reactions['rxn05368'].left_compounds:
-                if c.id == 'cpd00067' and c.location != 'c':
-                    sys.stderr.write(f"Found location {c.location} for {c.id} after adding {rxn}\n")
-                    for c in rxn.left_compounds:
-                        log_and_message(f"Left Compound: {c}", stderr=True)
-                    sys.exit(-1)
 
     log_and_message(f"Parsing the model {sbml.model_name} (id {sbml.model_id}) is complete.")
     log_and_message(f"Parsing the SBML file: We found " +
