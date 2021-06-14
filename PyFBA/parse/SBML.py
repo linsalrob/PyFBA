@@ -183,6 +183,9 @@ def parse_sbml_file(sbml_file, verbose=False):
     for s in soup.listOfSpecies.find_all('species'):
         cpdid = s['id'].replace('_c0', '').replace('_e0', '')
         cpdname = s['name'].replace('_c0', '').replace('_e0', '')
+        if cpdid.startswith('M_'):
+            cpdid = cpdid.replace('M_', "")
+
         cpd = PyFBA.metabolism.CompoundWithLocation(cpdid, cpdname,
                                                     s['compartment'].replace('0', ''))
         cpd.abbreviation = s['id']
@@ -209,6 +212,8 @@ def parse_sbml_file(sbml_file, verbose=False):
         elif r['id'].startswith('EX_'):
             ex, rxnid, rxnloc = r['id'].split("_")
             rxnid = 'EX_' + rxnid
+        elif r['id'].startswith('R_'):
+            ex, rxnid, rxnloc = r['id'].split("_")
         else:
             try:
                 rxnid, rxnloc = r['id'].split("_")
