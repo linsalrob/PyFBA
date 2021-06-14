@@ -365,19 +365,17 @@ def minimize_by_accuracy(base_reactions, optional_reactions, modeldata, growth_m
                 current_rx_list = right
             tries = 0
         elif l_precision['tp'] > minimum_tp:
-            if verbose:
-                sys.stderr.write("Left {} is above {}\n".format(l_precision['tp'], minimum_tp))
+            log_and_message(f"Left precision {l_precision['tp']} is above {minimum_tp}", stderr=verbose)
             current_rx_list = left
             tries = 0
         elif r_precision['tp'] > minimum_tp:
-            if verbose:
-                sys.stderr.write("Right {} is above {}\n".format(r_precision['tp'], minimum_tp))
+            log_and_message(f"Right precision {r_precision['tp']} is above {minimum_tp}", stderr=verbose)
             current_rx_list = right
             tries = 0
         else:
-            if verbose:
-                sys.stderr.write("Neither left {} nor right {} are above {}\n".format(l_precision['tp'],
-                                                                                      r_precision['tp'], minimum_tp))
+            log_and_message(f"Neither left {l_precision['tp']} nor right { r_precision['tp']} are above {minimum_tp}",
+                            stderr=verbose)
+
             # neither has increased the tp above minimum_tp, so we have split the list too far
             uneven_test = True
             percent = 40
@@ -392,11 +390,11 @@ def minimize_by_accuracy(base_reactions, optional_reactions, modeldata, growth_m
                 r_precision = calculate_precision_recall(growth_media, no_growth_media, modeldata,
                                                          r2r, biomass_eqn)
                 r_accuracy = accuracy(r_precision)
-                if verbose:
-                    sys.stderr.write(
-                        f"Iteration: {itera} Try: {tries} Length: {len(left)} and {len(right)}" +
-                        f" Growth: {l_precision['tp']} and {r_precision['tp']} " +
-                        f"Accuracy {l_accuracy} and {r_accuracy}\n")
+                msg = f"Iteration: {itera} Try: {tries} Length: {len(left)} and {len(right)} " \
+                      f"Growth: {l_precision['tp']} and {r_precision['tp']} Accuracy {l_accuracy} " \
+                      f"and {r_accuracy}"
+                log_and_message(msg, stderr=verbose)
+
                 if l_precision['tp'] > minimum_tp:
                     tries = 0
                     current_rx_list = left
@@ -422,6 +420,5 @@ def minimize_by_accuracy(base_reactions, optional_reactions, modeldata, growth_m
             left = current_rx_list
             right = []
     remaining = set(left + right)
-    if verbose:
-        sys.stderr.write("There are {} reactions remaining: {}\n".format(len(remaining), remaining))
+    log_and_message(f"There are {len(remaining)} reactions remaining: {remaining}", stderr=verbose)
     return remaining
