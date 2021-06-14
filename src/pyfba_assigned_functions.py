@@ -36,7 +36,7 @@ def run_fba(reactions_to_run, mediafile, verbose=False):
 
     status, value, growth = PyFBA.fba.run_fba(modeldata, reactions_to_run, media, biomass_equation,
                                               {}, verbose=False)
-    print("The FBA completed with a flux value of {} --> growth: {}".format(value, growth))
+    print(f"Running FBA on {mediafile} completed with a flux value of {value} --> growth: {growth}")
 
 
 if __name__ == "__main__":
