@@ -245,7 +245,10 @@ def parse_sbml_file(sbml_file, verbose=False):
         for rp in ['listOfReactants', 'listOfProducts']:
             for rc in r.find_all(rp):
                 for sp in rc.find_all('speciesReference'):
-                    cpdid, cpdloc = sp['species'].split("_")
+                    if sp['species'].startswith('M_'):
+                        m, cpdid, cpdloc = sp['species'].split("_")
+                    else:
+                        cpdid, cpdloc = sp['species'].split("_")
                     cpdloc = cpdloc.replace('0', '')
                     try:
                         cpd = copy.deepcopy(sbml.get_a_compound_by_id(cpdid))
