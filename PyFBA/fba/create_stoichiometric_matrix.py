@@ -130,8 +130,6 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
     # it is important that we add these at the end
     rc.append("BIOMASS_EQN")
 
-    log_and_message(f"csm: In the model there are : {len(cp)} compounds and {len(rc)} reactions", stderr=verbose)
-
     # here we create the matrix from our sm hash
     data = []
     for i, j in enumerate(cp):
@@ -153,5 +151,4 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
     ob[-1] = 1
 
     PyFBA.lp.objective_coefficients(ob)
-    log_and_message(f"csm: sm will be compounds {len(cp)} x reactions {len(rc)}", stderr=verbose)
     return cp, rc, uptake_secretion
