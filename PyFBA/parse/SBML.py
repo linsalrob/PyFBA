@@ -259,12 +259,11 @@ def parse_sbml_file(sbml_file, verbose=False):
                         # the compound is not in the model (but it should be!)
                         count += 1
                         cpd = PyFBA.metabolism.CompoundWithLocation(f"smbl{count}", cpdid, cpdloc)
-                        if verbose:
-                            log_and_message(
-                                f"WARNING: {cpdid} loc: {cpdloc} is supposed to be in the model but is not. Added\n",
-                                c="RED",
-                                stderr=True
-                            )
+                        log_and_message(
+                            f"WARNING: {cpdid} loc: {cpdloc} is supposed to be in the model but is not. Added\n",
+                            c="RED",
+                            stderr=verbose
+                        )
                         sbml.add_compound(cpd)
 
                     if isinstance(cpd, PyFBA.metabolism.CompoundWithLocation):
