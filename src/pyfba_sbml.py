@@ -29,7 +29,7 @@ def run_fba_sbml(sbmlfile, medianame, verbose=False):
     uptake_secretion_reactions = {}
     biomass_equation = None
     for r in reactions:
-        if 'biomass_equation' == r or 'Biomass' in r.name:
+        if 'biomass_equation' == r or 'Biomass' == reactions[r].readable_name:
             biomass_equation = reactions[r]
             print(f"Our biomass equation is {biomass_equation.readable_name}")
             continue
