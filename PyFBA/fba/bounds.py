@@ -33,35 +33,37 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
     media_uptake_secretion_count = 0
     other_uptake_secretion_count = 0
     for r in reactions_to_run:
+        if r == 'BIOMASS_EQN':
+            rbvals[r] = (0, 1000)
+            continue
         # if we already know the bounds, eg from an SBML file
-        importer = False
-        left_compounds = set()
-        if r != 'BIOMASS_EQN':
-            if r in uptakesecretionreactions and uptakesecretionreactions[r].lower_bound is not None and \
-                    uptakesecretionreactions[r].upper_bound is not None:
-                rbvals[r] = (uptakesecretionreactions[r].lower_bound, uptakesecretionreactions[r].upper_bound)
-                continue
-            if r in reactions and reactions[r].lower_bound is not None and reactions[r].upper_bound is not None:
-                rbvals[r] = (reactions[r].lower_bound, reactions[r].upper_bound)
-                continue
+        if r in uptakesecretionreactions and uptakesecretionreactions[r].lower_bound is not None and \
+                uptakesecretionreactions[r].upper_bound is not None:
+            rbvals[r] = (uptakesecretionreactions[r].lower_bound, uptakesecretionreactions[r].upper_bound)
+            continue
 
-        if r in reactions:
+        if r in reactions and reactions[r].lower_bound is not None and reactions[r].upper_bound is not None:
+            rbvals[r] = (reactions[r].lower_bound, reactions[r].upper_bound)
+            continue
+
+        importer = False # does this reaction import something?
+
+        left_compounds = set()
+        if r in uptakesecretionreactions:
+            direction = uptakesecretionreactions[r].direction
+            importer = True
+            left_compounds = uptakesecretionreactions[r].left_compounds
+        elif r in reactions:
             direction = reactions[r].direction
             # does this reaction import something [e] -> [c]
             importer = reactions[r].is_transport or reactions[r].is_uptake_secretion or reactions[r].is_input_reaction()
             left_compounds = reactions[r].left_compounds
-        elif r in uptakesecretionreactions:
-            direction = uptakesecretionreactions[r].direction
-            importer = True
-            left_compounds = uptakesecretionreactions[r].left_compounds
-        elif r == 'BIOMASS_EQN':
-            direction = '>'
         else:
             log_and_message(f"Did not find {r} in reactions", stderr=verbose)
             direction = "="
 
         # this is where we define whether our media has the components
-        if r != 'BIOMASS_EQN' and importer:
+        if importer:
             in_media = False
             # if we have external compounds that are not in the media, we don't want to run this as a media reaction
             override = False
@@ -93,7 +95,7 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
                 # We have now defined those bounds in external_reactions.py, and so we should not get here!
                 if len(reactions[r].left_compounds) == 1 and len(reactions[r].right_compounds) == 1:
                     log_and_message(f"Probably should do something with {r} {reactions[r].equation}", stderr=verbose)
-                rbvals[r] = (0.0, 1000)
+                rbvals[r] = (0.0, 0.0)
                 other_uptake_secretion_count += 1
             continue
 
@@ -107,8 +109,8 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
             # rbvals[r] =  (lower, upper)
         elif direction == "<":
             # This is what I think it should be:
-            # rbvals[r] = (lower, mid)
-            rbvals[r] = (lower, upper)
+            rbvals[r] = (lower, mid)
+            # rbvals[r] = (lower, upper)
         else:
             sys.stderr.write("DO NOT UNDERSTAND DIRECTION " + direction + " for " + r + "\n")
             rbvals[r] = (mid, upper)
@@ -116,11 +118,16 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
     log_and_message(f"In parsing the bounds we found {media_uptake_secretion_count} media uptake " +
                     f"and secretion reactions and {other_uptake_secretion_count} other u/s reactions", stderr=verbose)
 
+    if len(rbvals) != len(reactions_to_run):
+        log_and_message(f"ERROR: We have {len(rbvals)} boundary values but {len(reactions_to_run)} reactions",
+                        stderr=True, loglevel='ERROR')
+
     rbounds = [rbvals[r] for r in reactions_to_run]
+
     # set the bounds in the reactions
     for r in rbvals:
         if r in reactions:
-            reactions[r].lower_bound, reactions[r].upper_bound = rbvals[r]
+            (reactions[r].lower_bound, reactions[r].upper_bound) = rbvals[r]
 
     lp.col_bounds(rbounds)
 
