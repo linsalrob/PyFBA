@@ -34,7 +34,6 @@ def reaction_bounds(reactions, reactions_with_upsr, media, lower=-1000.0, mid=0.
             rbvals[r] = (mid, upper)
             continue
 
-
         # if we already know the bounds, eg from an SBML file or from our uptake/secretion reactions
         if reactions[r].lower_bound != None and reactions[r].upper_bound != None:
             rbvals[r] = (reactions[r].lower_bound, reactions[r].upper_bound)
@@ -63,7 +62,7 @@ def reaction_bounds(reactions, reactions_with_upsr, media, lower=-1000.0, mid=0.
 
             if in_media:
                 rbvals[r] = (lower, upper)
-                log_and_message(f"{r} {reactions[r].equation}  ({reactions[r].lower_bound}, {reactions[r].upper_bound})", stderr=True)
+                log_and_message(f"{r} {reactions[r].equation}  ({lower}, {upper})", stderr=True)
                 media_uptake_secretion_count += 1
             else:
                 rbvals[r] = (0.0, upper)
