@@ -119,10 +119,8 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
         # modeldata.reactions[uptake_secretion[r].id] = uptake_secretion[r]
         for c in uptake_secretion[r].left_compounds:
             reaction_cpds.add(c)
-            log_and_message(f"Leftside upsr compound {c}", stderr=verbose)
             if c not in sm:
                 sm[c] = {}
-                log_and_message(f"Had to add leftside upsr compound {c}", stderr=True)
             sm[c][uptake_secretion[r].id] = 0 - uptake_secretion[r].get_left_compound_abundance(c)
 
     # now we need to make this into a matrix sorted by
