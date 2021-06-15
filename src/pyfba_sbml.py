@@ -8,6 +8,7 @@ import argparse
 import sys
 
 import PyFBA
+from PyFBA import log_and_message
 
 
 def run_fba_sbml(sbmlfile, medianame, verbose=False):
@@ -28,7 +29,7 @@ def run_fba_sbml(sbmlfile, medianame, verbose=False):
     uptake_secretion_reactions = {}
     biomass_equation = None
     for r in reactions:
-        if 'biomass_equation' == r:
+        if 'biomass_equation' == r or 'Biomass' in r.name:
             biomass_equation = reactions[r]
             print(f"Our biomass equation is {biomass_equation.readable_name}")
             continue
@@ -54,20 +55,15 @@ def run_fba_sbml(sbmlfile, medianame, verbose=False):
     media = PyFBA.parse.pyfba_media(medianame)
     # Correct the names
     media = sbml.correct_media(media)
-    print(f"In {medianame} there are {len(media)} media compounds")
-
-    if verbose:
-        print(f"The biomass equation is {biomass_equation}")
-        print(f"There are {len(reactions)} reactions in the model")
-        print(f"There are {len(uptake_secretion_reactions)} uptake/secretion reactions in the model")
-        print(f"There are {len(reactions_to_run)} reactions to be run in the model")
-        print(f"There are {len(all_compounds)} total compounds in the model")
-        print(f"There are {len(filtered_compounds)} compounds that are not involved in uptake and secretion")
-
 
     # Adjust the lower bounds of uptake secretion reactions
     # for things that are not in the media
     for u in uptake_secretion_reactions:
+        reactions[u].lower_bound = -1000.0
+        uptake_secretion_reactions[u].lower_bound = -1000.0
+        reactions[u].upper_bound = 1000.0
+        uptake_secretion_reactions[u].upper_bound = 1000.0
+
         is_media_component = False
         for c in uptake_secretion_reactions[u].all_compounds():
             if c in media:
@@ -75,6 +71,17 @@ def run_fba_sbml(sbmlfile, medianame, verbose=False):
         if not is_media_component:
             reactions[u].lower_bound = 0.0
             uptake_secretion_reactions[u].lower_bound = 0.0
+
+    if verbose:
+        log_and_message(f"The biomass equation is {biomass_equation}", stderr=verbose)
+        log_and_message(f"There are {len(reactions)} reactions in the model", stderr=verbose)
+        log_and_message(f"There are {len(uptake_secretion_reactions)} uptake/secretion reactions in the model",
+                        stderr=verbose)
+        log_and_message(f"There are {len(reactions_to_run)} reactions to be run in the model", stderr=verbose)
+        log_and_message(f"There are {len(all_compounds)} total compounds in the model", stderr=verbose)
+        log_and_message(f"There are {len(filtered_compounds)} compounds that are not involved in uptake and secretion",
+                        stderr=verbose)
+        log_and_message(f"There are {len(media)} media compounds in {medianame}", stderr=verbose)
 
     ms = PyFBA.model_seed.ModelData(compounds=filtered_compounds, reactions=reactions)
     status, value, growth = PyFBA.fba.run_fba(ms, reactions_to_run, media, biomass_equation, uptake_secretion_reactions,
