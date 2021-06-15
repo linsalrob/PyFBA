@@ -55,7 +55,6 @@ def uptake_and_secretion_reactions(model_compounds, media):
             # Here we set reaction bounds. If the compound is in the media, we let it flow freely
             # otherwise we only let it diffuse away
             if c in media:
-                log_and_message(f"Set media bounds for {c}", stderr=True)
                 us_reaction.lower_bound = -1000
                 us_reaction.upper_bound = 1000
             else:
