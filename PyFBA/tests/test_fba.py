@@ -25,6 +25,7 @@ else:
 
 class TestFBA(unittest.TestCase):
     modeldata = PyFBA.parse.model_seed.parse_model_seed_data('gramnegative', verbose=True)
+    media = PyFBA.parse.pyfba_media("ArgonneLB")
 
     def setUp(self):
         """
@@ -41,7 +42,7 @@ class TestFBA(unittest.TestCase):
             new_comp = PyFBA.metabolism.CompoundWithLocation.from_compound(c, 'e')
             model_cpds.add(new_comp)
 
-        upsec = PyFBA.fba.uptake_and_secretion_reactions(model_cpds)
+        upsec = PyFBA.fba.uptake_and_secretion_reactions(model_cpds, self.__class__.media)
         self.assertEqual(len(upsec), 10)
 
         # now remove them and see there is nothing left

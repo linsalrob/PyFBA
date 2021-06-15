@@ -15,15 +15,15 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
     We also take this opportunity to set the objective function (as it is a member of the SM).
 
     :param reactions_to_run: just the reaction ids that we want to include in our model
-    :type reactions_to_run: set
+    :type reactions_to_run: Set[str]
     :param modeldata: the model seed object that includes compounds and reactions
     :type modeldata: PyFBA.model_seed.ModelData
     :param media: a set of compounds that would make up the media
-    :type media: set
+    :type media: set[PyFBA.metabolism.CompoundWithLocation]
     :param biomass_equation: the biomass_equation equation as a Reaction object
-    :type biomass_equation: metabolism.Reaction
+    :type biomass_equation: PyFBA.metabolism.Reaction
     :param uptake_secretion: An optional hash of uptake and secretion reactions that should be added to the model
-    :type uptake_secretion: a dict of Reactions
+    :type uptake_secretion: Dict[str, PyFBA.metabolism.Reaction]
     :param verbose: print more information
     :type verbose: bool
     :returns: Sorted lists of all the compounds and reactions in the model, and a revised reactions dict that includes
@@ -113,7 +113,7 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
     # When we set the reaction bounds we determine which things are in the media unless they are provided for you
 
     if not uptake_secretion:
-        uptake_secretion = PyFBA.fba.uptake_and_secretion_reactions(reaction_cpds)
+        uptake_secretion = PyFBA.fba.uptake_and_secretion_reactions(reaction_cpds, media)
         modeldata.reactions.update(uptake_secretion)
     for r in uptake_secretion:
         # modeldata.reactions[uptake_secretion[r].id] = uptake_secretion[r]
