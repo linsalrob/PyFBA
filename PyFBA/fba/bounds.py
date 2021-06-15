@@ -75,6 +75,8 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
 
             if override:
                 # in this case, we have some external compounds that we should not import.
+                log_and_message(f"Did not enable potential transport reaction {r} {reactions[r].equation}",
+                                stderr=verbose)
                 in_media = False
             """
             For the bounds:
@@ -91,9 +93,9 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
                 # (1) + cpd00588: Sorbitol (location: e) <=> (1) + cpd00588: Sorbitol (location: b)
                 # and we want this to be consumed
                 # We have now defined those bounds in external_reactions.py, and so we should not get here!
-                log_and_message(f"Found an uptake/secretion reaction that is not media: {r} {reactions[r].equation}. "
-                                f"Set bounds to (0, {upper})", stderr=verbose)
-                rbvals[r] = (0.0, upper)
+                if len(reactions[r].left_compounds) == 1 and len(reactions[r].right_compounds) == 1:
+                    log_and_message(f"Probably should do something with {r} {reactions[r].equation}", stderr=verbose)
+                rbvals[r] = (0.0, 0.0)
                 other_uptake_secretion_count += 1
             continue
 
