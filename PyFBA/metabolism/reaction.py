@@ -617,6 +617,11 @@ class Reaction:
         elif self.gfdirection == '<':
             self.gfdirection = '>'
 
+        if self.lower_bound != None and self.upper_bound != None:
+            lbtemp = 0 - self.lower_bound
+            self.lower_bound = 0 - self.upper_bound
+            self.upper_bound = lbtemp
+
         (self.pLR, self.pRL) = (self.pRL, self.pLR)
         self.deltaG = -self.deltaG
 
