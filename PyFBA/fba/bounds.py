@@ -38,12 +38,12 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
         is_uptake_secretion = False
         left_compounds = set()
         if r != 'BIOMASS_EQN':
-            if r in reactions and reactions[r].lower_bound != None and reactions[r].upper_bound != None:
-                rbvals[r] = (reactions[r].lower_bound, reactions[r].upper_bound)
-                continue
-            if r in uptakesecretionreactions and uptakesecretionreactions[r].lower_bound != None and \
-                    uptakesecretionreactions[r].upper_bound != None:
+            if r in uptakesecretionreactions and uptakesecretionreactions[r].lower_bound is not None and \
+                    uptakesecretionreactions[r].upper_bound is not None:
                 rbvals[r] = (uptakesecretionreactions[r].lower_bound, uptakesecretionreactions[r].upper_bound)
+                continue
+            if r in reactions and reactions[r].lower_bound is not None and reactions[r].upper_bound is not None:
+                rbvals[r] = (reactions[r].lower_bound, reactions[r].upper_bound)
                 continue
 
         if r in reactions:
@@ -72,18 +72,28 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
                         in_media = True
                     else:
                         override = True
-            # in this case, we have some external compounds that we should not import.
-            # for example,
+
             if override:
+                # in this case, we have some external compounds that we should not import.
                 in_media = False
+            """
+            For the bounds:
+            (-1000,1000) means that the reaction can proceed in either direction
+            (0, 1000) means that you can only go left to right
+            (-1000, 0) means you can flux right to left
+            """
 
             if in_media:
                 rbvals[r] = (lower, upper)
                 media_uptake_secretion_count += 1
             else:
-                rbvals[r] = (lower, 0) # RAE 14/6/21 : I think this is secretion not uptake??
-                # rbvals[r] = (0.0, upper)
-                # rbvals[r] = (lower, upper)  # RAE 14/6/21 This may not be right!
+                # in this case, the equation is something like
+                # (1) + cpd00588: Sorbitol (location: e) <=> (1) + cpd00588: Sorbitol (location: b)
+                # and we want this to be consumed
+                # We have now defined those bounds in external_reactions.py, and so we should not get here!
+                log_and_message(f"Found an uptake/secretion reaction that is not media: {r} {reactions[r].equation}. "
+                                f"Set bounds to (0, {upper})", stderr=verbose)
+                rbvals[r] = (0.0, upper)
                 other_uptake_secretion_count += 1
             continue
 
@@ -97,7 +107,7 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
             # rbvals[r] =  (lower, upper)
         elif direction == "<":
             # This is what I think it should be:
-            rbvals[r] = (lower, mid)  # RAE 14/6/21 This may not be right!
+            rbvals[r] = (lower, mid)
             # rbvals[r] = (lower, upper)
         else:
             sys.stderr.write("DO NOT UNDERSTAND DIRECTION " + direction + " for " + r + "\n")
