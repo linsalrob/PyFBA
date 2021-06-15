@@ -177,7 +177,10 @@ def parse_sbml_file(sbml_file, verbose=False):
 
     # parse the compartments
     for c in soup.listOfCompartments.find_all('compartment'):
-        sbml.compartment[c['id']] = c['name']
+        if 'name' in c:
+            sbml.compartment[c['id']] = c['name']
+        else:
+            sbml.compartment[c['id']] = c['id']
 
     # add the compounds
     for s in soup.listOfSpecies.find_all('species'):
