@@ -1,17 +1,24 @@
 import copy
 import PyFBA
+from PyFBA import log_and_message
 
 
-def uptake_and_secretion_reactions(model_compounds):
+def uptake_and_secretion_reactions(model_compounds, media):
     """
     Figure out which compounds can be taken up from the media and/or secreted into the media. We provide an endless
     reaction for these which allows them to be taken up and/or secreted without affecting the rest of the stoichiometric
     matrix
 
-    We also add a reaction for biomass_equation
+    We also add a reaction for biomass_equation.
+
+    We will eventually set the bounds for these reactions, such that if the compound is in the media, the
+    bounds are (-1000,1000) [i.e. the compound can flow into the media] whereas if the compounds are not
+    in the media, the bounds are (0,1000) [ie. the compound can flow out of the media, but not into it]
 
     :param model_compounds: A set of the compounds that are in this model
     :type model_compounds: set[PyFBA.metabolism.CompoundWithLocation]
+    :param media: the media we want to grow on
+    :type media: set[PyFBA.metabolism.CompoundWithLocation]
     :return: A hash of new uptake and secretion reactions we need to add to the model
     :rtype: hash
     """
@@ -45,10 +52,15 @@ def uptake_and_secretion_reactions(model_compounds):
             us_reaction.is_uptake_secretion = True
             us_leftside.add_reactions({us_reaction})
             us_rightside.add_reactions({us_reaction})
-            # Here we set the bounds so that the reaction can proceed from left to right and the compound diffuses
-            # away from the cell
-            us_reaction.lower_bound = -1000
-            us_reaction.upper_bound = 1000
+            # Here we set reaction bounds. If the compound is in the media, we let it flow freely
+            # otherwise we only let it diffuse away
+            if c in media:
+                log_and_message(f"Set media bounds for {c}", stderr=True)
+                us_reaction.lower_bound = -1000
+                us_reaction.upper_bound = 1000
+            else:
+                us_reaction.lower_bound = 0
+                us_reaction.upper_bound = 1000
             uptake_sec_reactions[us_reaction_id] = us_reaction
 
     return uptake_sec_reactions
