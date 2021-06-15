@@ -34,8 +34,7 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
     other_uptake_secretion_count = 0
     for r in reactions_to_run:
         # if we already know the bounds, eg from an SBML file
-        is_transport = False
-        is_uptake_secretion = False
+        importer = False
         left_compounds = set()
         if r != 'BIOMASS_EQN':
             if r in uptakesecretionreactions and uptakesecretionreactions[r].lower_bound is not None and \
@@ -48,12 +47,12 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
 
         if r in reactions:
             direction = reactions[r].direction
-            is_transport = reactions[r].is_transport
-            is_uptake_secretion = reactions[r].is_uptake_secretion
+            # does this reaction import something [e] -> [c]
+            importer = reactions[r].is_transport or reactions[r].is_uptake_secretion or reactions[r].is_input_reaction()
             left_compounds = reactions[r].left_compounds
         elif r in uptakesecretionreactions:
             direction = uptakesecretionreactions[r].direction
-            is_uptake_secretion = True
+            importer = True
             left_compounds = uptakesecretionreactions[r].left_compounds
         elif r == 'BIOMASS_EQN':
             direction = '>'
@@ -62,7 +61,7 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
             direction = "="
 
         # this is where we define whether our media has the components
-        if r != 'BIOMASS_EQN' and (is_uptake_secretion or is_transport):
+        if r != 'BIOMASS_EQN' and importer:
             in_media = False
             # if we have external compounds that are not in the media, we don't want to run this as a media reaction
             override = False
@@ -75,10 +74,11 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
 
             if override:
                 # in this case, we have some external compounds that we should not import.
-                if in_media:
-                    log_and_message(f"Did not enable potential transport reaction {r} {reactions[r].equation}",
-                                    stderr=verbose)
+                # for example, many reactions have H+[e] on the left side and H+[c] on the
+                # right side, so we don't want to allow those reactions unless we want to import everything.
+                # e.g. (1) H+[e] + (1) D-Alanine[e] <=> (1) H+[c] + (1) D-Alanine[c]
                 in_media = False
+
             """
             For the bounds:
             (-1000,1000) means that the reaction can proceed in either direction
