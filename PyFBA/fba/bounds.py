@@ -66,8 +66,8 @@ def reaction_bounds(reactions, reactions_with_upsr, media, lower=-1000.0, mid=0.
                 log_and_message(f"{r} {reactions[r].equation}  ({reactions[r].lower_bound}, {reactions[r].upper_bound})", stderr=True)
                 media_uptake_secretion_count += 1
             else:
-                #rbvals[r] = (0.0, upper)
-                rbvals[r] = (lower, upper)
+                rbvals[r] = (0.0, upper)
+                #rbvals[r] = (lower, upper)
                 other_uptake_secretion_count += 1
             continue
 
