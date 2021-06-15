@@ -253,8 +253,8 @@ def parse_sbml_file(sbml_file, verbose=False):
                     else:
                         cpdid, cpdloc = sp['species'].split("_")
                     cpdloc = cpdloc.replace('0', '')
-                    if rxnid = 'EX_cpd00067':
-                        print(f"Found EX_cpd00067 {sp['species']} and got {cpdid} {cpdloc}")
+                    if rxnid == 'EX_cpd00067':
+                        log_and_message(f"Found EX_cpd00067 {sp['species']} and got {cpdid} {cpdloc}", stderr=True)
                     try:
                         cpd = copy.deepcopy(sbml.get_a_compound_by_id(cpdid))
                     except ValueError:
