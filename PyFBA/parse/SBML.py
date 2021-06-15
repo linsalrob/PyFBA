@@ -338,9 +338,6 @@ def parse_sbml_file(sbml_file, verbose=False):
                     if cpd.uptake_secretion:
                         rxn.is_uptake_secretion = True
 
-                    if rxnid == 'EX_cpd00067':
-                        log_and_message(f"Found EX_cpd00067 {sp['species']} and got {cpdid} {cpdloc} for {cpd}", stderr=True)
-
                     if 'listOfReactants' == rp:
                         rxn.add_left_compounds({cpd})
                         rxn.set_left_compound_abundance(cpd, float(sp['stoichiometry']))
