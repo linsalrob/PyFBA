@@ -33,12 +33,6 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
     media_uptake_secretion_count = 0
     other_uptake_secretion_count = 0
     for r in reactions_to_run:
-        if r == 'rxn08923':
-            debugme = True
-        else:
-            debugme = False
-        if debugme:
-            print(f"1. Found {r} : {reactions[r].equation} ({reactions[r].lower_bound}, {reactions[r].upper_bound})")
         # if we already know the bounds, eg from an SBML file
         importer = False
         left_compounds = set()
@@ -66,9 +60,6 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
             log_and_message(f"Did not find {r} in reactions", stderr=verbose)
             direction = "="
 
-        if debugme:
-            print(f"2. Found {r} : {reactions[r].equation} (importer: {importer}) ({reactions[r].lower_bound}, {reactions[r].upper_bound})")
-
         # this is where we define whether our media has the components
         if r != 'BIOMASS_EQN' and importer:
             in_media = False
@@ -80,10 +71,6 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
                         in_media = True
                     else:
                         override = True
-
-            if debugme:
-                print(
-                    f"3. Found {r} : {reactions[r].equation} (media: {in_media} override: {override}) (importer: {importer}) ({reactions[r].lower_bound}, {reactions[r].upper_bound})")
 
             if override:
                 # in this case, we have some external compounds that we should not import.
@@ -113,9 +100,6 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
                 other_uptake_secretion_count += 1
             continue
 
-        if debugme:
-            print(f"5. Found {r} : {reactions[r].equation} Uh Oh ({reactions[r].lower_bound}, {reactions[r].upper_bound})")
-
         if direction == "=":
             # This is what I think it should be:
             rbvals[r] = (lower, upper)
@@ -142,8 +126,6 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
             reactions[r].lower_bound, reactions[r].upper_bound = rbvals[r]
 
     lp.col_bounds(rbounds)
-
-    print(f"At end rbvals for 'rxn08923' {rbvals['rxn08923']}")
 
     return rbvals
 
