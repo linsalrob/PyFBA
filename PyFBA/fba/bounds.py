@@ -93,7 +93,7 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
                 # We have now defined those bounds in external_reactions.py, and so we should not get here!
                 if len(reactions[r].left_compounds) == 1 and len(reactions[r].right_compounds) == 1:
                     log_and_message(f"Probably should do something with {r} {reactions[r].equation}", stderr=verbose)
-                rbvals[r] = (0.0, 0.0)
+                rbvals[r] = (0.0, 1000)
                 other_uptake_secretion_count += 1
             continue
 
