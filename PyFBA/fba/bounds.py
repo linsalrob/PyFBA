@@ -30,20 +30,24 @@ def reaction_bounds(reactions, reactions_with_upsr, media, lower=-1000.0, mid=0.
     media_uptake_secretion_count = 0
     other_uptake_secretion_count = 0
     for r in reactions_with_upsr:
+        if r == 'BIOMASS_EQN':
+            rbvals[r] = (mid, upper)
+            continue
+
+
         # if we already know the bounds, eg from an SBML file or from our uptake/secretion reactions
-        if r != 'BIOMASS_EQN' and reactions[r].lower_bound != None and reactions[r].upper_bound != None:
+        if reactions[r].lower_bound != None and reactions[r].upper_bound != None:
             rbvals[r] = (reactions[r].lower_bound, reactions[r].upper_bound)
             continue
+
         if r in reactions:
             direction = reactions[r].direction
-        elif r == 'BIOMASS_EQN':
-            direction = '>'
         else:
             sys.stderr.write("Did not find {} in reactions\n".format(r))
             direction = "="
 
         # this is where we define whether our media has the components
-        if r != 'BIOMASS_EQN' and (reactions[r].is_uptake_secretion or reactions[r].is_transport):
+        if reactions[r].is_uptake_secretion or reactions[r].is_transport:
             in_media = False
             override = False # if we have external compounds that are not in the media, we don't want to run this as a media reaction
             for c in reactions[r].left_compounds:
@@ -53,7 +57,7 @@ def reaction_bounds(reactions, reactions_with_upsr, media, lower=-1000.0, mid=0.
                     else:
                         override = True
             # in this case, we have some external compounds that we should not import.
-            # for example,
+            # for example, H+ is used to translocate things
             if override:
                 in_media = False
 
@@ -62,7 +66,8 @@ def reaction_bounds(reactions, reactions_with_upsr, media, lower=-1000.0, mid=0.
                 log_and_message(f"{r} {reactions[r].equation}  ({reactions[r].lower_bound}, {reactions[r].upper_bound})", stderr=True)
                 media_uptake_secretion_count += 1
             else:
-                rbvals[r] = (0.0, upper)
+                #rbvals[r] = (0.0, upper)
+                rbvals[r] = (lower, upper)
                 other_uptake_secretion_count += 1
             continue
 
@@ -77,7 +82,7 @@ def reaction_bounds(reactions, reactions_with_upsr, media, lower=-1000.0, mid=0.
         elif direction == "<":
             # This is what I think it should be:
             # rbvals[r] = (lower, mid)
-            rbvals[r] = (lower, upper)
+            rbvals[r] = (lower, mid)
         else:
             sys.stderr.write("DO NOT UNDERSTAND DIRECTION " + direction + " for " + r + "\n")
             rbvals[r] = (mid, upper)
