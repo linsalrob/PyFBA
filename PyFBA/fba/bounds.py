@@ -30,9 +30,7 @@ def reaction_bounds(reactions, reactions_with_upsr, media, lower=-1000.0, mid=0.
     media_uptake_secretion_count = 0
     other_uptake_secretion_count = 0
     for r in reactions_with_upsr:
-        if r.startswith('upsr'):
-            log_and_message(f"{r} {reactions[r].equation}  ({reactions[r].lower_bound}, {reactions[r].upper_bound})", stderr=True)
-        # if we already know the bounds, eg from an SBML file
+        # if we already know the bounds, eg from an SBML file or from our uptake/secretion reactions
         if r != 'BIOMASS_EQN' and reactions[r].lower_bound != None and reactions[r].upper_bound != None:
             rbvals[r] = (reactions[r].lower_bound, reactions[r].upper_bound)
             continue
@@ -43,6 +41,9 @@ def reaction_bounds(reactions, reactions_with_upsr, media, lower=-1000.0, mid=0.
         else:
             sys.stderr.write("Did not find {} in reactions\n".format(r))
             direction = "="
+
+        if r.startswith('upsr'):
+            log_and_message(f"{r} {reactions[r].equation}  ({reactions[r].lower_bound}, {reactions[r].upper_bound})", stderr=True)
 
         # this is where we define whether our media has the components
         if r != 'BIOMASS_EQN' and (reactions[r].is_uptake_secretion or reactions[r].is_transport):
