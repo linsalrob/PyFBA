@@ -95,7 +95,7 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
                 # We have now defined those bounds in external_reactions.py, and so we should not get here!
                 if len(reactions[r].left_compounds) == 1 and len(reactions[r].right_compounds) == 1:
                     log_and_message(f"Probably should do something with {r} {reactions[r].equation}", stderr=verbose)
-                rbvals[r] = (0.0, 0.0)
+                rbvals[r] = (-1000, 0.0)
                 other_uptake_secretion_count += 1
             continue
 
@@ -128,8 +128,6 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
     for r in rbvals:
         if r in reactions:
             (reactions[r].lower_bound, reactions[r].upper_bound) = rbvals[r]
-        else:
-            log_and_message(f"{r} not found in reactions", stderr=True) # this should just be biomass and can be deleted.
 
     lp.col_bounds(rbounds)
 
