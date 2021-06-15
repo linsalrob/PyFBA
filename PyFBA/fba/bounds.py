@@ -90,9 +90,6 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
                 rbvals[r] = (lower, upper)
                 media_uptake_secretion_count += 1
             else:
-                # in this case, the equation is something like
-                # (1) + cpd00588: Sorbitol (location: e) <=> (1) + cpd00588: Sorbitol (location: b)
-                # and we want this to be consumed
                 # We have now defined those bounds in external_reactions.py, and so we should not get here!
                 if len(reactions[r].left_compounds) == 1 and len(reactions[r].right_compounds) == 1:
                     log_and_message(f"Probably should do something with {r} {reactions[r].equation}", stderr=verbose)
@@ -110,8 +107,8 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
             # rbvals[r] =  (lower, upper)
         elif direction == "<":
             # This is what I think it should be:
-            rbvals[r] = (lower, mid)
-            # rbvals[r] = (lower, upper)
+            # rbvals[r] = (lower, mid)
+            rbvals[r] = (lower, upper)
         else:
             sys.stderr.write("DO NOT UNDERSTAND DIRECTION " + direction + " for " + r + "\n")
             rbvals[r] = (mid, upper)
