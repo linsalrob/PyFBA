@@ -92,6 +92,10 @@ def reaction_bounds(reactions, reactions_with_upsr, media, lower=-1000.0, mid=0.
                          "and secretion reactions and {} other u/s reactions\n".format(other_uptake_secretion_count))
 
     rbounds = [rbvals[r] for r in reactions_with_upsr]
+    for r in reactions_with_upsr:
+        if r in reactions:
+            reactions[r].lower_bound, reactions[r].upper_bound = rbvals[r]
+
     lp.col_bounds(rbounds)
     return rbvals
 
