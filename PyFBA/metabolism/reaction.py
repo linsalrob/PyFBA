@@ -631,3 +631,12 @@ class Reaction:
         Retrieve an attribute
         """
         return getattr(self, key)
+
+    def reset_bounds(self):
+        """
+        reset the bounds of this reaction. If we are using this in gapfilling, we need to reset the bounds
+        so we can calculate appropriately.
+        :return: None
+        """
+        self.lower_bound = None
+        self.upper_bound = None
