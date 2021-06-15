@@ -36,6 +36,8 @@ class Reaction:
     :ivar description: A description of the reaction
     :ivar equation: The reaction equation
     :ivar direction: The direction of the reaction (<, =, >, or ?)
+    :ivar gfdirection: The possible gapfilled direction
+    :ivar ntdirection: The non-template direction (before correcting for templates)
     :ivar left_compounds: A set of CompoundWithLocations on the left side of the reaction
     :ivar left_abundance: A dict of the CompoundWithLocations on the left and their abundance
     :ivar right_compounds: The set of CompoundWithLocations on the right side of the equation
@@ -77,6 +79,7 @@ class Reaction:
         self.equation = equation
         self.direction = direction
         self.gfdirection = direction # the gap filling direction
+        self.ntdirection = direction # the non-template driven direction
         self.left_compounds = set()  # type: set[PyFBA.metabolism.CompoundWithLocation]
         self.left_abundance = {}
         self.right_compounds = set()  # type: set[PyFBA.metabolism.CompoundWithLocation]
