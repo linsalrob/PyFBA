@@ -3,7 +3,7 @@ import sys
 from PyFBA import lp
 
 
-def reaction_bounds(reactions, reactions_to_run, media, lower=-1000.0, mid=0.0, upper=1000.0, verbose=False):
+def reaction_bounds(reactions, reactions_with_upsr, media, lower=-1000.0, mid=0.0, upper=1000.0, verbose=False):
     """
     Set the bounds for each reaction. We set the reactions to run between
     either lower/mid, mid/upper, or lower/upper depending on whether the
@@ -11,8 +11,8 @@ def reaction_bounds(reactions, reactions_to_run, media, lower=-1000.0, mid=0.0, 
 
     :param reactions: The dict of all reactions we know about
     :type reactions: dict of metabolism.Reaction
-    :param reactions_to_run: The sorted list of reactions to run
-    :type reactions_to_run: set
+    :param reactions_with_upsr: The sorted list of reactions to run
+    :type reactions_with_upsr: set
     :param media: The media compounds
     :type media: set
     :param lower: The default lower bound
@@ -29,7 +29,7 @@ def reaction_bounds(reactions, reactions_to_run, media, lower=-1000.0, mid=0.0, 
     rbvals = {}
     media_uptake_secretion_count = 0
     other_uptake_secretion_count = 0
-    for r in reactions_to_run:
+    for r in reactions_with_upsr:
         # if we already know the bounds, eg from an SBML file
         if r != 'BIOMASS_EQN' and reactions[r].lower_bound != None and reactions[r].upper_bound != None:
             rbvals[r] = (reactions[r].lower_bound, reactions[r].upper_bound)
@@ -85,7 +85,7 @@ def reaction_bounds(reactions, reactions_to_run, media, lower=-1000.0, mid=0.0, 
         sys.stderr.write("In parsing the bounds we found {} media uptake ".format(media_uptake_secretion_count) +
                          "and secretion reactions and {} other u/s reactions\n".format(other_uptake_secretion_count))
 
-    rbounds = [rbvals[r] for r in reactions_to_run]
+    rbounds = [rbvals[r] for r in reactions_with_upsr]
     lp.col_bounds(rbounds)
     return rbvals
 
