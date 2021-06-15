@@ -67,7 +67,8 @@ def reaction_bounds(reactions, reactions_with_upsr, media, lower=-1000.0, mid=0.
                 log_and_message(f"{r} {reactions[r].equation}  ({rbvals[r]})", stderr=verbose)
                 media_uptake_secretion_count += 1
             else:
-                rbvals[r] = (0.0, upper)
+                #rbvals[r] = (0.0, upper)
+                rbvals[r] = (lower, upper)
                 other_uptake_secretion_count += 1
             continue
 
@@ -81,7 +82,7 @@ def reaction_bounds(reactions, reactions_with_upsr, media, lower=-1000.0, mid=0.
             # rbvals[r] =  (lower, upper)
         elif direction == "<":
             # This is what I think it should be:
-            rbvals[r] = (lower, 0.0)
+            rbvals[r] = (lower, mid)
             # rbvals[r] = (lower, mid)
         else:
             sys.stderr.write("DO NOT UNDERSTAND DIRECTION " + direction + " for " + r + "\n")
