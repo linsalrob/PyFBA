@@ -1,6 +1,6 @@
 import sys
 
-from PyFBA import lp
+from PyFBA import lp, log_and_message
 
 
 def reaction_bounds(reactions, reactions_with_upsr, media, lower=-1000.0, mid=0.0, upper=1000.0, verbose=False):
@@ -30,6 +30,8 @@ def reaction_bounds(reactions, reactions_with_upsr, media, lower=-1000.0, mid=0.
     media_uptake_secretion_count = 0
     other_uptake_secretion_count = 0
     for r in reactions_with_upsr:
+        if r.startswith('upsr'):
+            log_and_message(f"{r} {reactions[r].equation}  ({reactions[r].lower_bound}, {reactions[r].upper_bound})", stderr=True)
         # if we already know the bounds, eg from an SBML file
         if r != 'BIOMASS_EQN' and reactions[r].lower_bound != None and reactions[r].upper_bound != None:
             rbvals[r] = (reactions[r].lower_bound, reactions[r].upper_bound)
