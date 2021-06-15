@@ -260,8 +260,11 @@ def reactions(organism_type=None, rctf='reactions.json', verbose=False) \
         if rxn['is_obsolete']:
             r.is_obsolete = True
 
+        r.direction = rxn['direction']
+        r.ntdirection = rxn['direction']
+
         for rxnkey in ["abbreviation", "abstract_reaction", "aliases", "code", "compound_ids", "definition",
-                       "deltag", "deltagerr", "direction", "ec_numbers",
+                       "deltag", "deltagerr", "ec_numbers",
                        "linked_reaction", "notes", "pathways", "reversibility",
                        "source", "status", "stoichiometry"]:
             if rxnkey in rxn:
