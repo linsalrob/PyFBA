@@ -47,8 +47,8 @@ def uptake_and_secretion_reactions(model_compounds):
             us_rightside.add_reactions({us_reaction})
             # Here we set the bounds so that the reaction can proceed from left to right and the compound diffuses
             # away from the cell
-            #us_reaction.lower_bound = 0
-            #us_reaction.upper_bound = 1000
+            us_reaction.lower_bound = -1000
+            us_reaction.upper_bound = 1000
             uptake_sec_reactions[us_reaction_id] = us_reaction
 
     return uptake_sec_reactions
