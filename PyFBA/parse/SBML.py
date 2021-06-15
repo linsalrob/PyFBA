@@ -68,7 +68,8 @@ class SBML:
 
         if cpdid in self.compounds_by_id:
             return next(iter(self.compounds_by_id[cpdid]))
-        raise ValueError(cpdid + " is not present in the model")
+        # raise ValueError(cpdid + " is not present in the model")
+        return None
 
     def get_a_compound_by_name(self, name) -> PyFBA.metabolism.CompoundWithLocation:
         """
@@ -81,7 +82,8 @@ class SBML:
 
         if name in self.compounds_by_name:
             return next(iter(self.compounds_by_name[name]))
-        raise ValueError(name + " is not present in the model")
+        # raise ValueError(name + " is not present in the model")
+        return None
 
     def get_a_compound_by_id_and_loc(self, cpdid, loc) -> PyFBA.metabolism.CompoundWithLocation:
         """
@@ -98,7 +100,8 @@ class SBML:
             for c in self.compounds_by_id[cpdid]:
                 if c.location == loc:
                     return c
-        raise ValueError(f"{cpdid} with location {loc} is not present in the model")
+        # raise ValueError(f"{cpdid} with location {loc} is not present in the model")
+        return None
 
     def get_a_compound_by_name_and_loc(self, name, loc) -> PyFBA.metabolism.CompoundWithLocation:
         """
@@ -115,7 +118,8 @@ class SBML:
             for c in self.compounds_by_name[name]:
                 if c.location == loc:
                     return c
-        raise ValueError(f"{name} with location {loc} is not present in the model")
+        # raise ValueError(f"{name} with location {loc} is not present in the model")
+        return None
 
     def add_reaction(self, rxn):
         """
@@ -162,34 +166,38 @@ class SBML:
         new_media = set()
         warned_compounds = False
         for m in media:
-
-            if self.get_a_compound_by_name_and_loc(m.name, 'e'):
-                new_media.add(self.get_a_compound_by_name_and_loc(m.name, 'e'))
+            comp = self.get_a_compound_by_name_and_loc(m.name, 'e')
+            if comp:
+                new_media.add(comp)
                 continue
 
-            if m.name in self.compounds_by_name:
-                media_component = PyFBA.metabolism.CompoundWithLocation.from_compound(self.compounds_by_name[m.name],
-                                                                                      'e')
+            comp = self.get_a_compound_by_name(m.name)
+            if comp:
+                media_component = PyFBA.metabolism.CompoundWithLocation.from_compound(comp, 'e')
                 new_media.add(media_component)
                 continue
 
             testname = m.name.replace('-', '_')
-            if self.get_a_compound_by_name_and_loc(testname, 'e'):
+            comp = self.get_a_compound_by_name_and_loc(testname, 'e')
+            if comp:
                 new_media.add(self.get_a_compound_by_name_and_loc(testname, 'e'))
                 continue
-            elif testname in self.compounds_by_name:
-                media_component = PyFBA.metabolism.CompoundWithLocation.from_compound(self.compounds_by_name[testname],
-                                                                                      'e')
+
+            comp = self.get_a_compound_by_name(testname)
+            if comp:
+                media_component = PyFBA.metabolism.CompoundWithLocation.from_compound(comp, 'e')
                 new_media.add(media_component)
                 continue
 
             testname = m.name.replace('+', '')
-            if self.get_a_compound_by_name_and_loc(testname, 'e'):
+            comp = self.get_a_compound_by_name_and_loc(testname, 'e')
+            if comp:
                 new_media.add(self.get_a_compound_by_name_and_loc(testname, 'e'))
                 continue
-            elif testname in self.compounds_by_name:
-                media_component = PyFBA.metabolism.CompoundWithLocation.from_compound(self.compounds_by_name[testname],
-                                                                                      'e')
+
+            comp = self.get_a_compound_by_name(testname)
+            if comp:
+                media_component = PyFBA.metabolism.CompoundWithLocation.from_compound(comp, 'e')
                 new_media.add(media_component)
                 continue
 
