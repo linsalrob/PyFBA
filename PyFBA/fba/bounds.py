@@ -128,6 +128,8 @@ def reaction_bounds(reactions, reactions_to_run, media, uptakesecretionreactions
     for r in rbvals:
         if r in reactions:
             (reactions[r].lower_bound, reactions[r].upper_bound) = rbvals[r]
+        else:
+            log_and_message(f"{r} not found in reactions", stderr=True) # this should just be biomass and can be deleted.
 
     lp.col_bounds(rbounds)
 
