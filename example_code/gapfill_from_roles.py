@@ -354,22 +354,27 @@ if __name__ == "__main__":
     orgtypes = ['gramnegative', 'grampositive', 'microbial', 'mycobacteria', 'plant']
     parser = argparse.ArgumentParser(description='Import a list of functional roles and then iterate through our '
                                                  'gapfilling steps to see when we get growth')
-    parser.add_argument('-f', required=True, help='assigned functions file (see '
+    parser.add_argument('-f', '--functions', required=True, help='assigned functions file (see '
                                                   'citrobacter.assigned_functions for an example')
-    parser.add_argument('-s', help='file to save new reaction list to', required=True)
-    parser.add_argument('-m', help='media name', required=True)
-    parser.add_argument('-t', default='gramnegative',
+    parser.add_argument('-o', '--output', help='file to save new reaction list to', required=True)
+    parser.add_argument('-m', '--media', help='media name', required=True)
+    parser.add_argument('-t', '--type', default='gramnegative',
                         help=f'organism type for the model (currently allowed are {orgtypes}). Default=gramnegative')
-    parser.add_argument('-v', help='verbose output', action='store_true')
+    parser.add_argument('-c', '--close', help='a file with roles from close organisms')
+    parser.add_argument('-g', '--genera', help='a file with roles from similar genera')
+    parser.add_argument('-v', '--verbose', help='verbose output', action='store_true')
     args = parser.parse_args()
 
-    model_data = PyFBA.parse.model_seed.parse_model_seed_data(args.t)
+    model_data = PyFBA.parse.model_seed.parse_model_seed_data(args.type)
 
-    roles = read_assigned_functions(args.f, args.v)
-    reactions_to_run = roles_to_reactions_to_run(roles, args.t, args.v)
-    media = read_media(args.m, model_data, args.v)
-    new_reactions = gapfill_from_roles(roles, reactions_to_run, model_data, media, args.t, args.v)
+    roles = read_assigned_functions(args.functions, args.verbose)
+    reactions_to_run = roles_to_reactions_to_run(roles, args.type, args.verbose)
+    media = read_media(args.media, model_data, args.verbose)
+
+    new_reactions = gapfill_from_roles(roles=roles, reactions_to_run=reactions_to_run, modeldata=model_data,
+                                       media=media, orgtype=args.type, close_orgs=args.close, close_genera=args.genera,
+                                       verbose=args.verbose)
     if new_reactions:
-        with open(args.s, 'w') as out:
+        with open(args.output, 'w') as out:
             for r in new_reactions:
                 out.write(f"{r}\n")
