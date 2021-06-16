@@ -262,80 +262,81 @@ def reactions(organism_type=None, rctf='reactions.json', verbose=False) \
 
         r.direction = rxn['direction']
         r.ntdirection = rxn['direction']
+        if rxn['ec_numbers']:
+            r.ec_numbers = rxn['ec_numbers']
 
         for rxnkey in ["abbreviation", "abstract_reaction", "aliases", "code", "compound_ids", "definition",
-                       "deltag", "deltagerr", "ec_numbers",
-                       "linked_reaction", "notes", "pathways", "reversibility",
+                       "deltag", "deltagerr", "linked_reaction", "notes", "pathways", "reversibility",
                        "source", "status", "stoichiometry"]:
             if rxnkey in rxn:
                 r.add_attribute(rxnkey, rxn[rxnkey])
 
-            for separator in [" <=> ", " => ", " <= ", " = ", " < ", " > ", "Not found"]:
-                if separator in rxn['equation']:
-                    break
-            if separator == "Not found":
-                if verbose:
-                    log_and_message("WARNING: Could not find a seperator in {rxn['equation']} "
-                                    "This reaction was skipped. Please check it", stderr=verbose)
+        for separator in [" <=> ", " => ", " <= ", " = ", " < ", " > ", "Not found"]:
+            if separator in rxn['equation']:
+                break
+        if separator == "Not found":
+            if verbose:
+                log_and_message("WARNING: Could not find a seperator in {rxn['equation']} "
+                                "This reaction was skipped. Please check it", stderr=verbose)
+            continue
+
+        left, right = rxn['equation'].split(separator)
+
+        # we parse out the two sides and compare them.
+        # we do left and store in new[0] and right and store in new[1] and then rejoin
+        new = [[], []]
+        for i, side in enumerate([left, right]):
+            side = side.strip()
+            if not side:
                 continue
 
-            left, right = rxn['equation'].split(separator)
+            # deal with the compounds on the left side of the equation
+            m = re.findall(r'\(([\d.e-]+)\)\s+(.*?)\[(\d+)]', side)
+            if m == [] and verbose:
+                log_and_message("ERROR: Could not parse the compounds from {side}", stderr=verbose)
 
-            # we parse out the two sides and compare them.
-            # we do left and store in new[0] and right and store in new[1] and then rejoin
-            new = [[], []]
-            for i, side in enumerate([left, right]):
-                side = side.strip()
-                if not side:
-                    continue
+            for p in m:
+                (q, cmpd, locval) = p
 
-                # deal with the compounds on the left side of the equation
-                m = re.findall(r'\(([\d.e-]+)\)\s+(.*?)\[(\d+)]', side)
-                if m == [] and verbose:
-                    log_and_message("ERROR: Could not parse the compounds from {side}", stderr=verbose)
+                if locval in locations:
+                    loc = locations[locval]
+                else:
+                    if verbose:
+                        log_and_message(f"WARNING: Could not get a location for {locval}", stderr=verbose)
+                    loc = locval
 
-                for p in m:
-                    (q, cmpd, locval) = p
-
-                    if locval in locations:
-                        loc = locations[locval]
+                # we first look up to see whether we have the compound
+                # and then we need to create a new compound with the
+                # appropriate location
+                msg = f"Looking for {cmpd}: "
+                cpdbyid = modelseedstore.get_compound_by_id(cmpd)
+                if cpdbyid:
+                    nc = PyFBA.metabolism.CompoundWithLocation.from_compound(cpdbyid, loc)
+                    msg = None # no real interest in those that we just find!
+                else:
+                    cpdbyname = modelseedstore.get_compound_by_name(cmpd)
+                    if cpdbyname:
+                        nc = PyFBA.metabolism.CompoundWithLocation.from_compound(cpdbyname, loc)
+                        msg += " found by name"
                     else:
-                        if verbose:
-                            log_and_message(f"WARNING: Could not get a location for {locval}", stderr=verbose)
-                        loc = locval
+                        nc = PyFBA.metabolism.CompoundWithLocation(cmpd, cmpd, loc)
+                        msg += " not found"
+                if msg and verbose:
+                    log_and_message(msg, stderr=verbose)
+                nc.add_reactions({r.id})
 
-                    # we first look up to see whether we have the compound
-                    # and then we need to create a new compound with the
-                    # appropriate location
-                    msg = f"Looking for {cmpd}: "
-                    cpdbyid = modelseedstore.get_compound_by_id(cmpd)
-                    if cpdbyid:
-                        nc = PyFBA.metabolism.CompoundWithLocation.from_compound(cpdbyid, loc)
-                        msg = None # no real interest in those that we just find!
-                    else:
-                        cpdbyname = modelseedstore.get_compound_by_name(cmpd)
-                        if cpdbyname:
-                            nc = PyFBA.metabolism.CompoundWithLocation.from_compound(cpdbyname, loc)
-                            msg += " found by name"
-                        else:
-                            nc = PyFBA.metabolism.CompoundWithLocation(cmpd, cmpd, loc)
-                            msg += " not found"
-                    if msg and verbose:
-                        log_and_message(msg, stderr=verbose)
-                    nc.add_reactions({r.id})
+                if i == 0:
+                    r.add_left_compounds({nc})
+                    r.set_left_compound_abundance(nc, float(q))
+                else:
+                    r.add_right_compounds({nc})
+                    r.set_right_compound_abundance(nc, float(q))
 
-                    if i == 0:
-                        r.add_left_compounds({nc})
-                        r.set_left_compound_abundance(nc, float(q))
-                    else:
-                        r.add_right_compounds({nc})
-                        r.set_right_compound_abundance(nc, float(q))
+                new[i].append("(" + str(q) + ") " + nc.name + "[" + loc + "]")
 
-                    new[i].append("(" + str(q) + ") " + nc.name + "[" + loc + "]")
+        r.equation = " + ".join(new[0]) + " <=> " + " + ".join(new[1])
 
-            r.equation = " + ".join(new[0]) + " <=> " + " + ".join(new[1])
-
-            modelseedstore.reactions[r.id] = r
+        modelseedstore.reactions[r.id] = r
 
     rxnf.close()
     # finally, if we need to adjust the organism type based on Template reactions, we shall
