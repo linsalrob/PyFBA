@@ -25,7 +25,7 @@ def suggest_reactions_using_ec(roles, modeldata, reactions2run, verbose=False):
 
     ec_to_reactions = {}
     for r in modeldata.enzymes:
-        for e in r.ec_number:
+        for e in modeldata.enzymes[r].ec_number:
             if e not in ec_to_reactions:
                 ec_to_reactions[e] = set()
             ec_to_reactions[e].add(r)
