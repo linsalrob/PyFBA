@@ -6,7 +6,7 @@ import PyFBA
 from PyFBA import log_and_message
 
 
-def suggest_reactions_using_ec(roles, modeldata, reactions2run, verbose=False):
+def suggest_reactions_using_ec(roles, modeldata, reactions2run, maxnumrx=2, verbose=False):
     """
     Identify a set of reactions that you should add to your model for growth based on the EC numbers
     that may be found in the role names.
@@ -17,6 +17,9 @@ def suggest_reactions_using_ec(roles, modeldata, reactions2run, verbose=False):
     :type reactions: PyFBA.model_seed.ModelData
     :param reactions2run: set of reactions that  we are going to run
     :type reactions2run: set
+    :param maxnumrx: Maximum number of reactions per EC to include in the suggestion. Set this to 0 to include
+    everything. This really helps to reduce redundancy from e.g. a dehydrogenase that is in everything.
+    :type maxnumrx: int
     :param verbose: add additional output
     :type verbose: bool
     :return: A set of proposed reactions that should be added to your model to see if it grows
@@ -24,16 +27,18 @@ def suggest_reactions_using_ec(roles, modeldata, reactions2run, verbose=False):
     """
 
     ec_to_reactions = {}
-    for r in modeldata.enzymes:
-        for e in modeldata.enzymes[r].ec_number:
-            if e not in ec_to_reactions:
-                ec_to_reactions[e] = set()
-            ec_to_reactions[e].add(r)
     for r in modeldata.reactions:
         for e in modeldata.reactions[r].ec_numbers:
             if e not in ec_to_reactions:
                 ec_to_reactions[e] = set()
             ec_to_reactions[e].add(r)
+
+    if maxnumrx > 0:
+        temp = {}
+        for e in ec_to_reactions:
+            if len(ec_to_reactions[e]) <= maxnumrx:
+                temp[e] = ec_to_reactions[e]
+        ec_to_reactions = temp
 
     # Find all EC numbers in the list of roles
     suggested_reactions = set()
