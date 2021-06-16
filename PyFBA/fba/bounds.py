@@ -34,12 +34,6 @@ def reaction_bounds(reactions, reactions_with_upsr, media, lower=-1000.0, mid=0.
             rbvals[r] = (mid, upper)
             continue
 
-        if r == 'rxn05207':
-            debugme = True
-            log_and_message(f"Found {r} {reactions[r].direction} {(reactions[r].lower_bound, reactions[r].upper_bound)}", stderr=True)
-        else:
-            debugme = False
-
         # if we already know the bounds, eg from an SBML file or from our uptake/secretion reactions
         if reactions[r].lower_bound != None and reactions[r].upper_bound != None:
             rbvals[r] = (reactions[r].lower_bound, reactions[r].upper_bound)
@@ -51,7 +45,16 @@ def reaction_bounds(reactions, reactions_with_upsr, media, lower=-1000.0, mid=0.
             sys.stderr.write("Did not find {} in reactions\n".format(r))
             direction = "="
 
-        # this is where we define whether our media has the components
+        """
+        RAE 16/6/21
+        We no longer use this block to check for media components. Instead, we us the uptake_and_secretion_reactions
+        in external_reactions.py to do so.
+        
+        We assume that if you provide uptake_and_secretion_reactions you have already culled them for the media, though
+        perhaps we should add a test for that.
+        
+        """
+
         if False and (reactions[r].is_uptake_secretion or reactions[r].is_transport or reactions[r].is_input_reaction()):
             in_media = False
             override = False # if we have external compounds that are not in the media, we don't want to run this as a media reaction
@@ -75,14 +78,8 @@ def reaction_bounds(reactions, reactions_with_upsr, media, lower=-1000.0, mid=0.
                 rbvals[r] = (0.0, upper)
                 #rbvals[r] = (lower, upper)
                 other_uptake_secretion_count += 1
-            if debugme:
-                log_and_message(
-                    f"ERRR CRAP Found {r} {reactions[r].direction} {(reactions[r].lower_bound, reactions[r].upper_bound)}",
-                    stderr=True)
             continue
-        if debugme:
-            log_and_message(f"Found {r} {reactions[r].direction} {(reactions[r].lower_bound, reactions[r].upper_bound)}",
-                        stderr=True)
+
         if direction == "=":
             # This is what I think it should be:
             rbvals[r] = (lower, upper)
@@ -98,11 +95,6 @@ def reaction_bounds(reactions, reactions_with_upsr, media, lower=-1000.0, mid=0.
         else:
             sys.stderr.write("DO NOT UNDERSTAND DIRECTION " + direction + " for " + r + "\n")
             rbvals[r] = (mid, upper)
-
-        if debugme:
-            log_and_message(
-                f"Found {r} {reactions[r].direction} {(rbvals[r])}",
-                stderr=True)
 
     if verbose:
         sys.stderr.write("In parsing the bounds we found {} media uptake ".format(media_uptake_secretion_count) +
