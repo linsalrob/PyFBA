@@ -37,6 +37,7 @@ def uptake_and_secretion_reactions(model_compounds, media):
             # growth media, you also need to adjust the reaction bounds to ensure that the media can be consumed!
             # the b is for boundary and is secretion away from the cell
             us_rightside.location = 'b'
+            us_rightside.uptake_secretion = True
             # this is similar name that they use in the model seed
             # us_reaction = Reaction('us_001', "EX_" + us_leftside.model_seed_id + "_" + us_leftside.location + "0")
             # but we normally use a different name
