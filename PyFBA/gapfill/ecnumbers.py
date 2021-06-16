@@ -30,13 +30,10 @@ def suggest_reactions_using_ec(roles, modeldata, reactions2run, verbose=False):
                 ec_to_reactions[e] = set()
             ec_to_reactions[e].add(r)
     for r in modeldata.reactions:
-        if not modeldata.reactions[r].ec_numbers:
-            log_and_message(f"No ec nos in {r}", stderr=True)
-        else:
-            for e in modeldata.reactions[r].ec_numbers:
-                if e not in ec_to_reactions:
-                    ec_to_reactions[e] = set()
-                ec_to_reactions[e].add(r)
+        for e in modeldata.reactions[r].ec_numbers:
+            if e not in ec_to_reactions:
+                ec_to_reactions[e] = set()
+            ec_to_reactions[e].add(r)
 
     # Find all EC numbers in the list of roles
     suggested_reactions = set()
