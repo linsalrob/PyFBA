@@ -23,7 +23,6 @@ def reaction_bounds(reactions, reactions_with_upsr, media, lower=-1000.0, mid=0.
     :type upper: float
     :return: A dict of the reaction ID and the tuple of bounds
     :rtype: dict
-
     """
 
     rbvals = {}
