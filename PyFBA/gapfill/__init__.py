@@ -11,6 +11,7 @@ from .reaction_minimization import minimize_by_accuracy
 from .roles import suggest_from_roles
 from .subsystem import suggest_reactions_from_subsystems
 from .ecnumbers import suggest_reactions_using_ec
+from .linked_reactions import suggest_linked_reactions
 
 __all__ = ['suggest_reactions_using_ec',
            'suggest_from_media',
@@ -20,5 +21,6 @@ __all__ = ['suggest_reactions_using_ec',
            'suggest_reactions_without_proteins', 'suggest_reactions_with_proteins',
            'suggest_from_roles', 'compound_probability', 'minimize_additional_reactions',
            'bisect', 'percent_split', 'optimize_split_by_rclust', 'minimize_by_accuracy',
-           'calculate_precision_recall'
+           'calculate_precision_recall',
+            'suggest_linked_reactions'
            ]
