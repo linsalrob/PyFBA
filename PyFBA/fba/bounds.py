@@ -52,7 +52,7 @@ def reaction_bounds(reactions, reactions_with_upsr, media, lower=-1000.0, mid=0.
             direction = "="
 
         # this is where we define whether our media has the components
-        if False and reactions[r].is_uptake_secretion or reactions[r].is_transport or reactions[r].is_input_reaction():
+        if False and (reactions[r].is_uptake_secretion or reactions[r].is_transport or reactions[r].is_input_reaction()):
             in_media = False
             override = False # if we have external compounds that are not in the media, we don't want to run this as a media reaction
             for c in reactions[r].left_compounds:
@@ -70,12 +70,15 @@ def reaction_bounds(reactions, reactions_with_upsr, media, lower=-1000.0, mid=0.
                 # This is what I think it should be:
                 rbvals[r] = (lower, upper)
                 #rbvals[r] = (0.0, upper)
-                log_and_message(f"{r} {reactions[r].equation}  ({rbvals[r]})", stderr=verbose)
                 media_uptake_secretion_count += 1
             else:
                 rbvals[r] = (0.0, upper)
                 #rbvals[r] = (lower, upper)
                 other_uptake_secretion_count += 1
+            if debugme:
+                log_and_message(
+                    f"ERRR CRAP Found {r} {reactions[r].direction} {(reactions[r].lower_bound, reactions[r].upper_bound)}",
+                    stderr=True)
             continue
         if debugme:
             log_and_message(f"Found {r} {reactions[r].direction} {(reactions[r].lower_bound, reactions[r].upper_bound)}",
