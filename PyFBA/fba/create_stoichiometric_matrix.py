@@ -115,7 +115,7 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
     if not uptake_secretion:
         uptake_secretion = PyFBA.fba.uptake_and_secretion_reactions(reaction_cpds, media)
         log_and_message(f"csm found {len(uptake_secretion)} uptake/secretion boundary reactions", stderr=verbose)
-        modeldata.reactions.update(uptake_secretion)
+    modeldata.reactions.update(uptake_secretion)
     for r in uptake_secretion:
         # modeldata.reactions[uptake_secretion[r].id] = uptake_secretion[r]
         for c in uptake_secretion[r].left_compounds:
