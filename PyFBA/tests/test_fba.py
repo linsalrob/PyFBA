@@ -5,7 +5,7 @@ import sys
 
 import PyFBA
 
-test_file_loc = 'tests'
+test_file_loc = os.path.dirname(os.path.realpath(__file__))
 
 class TestFBA(unittest.TestCase):
     modeldata = PyFBA.parse.model_seed.parse_model_seed_data('gramnegative', verbose=True)
@@ -47,7 +47,7 @@ class TestFBA(unittest.TestCase):
         self.assertLessEqual(len(cp), 150)
         self.assertGreaterEqual(len(rc), 20)
         self.assertLessEqual(len(rc), 30)
-        self.assertGreaterEqual(len(upsr), 34000)
+        self.assertGreaterEqual(len(upsr), 1)
         self.assertLessEqual(len(upsr), 35000)
 
     def test_run_fba(self):
