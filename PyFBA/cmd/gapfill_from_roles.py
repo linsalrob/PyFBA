@@ -352,8 +352,8 @@ def run_gapfill_from_roles(roles, reactions_to_run, modeldata, media, orgtype='g
 
 def gapfill_from_roles():
     orgtypes = ['gramnegative', 'grampositive', 'microbial', 'mycobacteria', 'plant']
-    parser = argparse.ArgumentParser(description='Import a list of functional roles and then iterate through our '
-                                                 'gapfilling steps to see when we get growth')
+    parser = argparse.ArgumentParser(description='Run Flux Balance Analysis on a set of gapfilled functional roles')
+    #parser.add_argument('xgapfill_roles', help='Use this function to gapfill roles')
     parser.add_argument('-f', '--functions', required=True, help='assigned functions file (see '
                                                   'citrobacter.assigned_functions for an example')
     parser.add_argument('-o', '--output', help='file to save new reaction list to', required=True)
@@ -363,7 +363,7 @@ def gapfill_from_roles():
     parser.add_argument('-c', '--close', help='a file with roles from close organisms')
     parser.add_argument('-g', '--genera', help='a file with roles from similar genera')
     parser.add_argument('-v', '--verbose', help='verbose output', action='store_true')
-    args = parser.parse_args()
+    args = parser.parse_args(sys.argv[2:])
 
     model_data = PyFBA.parse.model_seed.parse_model_seed_data(args.type)
 

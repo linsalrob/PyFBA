@@ -22,25 +22,45 @@ Please use one of these commands with their appropriate flags. Use pyfba <comman
 gapfill_roles\tGapfill Flux Balance Analysis from a list of functional roles
 fluxes\tGiven a set of reactions that form a model, report the fluxes through those reactions
 
-
 help\tThis help menu
 
     """
+
+def alternate_run():
+    """
+    Run the appropriate pyfba command
+    """
+
+    command = sys.argv.pop(1)
+    if command == 'help' or command == '-h' or command == '--help': 
+        print(full_help())
+        sys.exit(0)
+    elif command == 'gapfill_roles':
+        gapfill_from_roles()
+    elif command == 'fluxes':
+        sys.stderr.write("Sorry, not implemented yet.")
+    else:
+        sys.stderr.write(f"Sorry. Don't understand {command}.")
+        sys.stderr.write(full_help())
+        sys.exit(0)
+
+
 
 def run():
     """
     Run the appropriate pyfba command
     """
 
-    parser = argparse.ArgumentParser(description='Run Flux Balance Analysis')
-    parser.add_argument('command', help='the pyfba command you would like to run', required=True)
-    args = parser.parse_args()
 
-    if args['command'] == 'help':
+    if sys.argv[1] == 'help' or sys.argv[1] == '-h' or sys.argv[1] == '--help': 
         print(full_help())
         sys.exit(0)
-
-    if args['command'] == 'gapfill_roles':
+    elif sys.argv[1] == 'gapfill_roles':
         gapfill_from_roles()
-
+    elif sys.argv[1] == 'fluxes':
+        sys.stderr.write("Sorry, not implemented yet.")
+    else:
+        sys.stderr.write(f"Sorry. Don't understand {args.command}.")
+        sys.stderr.write(full_help())
+        sys.exit(0)
 

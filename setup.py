@@ -73,6 +73,9 @@ setup(
         'Programming Language :: Python :: 3.0',
         'Topic :: Scientific/Engineering :: Bio-Informatics',
     ],
+    entry_points={
+        "console_scripts": ["pyfba = PyFBA.cmd.entry:run"]
+    },
     zip_safe=True
 )
 
