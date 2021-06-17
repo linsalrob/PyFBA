@@ -25,9 +25,9 @@ def reactions_to_roles(reaction_set, verbose=False):
         reaction_set = {reaction_set}
 
     # key is complex and value is all reactions
-    cmpxs = PyFBA.parse.model_seed.complexes()
+    cmpxs = PyFBA.parse.model_seed.complexes(verbose=verbose)
     # key is role and value is all complexes
-    roles = PyFBA.parse.model_seed.roles()
+    roles = PyFBA.parse.model_seed.roles(verbose=verbose)
 
     rct2cmpx = {}
     for c in cmpxs:
@@ -87,9 +87,9 @@ def roles_to_reactions(roles, organism_type=None, verbose=False):
         roles = {roles}
 
     # key is complex and value is all reactions
-    cmpxs = PyFBA.parse.model_seed.complexes(organism_type=organism_type)
+    cmpxs = PyFBA.parse.model_seed.complexes(organism_type=organism_type, verbose=verbose)
     # key is role and value is all complexes
-    seedroles = PyFBA.parse.model_seed.roles(organism_type=organism_type)
+    seedroles = PyFBA.parse.model_seed.roles(organism_type=organism_type, verbose=verbose)
 
     rcts = {}
     for r in roles:

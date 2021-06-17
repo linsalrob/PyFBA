@@ -377,7 +377,7 @@ def complex_to_ftr(cf="Complexes.tsv", verbose=False) -> Dict[str, set]:
     """
 
     cpx2ftr = {}
-    log_and_message(f"Reading roles from PyFBA.Biochemistry.ModelSEEDDatabase.Biochemistry.{cf}", stderr=verbose)
+    log_and_message(f"Reading complexes from PyFBA.Biochemistry.ModelSEEDDatabase.Biochemistry.{cf}", stderr=verbose)
     complexf = open_text("PyFBA.Biochemistry.ModelSEEDDatabase.Annotations", cf)
     for li in complexf:
         if li.startswith('id'):
