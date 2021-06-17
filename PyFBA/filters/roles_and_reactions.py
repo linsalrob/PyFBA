@@ -19,6 +19,12 @@ def reactions_to_roles(reaction_set, organism_type=None, verbose=False):
     :rtype: dict of set of str
     """
 
+    if not organism_type:
+        log_and_message("WARNING: Organism type is not defined while gleaning the reactions. You should probably "
+                        "specify e.g. Gram_Negative, Gram_Positive, etc. We used microbial",
+                        stderr=verbose, loglevel="WARNING")
+        organism_type = 'microbial'
+
     if isinstance(reaction_set, list):
         reaction_set = set(reaction_set)
     elif isinstance(reaction_set, str):
@@ -80,7 +86,9 @@ def roles_to_reactions(roles, organism_type=None, verbose=False):
 
     if not organism_type:
         log_and_message("WARNING: Organism type is not defined while gleaning the reactions. You should probably "
-                        "specify e.g. Gram_Negative, Gram_Positive, etc", stderr=verbose, loglevel="WARNING")
+                        "specify e.g. Gram_Negative, Gram_Positive, etc. We used microbial",
+                        stderr=verbose, loglevel="WARNING")
+        organism_type = 'microbial'
     if isinstance(roles, list):
         roles = set(roles)
     elif isinstance(roles, str):
