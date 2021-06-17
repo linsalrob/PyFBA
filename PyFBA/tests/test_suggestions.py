@@ -2,16 +2,13 @@ import os
 import unittest
 import PyFBA
 
-test_file_loc = ''
-if os.path.exists('tests/roles.txt'):
-    test_file_loc = 'tests'
-elif os.path.exists('PyFBA/tests/roles.txt'):
-    test_file_loc = 'PyFBA/tests'
+test_file_loc = os.path.dirname(os.path.realpath(__file__))
 
 
 class SuggestionTest(unittest.TestCase):
     modeldata = PyFBA.parse.model_seed.parse_model_seed_data('gramnegative', verbose=False)
     compounds, reactions, enzymes = PyFBA.parse.model_seed.compounds_reactions_enzymes(organism_type='gramnegative')
+
     def test_essential(self):
         """Test the essential reactions"""
         suggested = PyFBA.gapfill.suggest_essential_reactions()
@@ -61,7 +58,7 @@ class SuggestionTest(unittest.TestCase):
                 if r in self.__class__.reactions:
                     reactions2run.add(r)
         suggested = PyFBA.gapfill.compound_probability(self.__class__.reactions, reactions2run)
-        self.assertEqual(len(suggested), 2766)
+        self.assertGreaterEqual(len(suggested), 2766)
 
     def test_roles_from_file(self):
         """Test suggestions based on roles in a file"""
