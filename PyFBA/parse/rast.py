@@ -26,6 +26,23 @@ def roles_of_function(role):
     return set(re.split('\s*;\s+|\s+[;/@]\s+', func))
 
 
+def read_functional_roles(functional_roles_file, verbose=False):
+    """
+    Read a functional roles file and return a list of roles.
+    :param functional_roles_file: the file with the roles
+    :param verbose: more output
+    :return:
+    """
+    if not os.path.exists(functional_roles_file):
+        raise IOError(f"ERROR: {functional_roles_file} does not exist")
+    roles = set()
+    with open(functional_roles_file, 'r') as f:
+        for li in f:
+            for ro in roles_of_function(li):
+                roles.add(ro)
+    return roles
+
+
 def read_downloaded_data(spreadsheet_file):
     """
     Read data downloaded from RAST as a 'spreadsheet (tab-separated text format)' and return a hash of the
@@ -36,7 +53,7 @@ def read_downloaded_data(spreadsheet_file):
     :rtype:dict of str and str
     """
     if not os.path.exists(spreadsheet_file):
-        raise IOError("ERROR: {} does not exist".format(spreadsheet_file))
+        raise IOError(f"ERROR: {spreadsheet_file} does not exist")
 
     function = {}
     with open(spreadsheet_file, 'r') as f:
@@ -59,7 +76,7 @@ def read_assigned_functions(assigned_functions_file):
     """
 
     if not os.path.exists(assigned_functions_file):
-        raise IOError("ERROR: {} does not exist".format(assigned_functions_file))
+        raise IOError(f"ERROR: {assigned_functions_file} does not exist")
 
     function = {}
     with open(assigned_functions_file, 'r') as f:
