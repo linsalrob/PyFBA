@@ -11,7 +11,7 @@ class TestReactionRoles(unittest.TestCase):
         self.assertIn('Inorganic pyrophosphatase (EC 3.6.1.1)', roles['rxn00001'])
         self.assertIn('Inorganic pyrophospatase PpaX', roles['rxn00001'])
         self.assertIn('Manganese-dependent inorganic pyrophosphatase (EC 3.6.1.1)', roles['rxn00001'])
-        self.assertIn('Pyrophosphate-energized proton pump (EC 3.6.1.1)', roles['rxn00001'])
+        self.assertIn('ADP-ribose diphosphatase (EC 3.6.1.13)', roles['rxn00001'])
 
     def test_roles_to_reactions(self):
         """Test converting roles to reactions"""
