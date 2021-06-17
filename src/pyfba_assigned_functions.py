@@ -28,10 +28,8 @@ def run_fba(reactions_to_run, mediafile, verbose=False):
         print(f"There are {len(modeldata.compounds):,} compounds, {len(modeldata.reactions):,} reactions, "
               f"and {len(modeldata.enzymes):,} enzymes in total")
     biomass_equation = PyFBA.metabolism.biomass_equation('gramnegative', modeldata.compounds)
-    # Read the media file
-    media = PyFBA.parse.pyfba_media(mediafile, verbose=verbose)
-    # Correct the names
-    media = PyFBA.parse.correct_media_names(media, modeldata.compounds)
+    # Read the media file and correct the names
+    media = PyFBA.parse.pyfba_media(mediafile, modeldata, verbose=verbose)
     print(f"The media has {len(media)} compounds")
 
     status, value, growth = PyFBA.fba.run_fba(modeldata, reactions_to_run, media, biomass_equation,
