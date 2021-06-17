@@ -5,6 +5,8 @@ import sys
 
 import PyFBA
 
+test_file_loc = ''
+
 class TestFBA(unittest.TestCase):
     modeldata = PyFBA.parse.model_seed.parse_model_seed_data('gramnegative', verbose=True)
     media = PyFBA.parse.pyfba_media(media_name="ArgonneLB", modeldata=modeldata, verbose=False)
@@ -50,10 +52,7 @@ class TestFBA(unittest.TestCase):
 
     def test_run_fba(self):
         """Test running the fba. We build a run a complete FBA based on reaction_list.txt"""
-        if media_file_loc == '':
-            return
         self.assertTrue(os.path.exists(os.path.join(test_file_loc, 'reaction_list.txt')))
-        self.assertTrue(os.path.exists(os.path.join(media_file_loc, 'ArgonneLB.txt')))
         reactions2run = set()
         with open(os.path.join(test_file_loc, 'reaction_list.txt'), 'r') as f:
             for lf in f:
@@ -64,7 +63,7 @@ class TestFBA(unittest.TestCase):
                 r = lf.strip()
                 if r in self.__class__.modeldata.reactions:
                     reactions2run.add(r)
-        media = PyFBA.parse.read_media_file(os.path.join(media_file_loc, 'ArgonneLB.txt'))
+        media = PyFBA.parse.pyfba_media('ArgonneLB', self.__class__.modeldata)
         biomass = PyFBA.metabolism.biomass_equation('gram_negative')
         status, value, growth = PyFBA.fba.run_fba(self.__class__.modeldata, reactions2run, media, biomass,
                                                   verbose=False)
