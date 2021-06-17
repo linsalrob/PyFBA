@@ -60,6 +60,17 @@ def minimize_reactions(original_reactions_to_run, added_reactions, modeldata, me
     # Combine old and new reactions
     return original_reactions_to_run.union(reqd_additional)
 
+def read_fn_roles(functional_roles_file, verbose=False):
+    """
+    Read the assigned functions from a file with a list of roles.
+    :param functional_roles_file: The file to read
+    :param verbose: more output
+    :return: a set of the roles
+    :rtype: set[str]
+    """
+
+    return PyFBA.parse.read_functional_roles(functional_roles_file, verbose)
+
 
 def read_assigned_functions(assf, verbose=False):
     """
@@ -351,11 +362,15 @@ def run_gapfill_from_roles(roles, reactions_to_run, modeldata, media, orgtype='g
 
 
 def gapfill_from_roles():
+    """
+    Parse the arguments and start the gapfilling.
+    """
+
     orgtypes = ['gramnegative', 'grampositive', 'microbial', 'mycobacteria', 'plant']
     parser = argparse.ArgumentParser(description='Run Flux Balance Analysis on a set of gapfilled functional roles')
-    #parser.add_argument('xgapfill_roles', help='Use this function to gapfill roles')
-    parser.add_argument('-f', '--functions', required=True, help='assigned functions file (see '
-                                                  'citrobacter.assigned_functions for an example')
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('-r', '--roles', help='A list of functional roles in this genome, one per line')
+    group.add_argument('-f', '--functions', help='RAST assigned functions role (tab separated PEG/Functional Role)')
     parser.add_argument('-o', '--output', help='file to save new reaction list to', required=True)
     parser.add_argument('-m', '--media', help='media name', required=True)
     parser.add_argument('-t', '--type', default='gramnegative',
@@ -366,8 +381,14 @@ def gapfill_from_roles():
     args = parser.parse_args(sys.argv[2:])
 
     model_data = PyFBA.parse.model_seed.parse_model_seed_data(args.type)
+    if args.roles:
+        roles = read_fn_roles(args.roles, args.verbose)
+    elif args.functions:
+        roles = read_assigned_functions(args.functions, args.verbose)
+    else:
+        sys.stderr.write("FATAL. Either a roles or functions file must be provided")
+        sys.exit(1)
 
-    roles = read_assigned_functions(args.functions, args.verbose)
     reactions_to_run = roles_to_reactions_to_run(roles, args.type, args.verbose)
     media = read_media(args.media, model_data, args.verbose)
 
@@ -381,4 +402,4 @@ def gapfill_from_roles():
 
 
 if __name__ == "__main__":
-    main()
+    gapfill_from_roles()
