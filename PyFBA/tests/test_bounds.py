@@ -36,12 +36,12 @@ class TestBounds(unittest.TestCase):
         reactions2run = set(all_reactions.keys())
         rbvals = PyFBA.fba.reaction_bounds(all_reactions, reactions2run, media)
 
-        self.assertEqual(rbvals[ra], (0, 1000))
-        self.assertEqual(rbvals[rb], (-1000, 1000))
-        self.assertEqual(rbvals[rc], (-1000, 1000))
-        self.assertEqual(rbvals[rd], (0, 1000))
-        self.assertEqual(rbvals[re], (0, 1000))
-        self.assertEqual(rbvals[rf], (-1000, 1000))
+        self.assertEqual(rbvals['ra'], (0, 1000))
+        self.assertEqual(rbvals['rb'], (-1000, 1000))
+        self.assertEqual(rbvals['rc'], (-1000, 1000))
+        self.assertEqual(rbvals['rd'], (0, 1000))
+        self.assertEqual(rbvals['re'], (0, 1000))
+        self.assertEqual(rbvals['rf'], (-1000, 1000))
 
     def test_col_bounds(self):
         '''Testing the assertion of column bounds'''
