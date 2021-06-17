@@ -114,7 +114,8 @@ def read_media(mediafile, modeldata, verbose=False):
 
     if mediafile in PyFBA.parse.media_files():
         log_and_message(f"parsing media directly from {mediafile}", stderr=verbose)
-        media = PyFBA.parse.pyfba_media(mediafile)
+        # pyfba media already corrects the names, so we can  just return it.
+        return PyFBA.parse.pyfba_media(mediafile, modeldata)
     elif os.path.exists(mediafile):
         log_and_message(f"parsing media file {mediafile}", stderr=verbose)
         media = PyFBA.parse.read_media_file(mediafile)
