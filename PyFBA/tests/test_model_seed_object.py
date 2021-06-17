@@ -23,7 +23,7 @@ class TestModelSeedObject(unittest.TestCase):
         msp.reactions['test'] = {'e' : 5, 'f' : 6}
         self.assertDictEqual({'test': {'e' : 5, 'f' : 6}}, msp.reactions)
         msp.reset()
-        self.assertIsNone(msp.compounds)
+        self.assertFalse(msp.compounds)
         self.assertIsNone(msp.enzymes)
         self.assertFalse(msp.reactions)
 
