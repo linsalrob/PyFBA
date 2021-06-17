@@ -32,7 +32,7 @@ class TestBounds(unittest.TestCase):
         rf.add_left_compounds({media_compound})
 
         # test our reactions
-        all_reactions = {ra: ra, rb: rb, rc: rc, rd: rd, re: re, rf: rf}
+        all_reactions = {'ra': ra, 'rb': rb, 'rc': rc, 'rd': rd, 're': re, 'rf': rf}
         reactions2run = set(all_reactions.keys())
         rbvals = PyFBA.fba.reaction_bounds(all_reactions, reactions2run, media)
 
