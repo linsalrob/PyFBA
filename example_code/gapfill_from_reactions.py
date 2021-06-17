@@ -64,10 +64,12 @@ def minimal_set(rs, orr, arr, md, med, bme):
     sys.exit(0)
 
 
-def read_media(mediafile, verbose=False):
+def read_media(mediafile, modeldata, verbose=False):
     """
     Read the media file and return a set of compounds
     :param mediafile: the media file to read
+    :param modeldata: the model seed object that includes compounds and reactions
+    :type modeldata: PyFBA.model_seed.ModelData
     :param verbose: more output
     :return: a set of media compounds
     :rtype: Set[PyFBA.metabolism.Compound]
@@ -75,7 +77,7 @@ def read_media(mediafile, verbose=False):
 
     if mediafile in PyFBA.parse.media_files():
         log_and_message(f"parsing media directly from {mediafile}", stderr=verbose)
-        media = PyFBA.parse.pyfba_media(mediafile)
+        media = PyFBA.parse.pyfba_media(mediafile, modeldata)
     elif os.path.exists(mediafile):
         log_and_message(f"parsing media file {mediafile}", stderr=verbose)
         media = PyFBA.parse.read_media_file(mediafile)
@@ -126,7 +128,7 @@ if __name__ == '__main__':
     for r in reactions2run:
         reactionsource[r] = args.r
 
-    media = read_media(args.m, args.v)
+    media = read_media(args.m, modeldata, args.v)
 
     if args.t == 'gramnegative':
         biomass_eqtn = PyFBA.metabolism.biomass.biomass_equation('gramnegative')
