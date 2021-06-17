@@ -20,10 +20,9 @@ def media_files():
     return PyFBA.Biochemistry.media
 
 
-def pyfba_media(media_name, verbose=False):
+def raw_media(media_name, verbose=False):
     """
-    Parse a media file that we have provided with PyFBA. This is probably the most common method to access media.
-    If you want alternative media included, just let us know!
+    Parse a media file that we have provided with PyFBA.
 
     Returns a set of compounds that are in the media.
 
@@ -54,6 +53,80 @@ def pyfba_media(media_name, verbose=False):
             media.add(c)
 
     return media
+
+
+def correct_media_names(media, cpds, verbose=False):
+    """
+    Correct the names in media files so they match names in the SBML files. Basically replacing '-' with '_'
+    or '+' with ' '
+
+    :param cpds: A set of compounds that are in the model
+    :type cpds: set
+    :param media: A set of compounds that define the media
+    :type media: set
+    :param verbose: more output
+    :type verbose: bool
+    :return: A new media set with corrected names
+    :rtype: set
+    """
+
+    # correct some of the media names so that they match the compounds in the
+    # SBML file. This is why we should use compound IDs and not names!
+    newmedia = set()
+    compounds_by_name = {c.name: c for c in cpds}
+    warned_compounds = False
+    for m in media:
+        if m.name in compounds_by_name:
+            media_component = PyFBA.metabolism.CompoundWithLocation.from_compound(compounds_by_name[m.name], 'e')
+            newmedia.add(media_component)
+            # log_and_message(f"Found media component by name {media_component}\n", "GREEN", stdout=True)
+            continue
+
+        testname = m.name.replace('-', '_')
+        if testname in compounds_by_name:
+            media_component = PyFBA.metabolism.CompoundWithLocation.from_compound(compounds_by_name[testname], 'e')
+            newmedia.add(media_component)
+            log_and_message(f"Found media component by corrected name (-:_) {media_component}\n", "GREEN", stderr=verbose)
+            continue
+
+        testname = m.name.replace('+', '')
+        if testname in compounds_by_name:
+            media_component = PyFBA.metabolism.CompoundWithLocation.from_compound(compounds_by_name[testname], 'e')
+            newmedia.add(media_component)
+            log_and_message(f"Found media component by corrected name (+:'') {media_component}\n", "GREEN", stderr=verbose)
+            continue
+
+        log_and_message(f"Checking media compounds: Our compounds do not include  {m.name}", stderr=verbose)
+        warned_compounds = True
+        newmedia.add(m)
+
+    if warned_compounds:
+        log_and_message("""
+Please note: The warnings about media not being found in compounds are not fatal.
+It just means that we did not find that compound anywhere in the reactions, and so it is unlikely to be
+needed or used. We typically see a few of these in rich media. 
+        """, stderr=verbose)
+    return newmedia
+
+
+def pyfba_media(mediaf, modeldata, verbose=False):
+    """
+    Read the media file, and correct the media for the compound names in modeldata.compounds
+    This is probably the most common method to access media.
+
+    If you want alternative media included, just let us know!
+
+    :param mediaf: the media file to read
+    :type mediaf: str
+    :param modeldata: the modeldata object
+    :type mediaf: PyFBA.model_seed.ModelData
+    :param verbose: more output
+    :type verbose: bool
+    :return: a set of media normalized to the compounds in modeldata
+    """
+
+    media = raw_media(mediaf, verbose=verbose)
+    return correct_media_names(media, modeldata.compounds, verbose=verbose)
 
 
 def read_media_file(mediaf):
