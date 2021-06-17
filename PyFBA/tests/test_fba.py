@@ -5,27 +5,9 @@ import sys
 
 import PyFBA
 
-test_file_loc = ''
-if os.path.exists('tests/roles.txt'):
-    test_file_loc = 'tests'
-elif os.path.exists('PyFBA/tests/roles.txt'):
-    test_file_loc = 'PyFBA/tests'
-
-media_file_loc = ''
-if os.path.exists('../media/ArgonneLB.txt'):
-    media_file_loc = '../media'
-elif os.path.exists('media/ArgonneLB.txt'):
-    media_file_loc = 'media'
-elif 'PYFBA_MEDIA_DIR' in os.environ and os.path.exists(os.path.join(os.environ['PYFBA_MEDIA_DIR'], 'ArgonneLB.txt')):
-    media_file_loc = os.environ['PYFBA_MEDIA_DIR']
-else:
-    sys.stderr.write("No media found. Can't proceed with testing the FBA.\n")
-    sys.stderr.write("You can specify the media location by setting the PYFBA_MEDIA_DIR environment variable\n")
-
-
 class TestFBA(unittest.TestCase):
     modeldata = PyFBA.parse.model_seed.parse_model_seed_data('gramnegative', verbose=True)
-    media = PyFBA.parse.pyfba_media("ArgonneLB", modeldata)
+    media = PyFBA.parse.pyfba_media(media_name="ArgonneLB", modeldata=modeldata, verbose=False)
 
     def setUp(self):
         """

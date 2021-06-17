@@ -109,15 +109,15 @@ needed or used. We typically see a few of these in rich media.
     return newmedia
 
 
-def pyfba_media(mediaf, modeldata, verbose=False):
+def pyfba_media(media_name, modeldata, verbose=False):
     """
     Read the media file, and correct the media for the compound names in modeldata.compounds
     This is probably the most common method to access media.
 
     If you want alternative media included, just let us know!
 
-    :param mediaf: the media file to read
-    :type mediaf: str
+    :param media_name: the media file to read
+    :type media_name: str
     :param modeldata: the modeldata object
     :type mediaf: PyFBA.model_seed.ModelData
     :param verbose: more output
@@ -125,7 +125,7 @@ def pyfba_media(mediaf, modeldata, verbose=False):
     :return: a set of media normalized to the compounds in modeldata
     """
 
-    media = raw_media(mediaf, verbose=verbose)
+    media = raw_media(media_name, verbose=verbose)
     return correct_media_names(media, modeldata.compounds, verbose=verbose)
 
 
