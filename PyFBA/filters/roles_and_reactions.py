@@ -4,7 +4,7 @@ import PyFBA
 from PyFBA import log_and_message
 
 
-def reactions_to_roles(reaction_set, verbose=False):
+def reactions_to_roles(reaction_set, organism_type=None, verbose=False):
     """
     Convert between reactions and roles using the model seed data
 
@@ -25,9 +25,9 @@ def reactions_to_roles(reaction_set, verbose=False):
         reaction_set = {reaction_set}
 
     # key is complex and value is all reactions
-    cmpxs = PyFBA.parse.model_seed.complexes(verbose=verbose)
+    cmpxs = PyFBA.parse.model_seed.complexes(organism_type=organism_type, verbose=verbose)
     # key is role and value is all complexes
-    roles = PyFBA.parse.model_seed.roles(verbose=verbose)
+    roles = PyFBA.parse.model_seed.roles(organism_type=organism_type, verbose=verbose)
 
     rct2cmpx = {}
     for c in cmpxs:
