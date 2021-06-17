@@ -133,7 +133,7 @@ def update_r2r(old, new, why, verbose=False):
     return old
 
 
-def gapfill_from_roles(roles, reactions_to_run, modeldata, media, orgtype='gramnegative', close_orgs=None,
+def run_gapfill_from_roles(roles, reactions_to_run, modeldata, media, orgtype='gramnegative', close_orgs=None,
                        close_genera=None, verbose=False):
     """
     gapfill growth from a set of roles in the genome
@@ -350,7 +350,7 @@ def gapfill_from_roles(roles, reactions_to_run, modeldata, media, orgtype='gramn
     return set()
 
 
-if __name__ == "__main__":
+def gapfill_from_roles():
     orgtypes = ['gramnegative', 'grampositive', 'microbial', 'mycobacteria', 'plant']
     parser = argparse.ArgumentParser(description='Import a list of functional roles and then iterate through our '
                                                  'gapfilling steps to see when we get growth')
@@ -371,10 +371,14 @@ if __name__ == "__main__":
     reactions_to_run = roles_to_reactions_to_run(roles, args.type, args.verbose)
     media = read_media(args.media, model_data, args.verbose)
 
-    new_reactions = gapfill_from_roles(roles=roles, reactions_to_run=reactions_to_run, modeldata=model_data,
+    new_reactions = run_gapfill_from_roles(roles=roles, reactions_to_run=reactions_to_run, modeldata=model_data,
                                        media=media, orgtype=args.type, close_orgs=args.close, close_genera=args.genera,
                                        verbose=args.verbose)
     if new_reactions:
         with open(args.output, 'w') as out:
             for r in new_reactions:
                 out.write(f"{r}\n")
+
+
+if __name__ == "__main__":
+    main()
