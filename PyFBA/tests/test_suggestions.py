@@ -39,7 +39,7 @@ class SuggestionTest(unittest.TestCase):
         """Test suggestions based on a media"""
         toy_media = {PyFBA.metabolism.Compound('cpd00013', 'NH3', 'e')}
         suggested = PyFBA.gapfill.suggest_from_media(self.__class__.modeldata, {}, toy_media)
-        self.assertEqual(len(suggested), 13)
+        self.assertEqual(len(suggested), 19)
 
     def test_orphan_compound(self):
         """Test suggestions based on orphan compounds"""
@@ -61,13 +61,13 @@ class SuggestionTest(unittest.TestCase):
                 if r in self.__class__.reactions:
                     reactions2run.add(r)
         suggested = PyFBA.gapfill.compound_probability(self.__class__.reactions, reactions2run)
-        self.assertEqual(len(suggested), 674)
+        self.assertEqual(len(suggested), 2766)
 
     def test_roles_from_file(self):
         """Test suggestions based on roles in a file"""
         self.assertTrue(os.path.exists(os.path.join(test_file_loc, 'roles.txt')))
         suggs = PyFBA.gapfill.suggest_from_roles(os.path.join(test_file_loc, 'roles.txt'), self.__class__.reactions)
-        self.assertEqual(len(suggs), 4)
+        self.assertEqual(len(suggs), 3)
         for rxn in {'rxn00799', 'rxn01192', 'rxn00577', 'rxn01277'}:
             self.assertIn(rxn, suggs)
 
