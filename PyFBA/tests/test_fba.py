@@ -25,7 +25,7 @@ else:
 
 class TestFBA(unittest.TestCase):
     modeldata = PyFBA.parse.model_seed.parse_model_seed_data('gramnegative', verbose=True)
-    media = PyFBA.parse.pyfba_media("ArgonneLB")
+    media = PyFBA.parse.pyfba_media("ArgonneLB", modeldata)
 
     def setUp(self):
         """
