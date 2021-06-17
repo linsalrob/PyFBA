@@ -393,7 +393,7 @@ def complex_to_ftr(cf="Complexes.tsv", verbose=False) -> Dict[str, set]:
     return cpx2ftr
 
 
-def enzymes(organism_type="", verbose=False) -> Dict[str, PyFBA.metabolism.Enzyme]:
+def enzymes(organism_type=None, verbose=False) -> Dict[str, PyFBA.metabolism.Enzyme]:
     """
     Convert each of the roles and complexes into a set of enzymes, and connect them to reactions.
 
@@ -448,7 +448,7 @@ def enzymes(organism_type="", verbose=False) -> Dict[str, PyFBA.metabolism.Enzym
     return modelseedstore.enzymes
 
 
-def compounds_reactions_enzymes(organism_type='', verbose=False) -> (Dict[str, PyFBA.metabolism.Compound],
+def compounds_reactions_enzymes(organism_type=None, verbose=False) -> (Dict[str, PyFBA.metabolism.Compound],
                                                                      Dict[str, PyFBA.metabolism.Reaction],
                                                                      Dict[str, PyFBA.metabolism.Enzyme]):
     """
@@ -464,7 +464,7 @@ def compounds_reactions_enzymes(organism_type='', verbose=False) -> (Dict[str, P
     )
 
 
-def complexes(organism_type='', verbose=False) -> Dict[str, Set[PyFBA.metabolism.Reaction]]:
+def complexes(organism_type=None, verbose=False) -> Dict[str, Set[PyFBA.metabolism.Reaction]]:
     """
     Generate a list of the complexes in the SEED data. Connection between complexes and reactions. A complex can be
     involved in many reactions.
@@ -479,7 +479,7 @@ def complexes(organism_type='', verbose=False) -> Dict[str, Set[PyFBA.metabolism
     return modelseedstore.complexes
 
 
-def roles(organism_type='', verbose=False) -> Dict[str, Set[str]]:
+def roles(organism_type=None, verbose=False) -> Dict[str, Set[str]]:
     """
     Return a hash of the roles where the id is the role name and the value is the set of complex IDs that the role is
     inolved in
@@ -499,7 +499,7 @@ def roles(organism_type='', verbose=False) -> Dict[str, Set[str]]:
     return modelseedstore.roles
 
 
-def parse_model_seed_data(organism_type='', verbose=False):
+def parse_model_seed_data(organism_type=None, verbose=False):
     """
     Parse the model seed data and return a ModelSeed class that contains
     all the data
