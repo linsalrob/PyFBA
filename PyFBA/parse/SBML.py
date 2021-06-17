@@ -365,57 +365,6 @@ def parse_sbml_file(sbml_file, verbose=False):
     return sbml
 
 
-def correct_media_names(media, cpds):
-    """
-    Correct the names in media files so they match names in the SBML files. Basically replacing '-' with '_'
-    or '+' with ' '
-
-    :param cpds: A set of compounds that are in the model
-    :type cpds: set
-    :param media: A set of compounds that define the media
-    :type media: set
-    :return: A new media set with corrected names
-    :rtype: set
-    """
-
-    # correct some of the media names so that they match the compounds in the
-    # SBML file. This is why we should use compound IDs and not names!
-    newmedia = set()
-    compounds_by_name = {c.name: c for c in cpds}
-    warned_compounds = False
-    for m in media:
-        if m.name in compounds_by_name:
-            media_component = PyFBA.metabolism.CompoundWithLocation.from_compound(compounds_by_name[m.name], 'e')
-            newmedia.add(media_component)
-            # log_and_message(f"Found media component by name {media_component}\n", "GREEN", stdout=True)
-            continue
-
-        testname = m.name.replace('-', '_')
-        if testname in compounds_by_name:
-            media_component = PyFBA.metabolism.CompoundWithLocation.from_compound(compounds_by_name[testname], 'e')
-            newmedia.add(media_component)
-            log_and_message(f"Found media component by corrected name (-:_) {media_component}\n", "GREEN", stdout=True)
-            continue
-
-        testname = m.name.replace('+', '')
-        if testname in compounds_by_name:
-            media_component = PyFBA.metabolism.CompoundWithLocation.from_compound(compounds_by_name[testname], 'e')
-            newmedia.add(media_component)
-            log_and_message(f"Found media component by corrected name (+:'') {media_component}\n", "GREEN", stdout=True)
-            continue
-
-        log_and_message(f"Checking media compounds: Our compounds do not include  {m.name}", stderr=True)
-        warned_compounds = True
-        newmedia.add(m)
-
-    if warned_compounds:
-        log_and_message("""
-Please note: The warnings about media not being found in compounds are not fatal.
-It just means that we did not find that compound anywhere in the reactions, and so it is unlikely to be
-needed or used. We typically see a few of these in rich media. 
-        """, stderr=True)
-    return newmedia
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Parse an SBML file")
