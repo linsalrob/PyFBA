@@ -1,7 +1,7 @@
-include *.txt
 recursive-include example_code *.py
 recursive-include example_data *
 recursive-include PyFBA/Biochemistry/media *txt
 recursive-include PyFBA/Biochemistry/SEED *
 recursive-include PyFBA/Biochemistry/ModelSEEDDatabase *
 include PyFBA/tests/*.txt
+include *.txt *.md LICENSE VERSION
