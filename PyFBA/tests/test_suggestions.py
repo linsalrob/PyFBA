@@ -68,12 +68,6 @@ class SuggestionTest(unittest.TestCase):
         for rxn in {'rxn00577', 'rxn01192', 'rxn00799'}:
             self.assertIn(rxn, suggs)
 
-        suggs = PyFBA.gapfill.suggest_from_roles(os.path.join(test_file_loc, 'roles.txt'),
-                                                 self.__class__.reactions, 0.9)
-        self.assertEqual(len(suggs), 1)
-        for rxn in {'rxn01277'}:
-            self.assertIn(rxn, suggs)
-
     def test_subsystems(self):
         """Test suggestions based on subsystems that are covered"""
         r2r = {'rxn00006', 'rxn00189', 'rxn00194', 'rxn00206', 'rxn00322', 'rxn00405', 'rxn05216', 'rxn10136',
