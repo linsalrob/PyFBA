@@ -5,7 +5,7 @@ import sys
 
 import PyFBA
 
-test_file_loc = ''
+test_file_loc = 'tests'
 
 class TestFBA(unittest.TestCase):
     modeldata = PyFBA.parse.model_seed.parse_model_seed_data('gramnegative', verbose=True)
@@ -43,7 +43,7 @@ class TestFBA(unittest.TestCase):
                                                                    media=set(),
                                                                    biomass_equation=biomass_equation)
         # this allows some wiggle room as the data changes
-        self.assertGreaterEqual(len(cp), 100)
+        self.assertGreaterEqual(len(cp), 50)
         self.assertLessEqual(len(cp), 150)
         self.assertGreaterEqual(len(rc), 20)
         self.assertLessEqual(len(rc), 30)

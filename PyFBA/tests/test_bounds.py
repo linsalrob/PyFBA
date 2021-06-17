@@ -39,7 +39,7 @@ class TestBounds(unittest.TestCase):
         self.assertEqual(rbvals['ra'], (0, 1000))
         self.assertEqual(rbvals['rb'], (-1000, 1000))
         self.assertEqual(rbvals['rc'], (-1000, 1000))
-        self.assertEqual(rbvals['rd'], (0, 1000))
+        self.assertEqual(rbvals['rd'], (-1000, 1000))
         self.assertEqual(rbvals['re'], (0, 1000))
         self.assertEqual(rbvals['rf'], (-1000, 1000))
 

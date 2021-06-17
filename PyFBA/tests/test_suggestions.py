@@ -68,7 +68,7 @@ class SuggestionTest(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(test_file_loc, 'roles.txt')))
         suggs = PyFBA.gapfill.suggest_from_roles(os.path.join(test_file_loc, 'roles.txt'), self.__class__.reactions)
         self.assertEqual(len(suggs), 3)
-        for rxn in {'rxn00799', 'rxn01192', 'rxn00577', 'rxn01277'}:
+        for rxn in {'rxn00577', 'rxn01192', 'rxn00799'}:
             self.assertIn(rxn, suggs)
 
         suggs = PyFBA.gapfill.suggest_from_roles(os.path.join(test_file_loc, 'roles.txt'),
