@@ -26,25 +26,6 @@ help\tThis help menu
 
     """
 
-def alternate_run():
-    """
-    Run the appropriate pyfba command
-    """
-
-    command = sys.argv.pop(1)
-    if command == 'help' or command == '-h' or command == '--help': 
-        print(full_help())
-        sys.exit(0)
-    elif command == 'gapfill_roles':
-        gapfill_from_roles()
-    elif command == 'fluxes':
-        sys.stderr.write("Sorry, not implemented yet.")
-    else:
-        sys.stderr.write(f"Sorry. Don't understand {command}.")
-        sys.stderr.write(full_help())
-        sys.exit(0)
-
-
 
 def run():
     """
