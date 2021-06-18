@@ -172,10 +172,11 @@ def cite_me_please():
 
     parser = argparse.ArgumentParser(description='Cite PyFBA Flux Balance Analysis')
     parser.add_argument('-o', '--output', help='write the citations to a file')
-    parser.add_argument('-b', '--bibtex', help='write the citations in bibtex format')
+    parser.add_argument('-b', '--bibtex', help='write the citations in bibtex format',
+                        action='store_true')
     args = parser.parse_args(sys.argv[2:])
 
-    if args.b:
+    if args.bibtex:
         cits = bibtex()
     else:
         cits = text_citations()
