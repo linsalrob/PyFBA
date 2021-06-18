@@ -6,8 +6,9 @@ import os
 import sys
 import argparse
 import PyFBA
-from .gapfill_from_roles import gapfill_from_roles
 from .citation import cite_me_please
+from .fluxes import measure_fluxes
+from .gapfill_from_roles import gapfill_from_roles
 
 def full_help():
     """
@@ -47,8 +48,10 @@ def run():
         sys.exit(0)
     elif sys.argv[1] == 'gapfill_roles':
         gapfill_from_roles()
+        sys.exit(0)
     elif sys.argv[1] == 'fluxes':
-        sys.stderr.write("Sorry, not implemented yet.")
+        measure_fluxes()
+        sys.exit(0)
     else:
         sys.stderr.write(f"Sorry. Don't understand {args.command}.")
         sys.stderr.write(full_help())
