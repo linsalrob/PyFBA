@@ -36,8 +36,7 @@ def run():
     Run the appropriate pyfba command
     """
 
-
-    if sys.argv[1] == 'help' or sys.argv[1] == '-h' or sys.argv[1] == '--help': 
+    if len(sys.argv) == 1 or sys.argv[1] == 'help' or sys.argv[1] == '-h' or sys.argv[1] == '--help':
         print(full_help())
         sys.exit(0)
     elif 'version' in sys.argv[1] or '-v' in sys.argv[1]:
