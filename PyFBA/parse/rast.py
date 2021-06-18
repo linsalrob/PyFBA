@@ -40,7 +40,10 @@ def read_features_file(features_file, verbose=False):
     with open(features_file, 'r') as f:
         for li in f:
             p = li.split("\t")
-            if len(p) != 5:
+            # at the moment we ignore non coding sequence features!
+            if p[2] != 'CDS':
+                continue
+            if len(p) != 6:
                 raise ValueError(f"{features_file} has {len(p)} columns, we were expecting 5 columns")
             for ro in roles_of_function(p[3]):
                 roles.add(ro)
