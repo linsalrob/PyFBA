@@ -26,6 +26,27 @@ def roles_of_function(role):
     return set(re.split('\s*;\s+|\s+[;/@]\s+', func))
 
 
+def read_features_file(features_file, verbose=False):
+    """
+    Read a PATRIC features file and return a set of the roles
+    :param features_file: The features file to read
+    :param verbose: more output
+    :return: a set of the foles
+    :rtype: set[str]
+    """
+    if not os.path.exists(features_file):
+        raise IOError(f"ERROR: {features_file} does not exist")
+    roles = set()
+    with open(features_file, 'r') as f:
+        for li in f:
+            p = li.split("\t")
+            if len(p) != 5:
+                raise ValueError(f"{features_file} has {len(p)} columns, we were expecting 5 columns")
+            for ro in roles_of_function(p[3]):
+                roles.add(ro)
+    return roles
+
+
 def read_functional_roles(functional_roles_file, verbose=False):
     """
     Read a functional roles file and return a list of roles.
