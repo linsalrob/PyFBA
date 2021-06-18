@@ -374,7 +374,7 @@ def gapfill_from_roles():
     model_data = PyFBA.parse.model_seed.parse_model_seed_data(args.type)
     if args.roles:
         roles = PyFBA.parse.read_functional_roles(args.roles, args.verbose)
-    elif args.functions:
+    elif args.assigned_functions:
         roles = read_assigned_functions(args.assigned_functions, args.verbose)
     elif args.features:
         roles = PyFBA.parse.read_features_file(args.features, args.verbose)
