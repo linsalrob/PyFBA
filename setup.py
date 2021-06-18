@@ -51,10 +51,13 @@ setup(
     long_description=long_description,
     platforms='any',
     install_requires=[
-        "lxml",
-        "python-libsbml",
         "beautifulsoup4",
+        "jupyter",
+        "lxml",
+        "nose",
+        "python-libsbml",
         'importlib_resources; python_version < "3.7"',
+        'glpk @ git+https://github.com/bradfordboyle/pyglpk@master#egg=glpk'
     ],
     test_suite = 'nose.collector',
     description='A Python implementation of flux balance analysis',
@@ -76,6 +79,8 @@ setup(
     entry_points={
         "console_scripts": ["pyfba = PyFBA.cmd.entry:run"]
     },
+    use_scm_version=True,
+    setup_requires=['setuptools_scm'],
     zip_safe=True
 )
 
