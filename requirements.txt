@@ -3,4 +3,4 @@ jupyter
 lxml
 nose
 python-libsbml
-git+https://github.com/bradfordboyle/pyglpk@master#egg=glpk
+glpk
