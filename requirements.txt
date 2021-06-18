@@ -1,6 +1,6 @@
 beautifulsoup4
-python-libsbml
+jupyter
 lxml
 nose
-jupyter
+python-libsbml
 git+https://github.com/bradfordboyle/pyglpk@master#egg=glpk
