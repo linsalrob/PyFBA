@@ -1,3 +1,8 @@
+# Version 2.5
+
+There have been lots of changes, and I am deprecating the change.md file since we use GitHub. Check out the changes 
+there!
+
 # Version 1.2
 
 ### Crucial edit to setup.py file
