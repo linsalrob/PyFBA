@@ -57,7 +57,7 @@ setup(
         "nose",
         "python-libsbml",
         'importlib_resources; python_version < "3.7"',
-        'glpk @ git+https://github.com/bradfordboyle/pyglpk@master#egg=glpk'
+        'glpk'
     ],
     test_suite = 'nose.collector',
     description='A Python implementation of flux balance analysis',
