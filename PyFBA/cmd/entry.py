@@ -7,6 +7,7 @@ import sys
 import argparse
 import PyFBA
 from .gapfill_from_roles import gapfill_from_roles
+from .citation import cite_me_please
 
 def full_help():
     """
@@ -25,6 +26,7 @@ fluxes\tGiven a set of reactions that form a model, report the fluxes through th
 help\tThis help menu
 version\tPrint the version and exit
 
+citations\tGet the citations for PyFBA and the work that it is built upon
     """
 
 
@@ -37,8 +39,11 @@ def run():
     if sys.argv[1] == 'help' or sys.argv[1] == '-h' or sys.argv[1] == '--help': 
         print(full_help())
         sys.exit(0)
-    if sys.argv[1] == 'version' or sys.argv[1] == '-v' or sys.argv[1] == '--version':
+    elif 'version' in sys.argv[1] or '-v' in sys.argv[1]:
         print(PyFBA.__version__)
+        sys.exit(0)
+    elif 'citation' in sys.argv[1] or 'cite' in sys.argv[1]:
+        cite_me_please()
         sys.exit(0)
     elif sys.argv[1] == 'gapfill_roles':
         gapfill_from_roles()
