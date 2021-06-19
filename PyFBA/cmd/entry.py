@@ -2,14 +2,10 @@
 An entry point for the PyFBA command
 """
 
-import os
 import sys
-import argparse
 import PyFBA
-from .citation import cite_me_please
-from .fluxes import measure_fluxes
-from .gapfill_from_roles import gapfill_from_roles
-from .assigned_functions_to_reactions import to_reactions
+from . import *
+
 
 def full_help():
     """
@@ -22,9 +18,12 @@ Welcome to PyFBA version {PyFBA.__version__}
 
 Please use one of these commands with their appropriate flags. Use pyfba <command> -h for more help
 
+fba\tGiven a file with a set of reactions, run an FBA on that set of reactions
+fluxes\tGiven a set of reactions that form a model, report the fluxes through those reactions
+
 to_reactions\tConvert a set of functional roles or feature names to a list of reactions
 gapfill_roles\tGapfill Flux Balance Analysis from a list of functional roles
-fluxes\tGiven a set of reactions that form a model, report the fluxes through those reactions
+multiple_media\tGapfill a set of reactions with multiple media where the organism can/can not grow
 
 help\tThis help menu
 version\tPrint the version and exit
@@ -46,10 +45,14 @@ def run():
         sys.exit(0)
     elif 'citation' in sys.argv[1] or 'cite' in sys.argv[1]:
         cite_me_please()
+    elif sys.argv[1] == 'multiple_media':
+        gapfill_multiple_media()
     elif sys.argv[1] == 'gapfill_roles':
         gapfill_from_roles()
     elif sys.argv[1] == 'fluxes':
         measure_fluxes()
+    elif sys.argv[1] == 'fba':
+        run_the_fba()
     elif sys.argv[1] == 'to_reactions':
         to_reactions()
     else:
