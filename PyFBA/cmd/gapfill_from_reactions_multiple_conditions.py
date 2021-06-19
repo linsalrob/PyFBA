@@ -447,6 +447,7 @@ def multiple_gapfill(reactions, positive, negative, min_growth_conditions, close
 
     log_and_message("Gap filling from SUBSYSTEMS", stderr=verbose)
     subsystem_reactions = PyFBA.gapfill.suggest_reactions_from_subsystems(modeldata.reactions, reactions,
+                                                                          organism_type=genome_type,
                                                                           threshold=0.5, verbose=verbose)
     added_reactions.append(("subsystems", subsystem_reactions))
     reactions.update(subsystem_reactions)

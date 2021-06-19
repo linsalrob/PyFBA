@@ -518,7 +518,7 @@ class Model:
         # Record reactions and roles for each gap-filled reaction
         add_to_model_rxns: Set[PyFBA.metabolism.Reaction] = set()
         add_to_model_roles = {}
-        gf_reactions = PyFBA.filters.reactions_to_roles(gapfilled_keep, verb)
+        gf_reactions = PyFBA.filters.reactions_to_roles(gapfilled_keep, verbose=verb)
         for rxn in gapfilled_keep:
             if rxn in original_reactions:
                 continue

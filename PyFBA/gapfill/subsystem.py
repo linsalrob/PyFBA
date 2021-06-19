@@ -7,7 +7,9 @@ except ImportError:
 import PyFBA
 from PyFBA import log_and_message
 
-def suggest_reactions_from_subsystems(reactions, reactions2run, ssfile="SS_functions.txt", threshold=0, verbose=False):
+
+def suggest_reactions_from_subsystems(reactions, reactions2run, organism_type=None,
+                                      ssfile="SS_functions.txt", threshold=0, verbose=False):
     """
     Identify a set of reactions that you should add to your model for growth based on the subsystems that are present
     in your model and their coverage.
@@ -15,6 +17,8 @@ def suggest_reactions_from_subsystems(reactions, reactions2run, ssfile="SS_funct
     Read roles and subsystems from the subsystems file (which has role, subsystem, classification 1, classification 2)
     and make suggestions for missing reactions based on the subsystems that only have partial reaction coverage.
 
+    :param organism_type: The type of the organism (gram -ve etc)
+    :type organism_type: str
     :param threshold: The minimum fraction of the genes that are already in the subsystem for it to be added (default=0)
     :type threshold: float
     :param reactions: our reactions dictionary from parsing the model seed
@@ -51,7 +55,7 @@ def suggest_reactions_from_subsystems(reactions, reactions2run, ssfile="SS_funct
 
     # now convert our reaction ids in reactions2run into roles
     # we have a hash with keys = reactions and values = set of roles
-    reacts = PyFBA.filters.reactions_to_roles(reactions2run)
+    reacts = PyFBA.filters.reactions_to_roles(reactions2run, organism_type, verbose=verbose)
 
     # foreach subsystem we need to know the fraction of roles that are present
     # this is complicated by multifunctional enzymes, as if one function is present they all should be

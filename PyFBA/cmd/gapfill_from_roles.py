@@ -266,7 +266,8 @@ def run_gapfill_from_roles(roles, reactions_to_run, modeldata, media, orgtype='g
 
     log_and_message("Gap filling from SUBSYSTEMS", stderr=verbose)
     subsystem_reactions = PyFBA.gapfill.suggest_reactions_from_subsystems(modeldata.reactions, reactions_to_run,
-                                                                          threshold=0.5, verbose=verbose)
+                                                                          organism_type=orgtype, threshold=0.5,
+                                                                          verbose=verbose)
     added_reactions.append(("subsystems", subsystem_reactions))
     reactions_to_run = update_r2r(reactions_to_run, subsystem_reactions, "SUBSYSTEMS")
     value, growth = run_eqn("Initial", modeldata, reactions_to_run, media, biomass_equation, verbose=verbose)
