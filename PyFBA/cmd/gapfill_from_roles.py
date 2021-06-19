@@ -30,8 +30,27 @@ def run_eqn(why, md, r2r, med, bme, verbose=False):
 
 
 def minimize_reactions(original_reactions_to_run, added_reactions, modeldata, media, biomass_equation, verbose=False):
+    """
+    Sort thorugh all the added reactions and return a dict of new reactions
+    :param original_reactions_to_run: the original set from our genome
+    :type original_reactions_to_run: set(PyFBA.metabolism.Reaction)
+    :param added_reactions: new reactions we need
+    :type added_reactions: list[(str, set(str)]
+    :param modeldata: our modeldata object
+    :type modeldata: PyFBA.model_seed.ModelData
+    :param media: our media object
+    :type media: set[PyFBA.metabolism.Compound]
+    :param biomass_equation: our biomass equation
+    :type biomass_equation: PyFBA.metabolism.Reaction
+    :param verbose: more output
+    :type verbose: bool
+    :return: A dict of the minimal set of reactions and their source
+    :rtype: dict[str, str]
+    """
     reqd_additional = set()
     print(f"Before we began, we had {len(original_reactions_to_run)} reactions")
+
+    rxn_source = {}
 
     while added_reactions:
         ori = copy.deepcopy(original_reactions_to_run)
@@ -45,6 +64,10 @@ def minimize_reactions(original_reactions_to_run, added_reactions, modeldata, me
         for tple in added_reactions:
             ori.update(tple[1])
 
+        for r in new:
+            # remember the source. It doesn't matter if we overwrite, as it will replace later with earlier
+            rxn_source[r] = how
+
         # Use minimization function to determine the minimal
         # set of gap-filled reactions from the current method
         new_essential = PyFBA.gapfill.minimize_additional_reactions(ori, new, modeldata, media, biomass_equation,
@@ -57,8 +80,12 @@ def minimize_reactions(original_reactions_to_run, added_reactions, modeldata, me
             modeldata.reactions[new_r].gapfill_method = how
         reqd_additional.update(new_essential)
 
-    # Combine old and new reactions
-    return original_reactions_to_run.union(reqd_additional)
+    # add the original set too
+    for r in original_reactions_to_run:
+        rxn_source[r] = 'genome prediction'
+
+    # Combine old and new reactions and add the source, to return a dict
+    return {r: rxn_source[r] for r in original_reactions_to_run.union(reqd_additional)}
 
 
 def roles_to_reactions_to_run(roles, orgtype='gramnegative', verbose=False):
@@ -116,7 +143,7 @@ def update_r2r(old, new, why, verbose=False):
 
 
 def run_gapfill_from_roles(roles, reactions_to_run, modeldata, media, orgtype='gramnegative', close_orgs=None,
-                       close_genera=None, verbose=False):
+                           close_genera=None, verbose=False):
     """
     gapfill growth from a set of roles in the genome
     :param close_genera: the list of roles in close genera
@@ -133,7 +160,8 @@ def run_gapfill_from_roles(roles, reactions_to_run, modeldata, media, orgtype='g
     :type orgtype: str
     :param verbose: more output
     :type verbose: bool
-    :return:
+    :return: a dict of the reactions and what step they were added at
+    :rtype: dict[str, str]
     """
 
     tempset = set()
@@ -342,7 +370,7 @@ def gapfill_from_roles():
     parser = argparse.ArgumentParser(description='Run Flux Balance Analysis on a set of gapfilled functional roles')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-r', '--roles', help='A list of functional roles in this genome, one per line')
-    group.add_argument('-a', '--assigned_functions', help='RAST assigned functions role (tab separated PEG/Functional Role)')
+    group.add_argument('-a', '--assigned_functions', help='RAST assigned functions (tab separated PEG/Functional Role)')
     group.add_argument('-f', '--features', help='PATRIC features.txt file (with 5 columns)')
     parser.add_argument('-o', '--output', help='file to save new reaction list to', required=True)
     parser.add_argument('-m', '--media', help='media name', required=True)
@@ -368,12 +396,12 @@ def gapfill_from_roles():
     media = read_media(args.media, model_data, args.verbose)
 
     new_reactions = run_gapfill_from_roles(roles=roles, reactions_to_run=reactions_to_run, modeldata=model_data,
-                                       media=media, orgtype=args.type, close_orgs=args.close, close_genera=args.genera,
-                                       verbose=args.verbose)
+                                           media=media, orgtype=args.type, close_orgs=args.close,
+                                           close_genera=args.genera, verbose=args.verbose)
     if new_reactions:
         with open(args.output, 'w') as out:
             for r in new_reactions:
-                out.write(f"{r}\n")
+                out.write(f"{r}\t{new_reactions[r]}\n")
 
 
 if __name__ == "__main__":
