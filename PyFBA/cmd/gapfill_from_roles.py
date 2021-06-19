@@ -61,25 +61,6 @@ def minimize_reactions(original_reactions_to_run, added_reactions, modeldata, me
     return original_reactions_to_run.union(reqd_additional)
 
 
-def read_assigned_functions(assf, verbose=False):
-    """
-    Read the assigned functions file. Should be a tuple of [peg, functional role]
-    :param assf: the assigned functions file
-    :param verbose: more output
-    :type verbose: bool
-    :return: set of roles in this genome
-    :rtype: set[str]
-    """
-
-    log_and_message(f"Reading assigned functions from {assf}", stderr=verbose)
-    assigned_functions = PyFBA.parse.read_assigned_functions(assf)
-    roles = set()
-    for i in assigned_functions:
-        roles.update(set(assigned_functions[i]))
-    log_and_message(f"There are {len(roles)} unique roles in this genome", stderr=verbose)
-    return roles
-
-
 def roles_to_reactions_to_run(roles, orgtype='gramnegative', verbose=False):
     roles_to_reactions = PyFBA.filters.roles_to_reactions(roles, organism_type=orgtype, verbose=verbose)
     reactions_to_run = set()
@@ -375,7 +356,7 @@ def gapfill_from_roles():
     if args.roles:
         roles = PyFBA.parse.read_functional_roles(args.roles, args.verbose)
     elif args.assigned_functions:
-        roles = read_assigned_functions(args.assigned_functions, args.verbose)
+        roles = PyFBA.parse.assigned_functions_set(args.assigned_functions)
     elif args.features:
         roles = PyFBA.parse.read_features_file(args.features, args.verbose)
     else:
