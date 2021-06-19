@@ -14,7 +14,7 @@ def suggest_from_media(modeldata, reactions2run, media, verbose=False):
     :param media: A set of the compounds in the media
     :type media: set.
     :return: A set of proposed reactions that should be added to your model to see if it grows
-    :rtype: set
+    :rtype: set[str]
     """
 
     # which compounds are in our media
