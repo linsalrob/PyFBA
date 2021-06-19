@@ -12,11 +12,11 @@ def reactions_to_roles(reaction_set, organism_type=None, verbose=False):
     roles in that reaction.
 
     :param reaction_set: A set of reaction IDs that we want to convert to roles
-    :type reaction_set: set
+    :type reaction_set: set[str]
     :param verbose: print error reporting
     :type verbose: bool
     :return: a hash of reaction ids and set of the associated roles
-    :rtype: dict of set of str
+    :rtype: dict[str, set(str)]
     """
 
     if not organism_type:
@@ -32,16 +32,15 @@ def reactions_to_roles(reaction_set, organism_type=None, verbose=False):
 
     # key is complex and value is all reactions
     cmpxs = PyFBA.parse.model_seed.complexes(organism_type=organism_type, verbose=verbose)
-    # key is role and value is all complexes
-    roles = PyFBA.parse.model_seed.roles(organism_type=organism_type, verbose=verbose)
-
     rct2cmpx = {}
     for c in cmpxs:
-        for r in cmpxs[c]:
-            if r not in rct2cmpx:
-                rct2cmpx[r] = set()
-            rct2cmpx[r].add(c)
+        for rxn in cmpxs[c]:
+            if rxn not in rct2cmpx:
+                rct2cmpx[rxn.id] = set()
+            rct2cmpx[rxn.id].add(c)
 
+    # key is role and value is all complexes
+    roles = PyFBA.parse.model_seed.roles(organism_type=organism_type, verbose=verbose)
     cmpx2role = {}
     for r in roles:
         for c in roles[r]:
