@@ -95,7 +95,7 @@ def read_assigned_functions(assigned_functions_file):
     :param assigned_functions_file: The assigned functions file downloaded from RAST
     :type assigned_functions_file: str
     :return: A hash of peg and a set of the function(s) associated with that peg
-    :rtype: dict of sets
+    :rtype: dict[str, set[str]]
 
     """
 
@@ -108,6 +108,21 @@ def read_assigned_functions(assigned_functions_file):
             p = l.strip().split("\t")
             function[p[0]] = roles_of_function(p[1])
     return function
+
+
+def assigned_functions_set(assf):
+    """
+    Read the assigned functions file and return a set of the functions
+    :param assf: the assigned functions file
+    :return: set of roles in this genome
+    :rtype: set[str]
+    """
+
+    assigned_functions = read_assigned_functions(assf)
+    roles = set()
+    for i in assigned_functions:
+        roles.update(set(assigned_functions[i]))
+    return roles
 
 
 def roles_to_subsystem(roles):
