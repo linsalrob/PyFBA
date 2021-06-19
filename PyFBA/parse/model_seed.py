@@ -464,12 +464,11 @@ def compounds_reactions_enzymes(organism_type=None, verbose=False) -> (Dict[str,
     )
 
 
-def complexes(organism_type=None, verbose=False) -> Dict[str, Set[PyFBA.metabolism.Reaction]]:
+def complexes(organism_type=None, verbose=False) -> Dict[str, Set[str]]:
     """
     Generate a list of the complexes in the SEED data. Connection between complexes and reactions. A complex can be
     involved in many reactions.
     :return: a dict with key is complex and value is all reactions
-    :rtype: dict[str, set(PyFBA.metabolism.Reaction)]
     """
 
     global modelseedstore

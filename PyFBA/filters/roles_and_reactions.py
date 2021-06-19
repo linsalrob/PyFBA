@@ -36,8 +36,8 @@ def reactions_to_roles(reaction_set, organism_type=None, verbose=False):
     for c in cmpxs:
         for rxn in cmpxs[c]:
             if rxn not in rct2cmpx:
-                rct2cmpx[rxn.id] = set()
-            rct2cmpx[rxn.id].add(c)
+                rct2cmpx[rxn] = set()
+            rct2cmpx[rxn].add(c)
 
     # key is role and value is all complexes
     roles = PyFBA.parse.model_seed.roles(organism_type=organism_type, verbose=verbose)
