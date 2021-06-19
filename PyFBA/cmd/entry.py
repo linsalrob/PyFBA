@@ -25,6 +25,8 @@ to_reactions\tConvert a set of functional roles or feature names to a list of re
 gapfill_roles\tGapfill Flux Balance Analysis from a list of functional roles
 multiple_media\tGapfill a set of reactions with multiple media where the organism can/can not grow
 
+media\tList the names of all the predefined media
+
 help\tThis help menu
 version\tPrint the version and exit
 
@@ -51,6 +53,8 @@ def run():
         gapfill_from_roles()
     elif sys.argv[1] == 'fluxes':
         measure_fluxes()
+    elif sys.argv[1] == 'media':
+        list_media()
     elif sys.argv[1] == 'fba':
         run_the_fba()
     elif sys.argv[1] == 'to_reactions':
