@@ -87,7 +87,7 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
             log_and_message(f"csm: did not find biomass left compound {c.name} in the compounds database",
                             stderr=verbose, loglevel="WARNING")
         if verbose and not isinstance(c, PyFBA.metabolism.compound.CompoundWithLocation):
-            log_and_message(f"In parsing biomass left, {c} is a {type(c)}", stderr=True)
+            log_and_message(f"In parsing biomass left, {c} is a {type(c)}", stderr=verbose)
         reaction_cpds.add(c)
         if c not in sm:
             sm[c] = {}
@@ -98,7 +98,7 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
             log_and_message(f"csm: did not find biomass right compound {c.name} in the compounds database",
                             stderr=verbose, loglevel="WARNING")
         if verbose and not isinstance(c, PyFBA.metabolism.compound.CompoundWithLocation):
-            log_and_message(f"In parsing biomass right, {c} is a {type(c)}", stderr=True)
+            log_and_message(f"In parsing biomass right, {c} is a {type(c)}", stderr=verbose)
         reaction_cpds.add(c)
         if c not in sm:
             sm[c] = {}
@@ -114,7 +114,6 @@ def create_stoichiometric_matrix(reactions_to_run, modeldata, media, biomass_equ
 
     if not uptake_secretion:
         uptake_secretion = PyFBA.fba.uptake_and_secretion_reactions(reaction_cpds, media)
-        log_and_message(f"csm found {len(uptake_secretion)} uptake/secretion boundary reactions", stderr=verbose)
     modeldata.reactions.update(uptake_secretion)
     for r in uptake_secretion:
         # modeldata.reactions[uptake_secretion[r].id] = uptake_secretion[r]
