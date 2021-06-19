@@ -9,6 +9,7 @@ import PyFBA
 from .citation import cite_me_please
 from .fluxes import measure_fluxes
 from .gapfill_from_roles import gapfill_from_roles
+from .assigned_functions_to_reactions import to_reactions
 
 def full_help():
     """
@@ -21,6 +22,7 @@ Welcome to PyFBA version {PyFBA.__version__}
 
 Please use one of these commands with their appropriate flags. Use pyfba <command> -h for more help
 
+to_reactions\tConvert a set of functional roles or feature names to a list of reactions
 gapfill_roles\tGapfill Flux Balance Analysis from a list of functional roles
 fluxes\tGiven a set of reactions that form a model, report the fluxes through those reactions
 
@@ -44,15 +46,14 @@ def run():
         sys.exit(0)
     elif 'citation' in sys.argv[1] or 'cite' in sys.argv[1]:
         cite_me_please()
-        sys.exit(0)
     elif sys.argv[1] == 'gapfill_roles':
         gapfill_from_roles()
-        sys.exit(0)
     elif sys.argv[1] == 'fluxes':
         measure_fluxes()
-        sys.exit(0)
+    elif sys.argv[1] == 'to_reactions':
+        to_reactions()
     else:
-        sys.stderr.write(f"Sorry. Don't understand {args.command}.")
+        sys.stderr.write(f"Sorry. Don't understand {sys.argv[1]}.")
         sys.stderr.write(full_help())
         sys.exit(0)
 
