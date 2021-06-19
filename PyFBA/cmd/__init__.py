@@ -6,5 +6,5 @@ from .fba_from_reactions import run_the_fba
 from .gapfill_from_reactions_multiple_conditions import gapfill_multiple_media
 
 __all__ = [
-    'cite_me_please', 'measure_fluxes', 'gapfill_from_roles', 'to_reactions', 'run_the_fba'
+    'cite_me_please', 'measure_fluxes', 'gapfill_from_roles', 'to_reactions', 'run_the_fba', 'gapfill_multiple_media'
 ]
