@@ -43,7 +43,6 @@ def run_the_fba():
     orgtypes = ['gramnegative', 'grampositive', 'microbial', 'mycobacteria', 'plant']
     parser = argparse.ArgumentParser(description='Run Flux Balance Analysis and calculate reaction fluxes')
     parser.add_argument('-r', '--reactions', help='A list of the reactions in this model, one per line', required=True)
-    parser.add_argument('-o', '--output', help='file to save the fluxes list to', required=True)
     parser.add_argument('-m', '--media', help='media name', required=True)
     parser.add_argument('-t', '--type', default='gramnegative',
                         help=f'organism type for the model (currently allowed are {orgtypes}). Default=gramnegative')
