@@ -164,6 +164,44 @@ def bibtex():
     """
 
 
+def other_citations():
+    """
+    Other citations that should be included. A dict of strings
+    :return:
+    :rtype:
+    """
+
+    return {
+    'conda-forge': """
+conda-forge community. (2015). 
+The conda-forge Project: Community-based Software Distribution Built on the conda Package Format and Ecosystem. 
+Zenodo. http://doi.org/10.5281/zenodo.4774216
+    """
+    }
+
+def other_citations_bibtex():
+    """
+    Other citations that should be included. A dict of strings
+    :return:
+    :rtype:
+    """
+
+    return {
+        'conda-forge': """
+@misc{conda_forge_community_2015_4774216,
+  author       = {conda-forge community},
+  title        = {{The conda-forge Project: Community-based Software
+                   Distribution Built on the conda Package Format and
+                   Ecosystem}},
+  month        = jul,
+  year         = 2015,
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.4774216},
+  url          = {https://doi.org/10.5281/zenodo.4774216}
+}
+    }
+    """
+    }
 
 def cite_me_please():
     """
@@ -178,13 +216,20 @@ def cite_me_please():
 
     if args.bibtex:
         cits = bibtex()
+        other_cits = other_citations_bibtex()
     else:
         cits = text_citations()
+        other_cits = other_citations()
 
     preamble()
 
     if args.output:
         with open(args.output, 'w') as out:
             out.write(f"{cits}\n")
+            for f in other_cits:
+                out.write(f"{other_cits[f]}\n")
     else:
         print(cits)
+        print("Additionally, we use these resources, so please cite them:")
+        for f in other_cits:
+            print(f"{f}:\n{other_cits[f]}\n")

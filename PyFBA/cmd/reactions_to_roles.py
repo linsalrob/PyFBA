@@ -7,6 +7,7 @@ import sys
 import argparse
 
 import PyFBA
+from PyFBA import log_and_message
 
 
 def convert_reactions_to_roles():
@@ -23,6 +24,7 @@ def convert_reactions_to_roles():
     parser.add_argument('-v', '--verbose', help='verbose output', action='store_true')
     args = parser.parse_args(sys.argv[2:])
 
+    log_and_message(f"Running PyFBA with the parameters: {sys.argv}\n", quiet=True)
     model_data = PyFBA.parse.model_seed.parse_model_seed_data(args.type)
     rcts = set()
     with open(args.reactions, 'r') as fin:

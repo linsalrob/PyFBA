@@ -501,8 +501,14 @@ def gapfill_multiple_media():
     parser.add_argument('-v', '--verbose', help='verbose output', action='store_true')
     args = parser.parse_args(sys.argv[2:])
 
+    if not os.path.exists(args.reactions):
+        sys.stderr.write(f"FATAL: {args.reactions} does not exist. Please check your files\n")
+        sys.exit(1)
+
     if args.type not in orgtypes:
         sys.exit("Sorry, {} is not a valid organism type".format(args.t))
+
+    log_and_message(f"Running PyFBA with the parameters: {sys.argv}\n", quiet=True)
 
     # read the enzyme data
     # compounds, reactions, enzymes = PyFBA.parse.model_seed.compounds_reactions_enzymes(args.t)

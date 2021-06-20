@@ -2,6 +2,7 @@
 Run a set of reactions in an FBA
 """
 import argparse
+import os
 import sys
 
 import PyFBA
@@ -49,6 +50,12 @@ def run_the_fba():
     parser.add_argument('-b', '--biomass', help='biomass equation to use. Default is the same as --type option')
     parser.add_argument('-v', '--verbose', help='verbose output', action='store_true')
     args = parser.parse_args(sys.argv[2:])
+
+    if not os.path.exists(args.reactions):
+        sys.stderr.write(f"FATAL: {args.reactions} does not exist. Please check your files\n")
+        sys.exit(1)
+
+    log_and_message(f"Running PyFBA with the parameters: {sys.argv}\n", quiet=True)
 
     if args.verbose:
         log_and_message(f"Reading reactions from {args.reactions}", stderr=args.verbose)

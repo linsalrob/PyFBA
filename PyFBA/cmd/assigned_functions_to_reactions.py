@@ -1,3 +1,5 @@
+import os
+
 import PyFBA
 import argparse
 import sys
@@ -31,14 +33,24 @@ def to_reactions():
     parser.add_argument('-v', '--verbose', help='verbose output', action='store_true')
     args = parser.parse_args(sys.argv[2:])
 
+    log_and_message(f"Running PyFBA with the parameters: {sys.argv}\n", quiet=True)
     PyFBA.parse.model_seed.parse_model_seed_data(args.type)
     if args.roles:
+        if not os.path.exists(args.roles):
+            sys.stderr.write(f"FATAL: {args.roles} does not exist. Please check your files\n")
+            sys.exit(1)
         log_and_message(f"Getting the roles from {args.roles}", stderr=args.verbose)
         roles = PyFBA.parse.read_functional_roles(args.roles, args.verbose)
     elif args.assigned_functions:
+        if not os.path.exists(args.assigned_functions):
+            sys.stderr.write(f"FATAL: {args.assigned_functions} does not exist. Please check your files\n")
+            sys.exit(1)
         log_and_message(f"Getting the roles from {args.assigned_functions}", stderr=args.verbose)
         roles = PyFBA.parse.assigned_functions_set(args.assigned_functions)
     elif args.features:
+        if not os.path.exists(args.features):
+            sys.stderr.write(f"FATAL: {args.features} does not exist. Please check your files\n")
+            sys.exit(1)
         log_and_message(f"Getting the roles from {args.features}", stderr=args.verbose)
         roles = PyFBA.parse.read_features_file(args.features, args.verbose)
     else:
