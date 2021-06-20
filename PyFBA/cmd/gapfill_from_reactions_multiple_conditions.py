@@ -160,6 +160,7 @@ def read_reactions(reaction_file, verbose=False):
             r = li.strip()
             if r in modeldata.reactions:
                 reactions2run.add(r)
+    return reactions2run
 
 
 def measure_accuracy(why, growth_media, no_growth_media, reactions, added_reactions,
@@ -516,6 +517,7 @@ def gapfill_multiple_media():
     global modeldata
     modeldata = PyFBA.parse.model_seed.parse_model_seed_data(args.type, verbose=args.verbose)
     reactions = read_reactions(args.reactions, args.verbose)
+    log_and_message(f"Found {len(reactions)} reactions", stderr=args.verbose)
 
     max_tp, best_reactions = multiple_gapfill(reactions, args.positive, args.negative, args.fraction,
                                               args.close_genomes, args.type, args.output, args.verbose)
