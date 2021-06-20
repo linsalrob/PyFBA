@@ -507,14 +507,14 @@ def gapfill_multiple_media():
         sys.exit(1)
 
     if args.type not in orgtypes:
-        sys.exit("Sorry, {} is not a valid organism type".format(args.t))
+        sys.exit("Sorry, {} is not a valid organism type".format(args.type))
 
     log_and_message(f"Running PyFBA with the parameters: {sys.argv}\n", quiet=True)
 
     # read the enzyme data
-    # compounds, reactions, enzymes = PyFBA.parse.model_seed.compounds_reactions_enzymes(args.t)
+    # compounds, reactions, enzymes = PyFBA.parse.model_seed.compounds_reactions_enzymes(args.type)
     global modeldata
-    modeldata = PyFBA.parse.model_seed.parse_model_seed_data(args.type, verbose=args.v)
+    modeldata = PyFBA.parse.model_seed.parse_model_seed_data(args.type, verbose=args.verbose)
     reactions = read_reactions(args.reactions, args.verbose)
 
     max_tp, best_reactions = multiple_gapfill(reactions, args.positive, args.negative, args.fraction,
