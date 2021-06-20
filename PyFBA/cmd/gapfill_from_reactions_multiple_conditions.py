@@ -488,6 +488,7 @@ def gapfill_multiple_media():
                                                  ' steps to see when we get growth. You can specify multiple --positive'
                                                  ' & --negative media conditions')
     parser.add_argument('-r', '--reactions', help='reactions file', required=True)
+    parser.add_argument('-o', '--output', help='file to save new reaction list to', required=True)
     parser.add_argument('-p', '--positive', help='media file(s) on which the organism can grow',
                         required=True, action='append')
     parser.add_argument('-n', '--negative', help='media file(s) on which the organism can NOT grow',
