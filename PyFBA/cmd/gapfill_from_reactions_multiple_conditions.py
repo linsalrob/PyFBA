@@ -329,6 +329,8 @@ def multiple_gapfill(reactions, positive, negative, min_growth_conditions, close
     :rtype: set[str]
     """
 
+    if close is None:
+        close = list()
     global modeldata
     growth_media = [read_media(m, modeldata=modeldata, verbose=verbose) for m in positive]
     no_growth_media = [read_media(m, modeldata=modeldata, verbose=verbose) for m in negative]
@@ -424,23 +426,24 @@ def multiple_gapfill(reactions, positive, negative, min_growth_conditions, close
     #############################################################################################
 
     log_and_message("Gap filling from CLOSE GENOMES", stderr=verbose)
-    for close_genome in close:
-        # add reactions from roles in close genomes
-        close_reactions = PyFBA.gapfill.suggest_from_roles(close_genome, modeldata.reactions, threshold=0,
-                                                           verbose=verbose)
-        # find the new reactions
-        close_reactions.difference_update(reactions)
-        added_reactions.append((f"close genome: {close_genome}", close_reactions))
-        reactions.update(close_reactions)
-        for r in close_reactions:
-            if r not in reaction_source:
-                reaction_source[r] = f"close genome: {close_genome}"
+    if close:
+        for close_genome in close:
+            # add reactions from roles in close genomes
+            close_reactions = PyFBA.gapfill.suggest_from_roles(close_genome, modeldata.reactions, threshold=0,
+                                                               verbose=verbose)
+            # find the new reactions
+            close_reactions.difference_update(reactions)
+            added_reactions.append((f"close genome: {close_genome}", close_reactions))
+            reactions.update(close_reactions)
+            for r in close_reactions:
+                if r not in reaction_source:
+                    reaction_source[r] = f"close genome: {close_genome}"
 
-        tp = measure_accuracy(f"Close genome: {close_genome}",  growth_media, no_growth_media, reactions,
-                              added_reactions, biomass_eqtn, min_growth_conditions, reaction_source, output, verbose)
-        if tp > max_tp:
-            best_reactions = copy.deepcopy(reactions)
-            max_tp = tp
+            tp = measure_accuracy(f"Close genome: {close_genome}",  growth_media, no_growth_media, reactions,
+                                  added_reactions, biomass_eqtn, min_growth_conditions, reaction_source, output, verbose)
+            if tp > max_tp:
+                best_reactions = copy.deepcopy(reactions)
+                max_tp = tp
 
     #############################################################################################
     #                                        Subsystems                                         #
