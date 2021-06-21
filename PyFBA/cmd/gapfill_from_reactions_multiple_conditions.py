@@ -195,7 +195,7 @@ def measure_accuracy(why, growth_media, no_growth_media, reactions, added_reacti
     pr = PyFBA.gapfill.calculate_precision_recall(growth_media, no_growth_media, modeldata, reactions, biomass_eqtn)
     acc = PyFBA.gapfill.reaction_minimization.accuracy(pr)
 
-    msg = f"Testing accuracy: {why}"
+    msg = f"Testing accuracy: {why} "
     for t in ['tp', 'fp', 'tn', 'fn']:
         msg += f"{t}: {pr[t]} "
     msg += f"Accuracy: {acc}\n"
