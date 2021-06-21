@@ -33,7 +33,7 @@ def suggest_from_media(modeldata, reactions2run, media, verbose=False):
             rxns = set()
             for r in cpdnames[m.name].all_reactions():
                 if r not in modeldata.reactions:
-                    if not r.startswith('upsr'):
+                    if not r.id.startswith('upsr'):
                         log_and_message(f"ERROR: {r} was not found in our reactions", stderr=verbose)
                     continue
                 for c in modeldata.reactions[r].all_compounds():
