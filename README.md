@@ -2,10 +2,10 @@
 [![DOI](https://www.zenodo.org/badge/46241465.svg)](https://www.zenodo.org/badge/latestdoi/46241465)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![GitHub language count](https://img.shields.io/github/languages/count/linsalrob/PyFBA)
-[![Build Status](https://travis-ci.org/linsalrob/PyFBA.svg?branch=master&label=Travis%20Build)](https://travis-ci.org/linsalrob/PyFBA)
 [![PyPi](https://img.shields.io/pypi/pyversions/pyfba.svg?style=flat-square&label=PyPi%20Versions)](https://pypi.org/project/PyFBA/)
 [![BioConda Install](https://img.shields.io/conda/dn/bioconda/pyfba.svg?style=flat-square&label=BioConda%20install)](https://anaconda.org/bioconda/pyfba)
-[![Downloads](https://img.shields.io/github/downloads/linsalrob/PyFBA/total?style=flat-square)](https://github.com/linsalrob/PyFBA/releases)
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/pyfba/badges/version.svg)](https://anaconda.org/bioconda/pyfba)
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/pyfba/badges/installer/conda.svg)](https://conda.anaconda.org/bioconda)
 
 
 
