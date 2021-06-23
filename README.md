@@ -8,7 +8,6 @@
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/pyfba/badges/installer/conda.svg)](https://conda.anaconda.org/bioconda)
 
 
-
 # PyFBA
 A python implementation of flux balance analysis to model microbial metabolism. [Read more ...](http://linsalrob.github.io/PyFBA/)
 
