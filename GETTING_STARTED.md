@@ -1,7 +1,14 @@
 # Getting started with PyFBA
 
 The first thing you probably want to do is build a model for your genome. Because of the tight interplay between
-RAST, SEED, and Model SEED, the easiest way to get started is to run your genome through RAST. 
+PyFBA, PATRIC, RAST, SEED, and Model SEED, the easiest way to get started is to run your genome through RAST or PATRIC.  
+
+We are going to assume that you have annotated your genome through the [PATRIC annotation 
+pipeline](https://www.patricbrc.org/). Once you have your annotated genome, download the `features` file that will
+be called `_<GENOME NAME>_.features.txt`
+
+This file should have five columns:
+feature_id	location	type	function	aliases	protein_md5
 
 ## Using the SBML file
 
