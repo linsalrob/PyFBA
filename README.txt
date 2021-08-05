@@ -13,19 +13,20 @@ that model. The aim of PyFBA is to provide an extensible, python-based
 platform for FBA work.
 
 PyFBA is being developed by Daniel Cuevas, Taylor O'Connell, and Rob
-Edwards in Rob's bioinformatics group at San Diego State University
+Edwards in Rob's bioinformatics group at Flinders University,
 together with help from Janaka Edirisinghe, Chris Henry, Ross Overbeek
 and others at Argonne National Labs.
 
 Installing PyFBA
 ----------------
 
-To use PyFBA you need Python 2.7 or greater, and you need to install the
-GNU GLPK and a Python wrapper for that program, pyGLPK available from
-github.
+We recommend that you install PyFBA using conda: 
 
-We also leverage the Model SEED GitHub repository with all the latest
-biochemistry tables.
+conda create -n pyfba -c bioconda pyfba
+
+You can also install PyFBA from PyPi using pip and you will need
+Python 3 or greater, and you need to install the GNU GLPK and a 
+Python wrapper for that program, pyGLPK available from GitHub.
 
 Our installation page has detailed instructions on installing PyFBA and
 getting everything running.
