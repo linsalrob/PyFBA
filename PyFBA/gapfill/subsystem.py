@@ -98,15 +98,15 @@ def suggest_reactions_from_subsystems(reactions, reactions2run, organism_type=No
     log_and_message(f"Subsystems suggesting {len(suggested_roles)} roles", stderr=verbose)
 
     # finally, convert the roles to reactions
-    new_reactions = PyFBA.filters.roles_to_reactions(suggested_roles)
+    new_reactions = PyFBA.filters.roles_to_reactions(suggested_roles, organism_type=organism_type, verbose=verbose)
 
-    log_and_message(f"Subsystems suggesting {len(new_reactions)} reactions", stderr=verbose)
+    log_and_message(f"Subsystems suggesting {len(new_reactions)} total reactions", stderr=verbose)
 
     suggested_reactions = set()
     for rl in new_reactions:
         suggested_reactions.update(new_reactions[rl])
 
-    log_and_message(f"Subsystems suggested {len(suggested_reactions)} reactions", stderr=verbose)
+    log_and_message(f"Subsystems suggested {len(suggested_reactions)} unique reactions", stderr=verbose)
 
     suggested_reactions = {r for r in suggested_reactions if r in reactions and r not in reactions2run}
 
