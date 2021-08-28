@@ -114,7 +114,7 @@ def gap_create(reactions, media, model_data, orgtype='gramnegative',  verbose=Fa
         reactions.remove(r)
         c += 1
         value, growth = run_eqn("Initial", model_data, reactions, media, biomass_equation, verbose=verbose)
-        if growth:
+        if not growth:
             log_and_message(f"Reaction {c}/{num} ({r}) is required for growth", stderr=verbose)
             reactions.add(r)
         else:
