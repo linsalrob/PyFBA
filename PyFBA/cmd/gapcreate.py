@@ -80,10 +80,10 @@ def run_eqn(why, md, r2r, med, bme, verbose=False):
     """
 
     status, value, growth = PyFBA.fba.run_fba(md, r2r, med, bme)
-    log_and_message(f"FBA run {why} has a biomass flux value of {value} --> Growth: {growth}", stderr=verbose)
+    log_and_message(f"FBA run {why} has a biomass flux value of {value:.2f} --> Growth: {growth}", stderr=verbose)
     return value, growth
 
-def gap_create(reactions, media, model_data, orgtype='gramnegative',  verbose=False):
+def gap_create(reactions, media, model_data, orgtype='gramnegative',  flux_fraction = 0, verbose=False):
     """
     Iteratively remove reactions until we don't have any more to test
     :param reactions: list of reactins to test
@@ -94,6 +94,8 @@ def gap_create(reactions, media, model_data, orgtype='gramnegative',  verbose=Fa
     :type model_data: PyFBA.model_seed.ModelData
     :param orgtype: the type of organism
     :type orgtype: str
+    :param flux_fraction: The fraction of the initial flux that we still consider growth. Set to 0 to just use growth
+    :type flux_fraction: float
     :param verbose: more output
     :type verbose: bool
     :return: a set of reactions where we grow
@@ -102,9 +104,9 @@ def gap_create(reactions, media, model_data, orgtype='gramnegative',  verbose=Fa
     biomass_equation = PyFBA.metabolism.biomass_equation(orgtype)
 
     original_reactions = copy.deepcopy(reactions)
-    value, growth = run_eqn("Initial", model_data, reactions, media, biomass_equation, verbose=verbose)
-    if not growth:
-        log_and_message(f"The initial set of {len(reactions)} reactions doesn't grow on your media (growth: {growth})",
+    initial_value, initial_growth = run_eqn("Initial", model_data, reactions, media, biomass_equation, verbose=verbose)
+    if not initial_growth:
+        log_and_message(f"The initial set of {len(reactions)} reactions doesn't grow on your media (flux: {initial_value})",
                         stderr = True)
         return reactions
 
@@ -113,12 +115,20 @@ def gap_create(reactions, media, model_data, orgtype='gramnegative',  verbose=Fa
     for r in original_reactions:
         reactions.remove(r)
         c += 1
-        value, growth = run_eqn("Initial", model_data, reactions, media, biomass_equation, verbose=verbose)
-        if not growth:
-            log_and_message(f"Reaction {c}/{num} ({r}) is required for growth", stderr=verbose)
-            reactions.add(r)
+        value, growth = run_eqn(f"Reaction {c}: {r} ", model_data, reactions, media, biomass_equation, verbose=verbose)
+        if flux_fraction > 0:
+            if value/initial_value >= flux_fraction:
+                # this is growth
+                log_and_message(f"Reaction {c}/{num} ({r}) Flux: {value:.2f} Flux fraction {value/initial_value:.3f} {r} NOT required", stderr=verbose)
+            else:
+                log_and_message(f"Reaction {c}/{num} ({r}) Flux: {value:.2f} Flux fraction {value/initial_value:.3f} {r} REQUIRED", stderr=verbose)
+                reactions.add(r)
         else:
-            log_and_message(f"Reaction {c}/{num} ({r}) {r} not required", stderr=verbose)
+            if growth:
+                log_and_message(f"Reaction {c}/{num} ({r}) Flux: {value:.2f} {r} not required", stderr=verbose)
+            else:
+                log_and_message(f"Reaction {c}/{num} ({r}) is required for growth", stderr=verbose)
+                reactions.add(r)
     log_and_message(f"After testing all the reactions, {len(reactions)} are required", stderr=verbose)
     return reactions
 
@@ -134,6 +144,8 @@ def create_reaction_gaps():
     parser.add_argument('-m', '--media', help='media name', required=True)
     parser.add_argument('-t', '--type', default='gramnegative',
                         help=f'organism type for the model (currently allowed are {orgtypes}). Default=gramnegative')
+    parser.add_argument('-f', '--flux_fraction', default=0, type=float,
+                        help='Flux fraction to consider grwoth. By default we use any flux but you can set it to e.g. 0.75 of the initial flux')
     parser.add_argument('-v', '--verbose', help='verbose output', action='store_true')
     args = parser.parse_args(sys.argv[2:])
 
@@ -153,7 +165,8 @@ def create_reaction_gaps():
     reactions = read_reactions(args.reactions, args.verbose)
     log_and_message(f"Found {len(reactions)} reactions", stderr=args.verbose)
     media = read_media(args.media, model_data, args.verbose)
-    rxn = gap_create(reactions, media, model_data, args.type, args.verbose)
+    rxn = gap_create(reactions, media, model_data, orgtype=args.type,
+                     flux_fraction=args.flux_fraction, verbose=args.verbose)
     with open(args.output, 'w') as out:
         for r in rxn:
             out.write(f"{r}\n")
