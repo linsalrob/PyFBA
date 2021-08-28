@@ -86,18 +86,18 @@ def run_eqn(why, md, r2r, med, bme, verbose=False):
 def gap_create(reactions, media, model_data, orgtype='gramnegative',  verbose=False):
     """
     Iteratively remove reactions until we don't have any more to test
-    :param reactions:
-    :type reactions:
-    :param media:
-    :type media:
-    :param model_data:
-    :type model_data:
-    :param orgtype:
-    :type orgtype:
-    :param verbose:
-    :type verbose:
-    :return:
-    :rtype:
+    :param reactions: list of reactins to test
+    :type reactions: set[str]
+    :param media: The media to test growth on
+    :type media: Set[PyFBA.metabolism.Compound]
+    :param model_data: the model seed data
+    :type model_data: PyFBA.model_seed.ModelData
+    :param orgtype: the type of organism
+    :type orgtype: str
+    :param verbose: more output
+    :type verbose: bool
+    :return: a set of reactions where we grow
+    :rtype: set[str]
     """
     biomass_equation = PyFBA.metabolism.biomass_equation(orgtype)
 
