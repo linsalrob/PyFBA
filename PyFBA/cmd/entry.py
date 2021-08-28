@@ -66,6 +66,8 @@ def run():
         to_reactions()
     elif sys.argv[1] == 'create_gaps':
         create_reaction_gaps()
+    elif sys.argv[1] == 'refine_media':
+        compare_two_media()
     else:
         sys.stderr.write(f"Sorry. Don't understand {sys.argv[1]}.")
         sys.stderr.write(full_help())

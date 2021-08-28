@@ -7,10 +7,11 @@ from .gapfill_from_reactions_multiple_conditions import gapfill_multiple_media
 from .media import list_media
 from .reactions_to_roles import convert_reactions_to_roles
 from .gapcreate import create_reaction_gaps
+from .test_two_media import compare_two_media
 
 # Don't forget to add the imports here so that you can import *
 
 __all__ = [
     'cite_me_please', 'measure_fluxes', 'gapfill_from_roles', 'to_reactions', 'run_the_fba', 'gapfill_multiple_media',
-    'list_media', 'convert_reactions_to_roles', 'create_reaction_gaps'
+    'list_media', 'convert_reactions_to_roles', 'create_reaction_gaps', 'compare_two_media'
 ]
