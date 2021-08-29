@@ -12,8 +12,9 @@ from PyFBA import __version__
 
 logger = None
 
+# f"PyFBA.{datetime.now().isoformat()}.log"
 
-def initiate_logger(logname=f"PyFBA.{datetime.now().isoformat()}.log", logdir=None):
+def initiate_logger(logname=None, logdir=None):
     """
     Instantiate a logger, and write outputs to the log.
 
@@ -25,13 +26,16 @@ def initiate_logger(logname=f"PyFBA.{datetime.now().isoformat()}.log", logdir=No
     global logger
     logger = logging.getLogger('PyFBA')
     logger.setLevel(5)
-    if not logdir:
-        logdir = os.path.join(os.getcwd(), 'logs')
-    os.makedirs(logdir, exist_ok=True)
 
-    loglocation = os.path.join(logdir, logname)
-    sys.stderr.write(f"We are logging to {loglocation}\n")
-    hdlr = logging.FileHandler(loglocation)
+    if logname:
+        if not logdir:
+            logdir = os.path.join(os.getcwd(), 'logs')
+        os.makedirs(logdir, exist_ok=True)
+
+        loglocation = os.path.join(logdir, logname)
+        sys.stderr.write(f"We are logging to {loglocation}\n")
+        hdlr = logging.FileHandler(loglocation)
+
     fmt = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     hdlr.setFormatter(fmt)
     logger.addHandler(hdlr)

@@ -8,7 +8,7 @@ import sys
 import argparse
 
 import PyFBA
-from PyFBA import log_and_message
+from PyFBA import log_and_message, initiate_logger
 
 model_data = PyFBA.model_seed.ModelData()
 
@@ -146,6 +146,7 @@ def create_reaction_gaps():
                         help=f'organism type for the model (currently allowed are {orgtypes}). Default=gramnegative')
     parser.add_argument('-f', '--flux_fraction', default=0, type=float,
                         help='Flux fraction to consider grwoth. By default we use any flux but you can set it to e.g. 0.75 of the initial flux')
+    parser.add_argument('-l', '--log', help='log file to write the detailed output (optional)', type=str)
     parser.add_argument('-v', '--verbose', help='verbose output', action='store_true')
     args = parser.parse_args(sys.argv[2:])
 
@@ -156,6 +157,8 @@ def create_reaction_gaps():
     if args.type not in orgtypes:
         sys.exit("Sorry, {} is not a valid organism type".format(args.type))
 
+    if args.log:
+        initiate_logger(args.log)
     log_and_message(f"Running PyFBA with the parameters: {sys.argv}\n", quiet=True)
 
     # read the enzyme data

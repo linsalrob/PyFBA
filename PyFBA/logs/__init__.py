@@ -1,1 +1,1 @@
-from .messaging import message, log_and_message
+from .messaging import message, log_and_message, initiate_logger
