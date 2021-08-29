@@ -25,6 +25,7 @@ to_reactions\tConvert a set of functional roles or feature names to a list of re
 gapfill_roles\tGapfill Flux Balance Analysis from a list of functional roles
 multiple_media\tGapfill a set of reactions with multiple media where the organism can/can not grow
 create_gaps\tThe opposite of gapfill: Given a media and a set of reactions, reduce them to the smallest set that can run
+compare_media\tCompare two media, typically a +ve and -ve condition, and show the growth in each media. Lists the reactions required for growth in the +ve condition
 
 reactions_to_roles\tGiven a file with a set of reactions, print the roles that implement those reactions
 
@@ -66,7 +67,7 @@ def run():
         to_reactions()
     elif sys.argv[1] == 'create_gaps':
         create_reaction_gaps()
-    elif sys.argv[1] == 'refine_media':
+    elif sys.argv[1] == 'compare_media':
         compare_two_media()
     else:
         sys.stderr.write(f"Sorry. Don't understand {sys.argv[1]}.")
