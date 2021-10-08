@@ -97,34 +97,6 @@ def roles_to_reactions_to_run(roles, orgtype='gramnegative', verbose=False):
     return reactions_to_run
 
 
-def read_media(mediafile, modeldata, verbose=False):
-    """
-    Read the media file and return a set of compounds
-    :param modeldata: the modeldata object
-    :type modeldata: PyFBA.model_seed.ModelData
-    :param mediafile: the media file to read
-    :param verbose: more output
-    :type verbose: bool
-    :return: a set of media compounds
-    :rtype: Set[PyFBA.metabolism.Compound]
-    """
-
-    if mediafile in PyFBA.parse.media_files():
-        log_and_message(f"parsing media directly from {mediafile}", stderr=verbose)
-        # pyfba media already corrects the names, so we can  just return it.
-        return PyFBA.parse.pyfba_media(mediafile, modeldata)
-    elif os.path.exists(mediafile):
-        log_and_message(f"parsing media file {mediafile}", stderr=verbose)
-        media = PyFBA.parse.read_media_file(mediafile)
-    elif 'PYFBA_MEDIA_DIR' in os.environ and os.path.exists(os.path.join(os.environ['PYFBA_MEDIA_DIR'], mediafile)):
-        log_and_message(f"parsing media file {os.path.join(os.environ['PYFBA_MEDIA_DIR'], mediafile)}", stderr=verbose)
-        media = PyFBA.parse.read_media_file(os.path.join(os.environ['PYFBA_MEDIA_DIR'], mediafile))
-    else:
-        log_and_message(f"Can't figure out how to parse media from {mediafile}", stderr=True, loglevel="CRITICAL")
-        sys.exit(-1)
-    return PyFBA.parse.correct_media_names(media, modeldata.compounds)
-
-
 def update_r2r(old, new, why, verbose=False):
     """
     Update the reactions to run and log the changes
@@ -408,7 +380,7 @@ def gapfill_from_roles():
         sys.exit(1)
 
     reactions_to_run = roles_to_reactions_to_run(roles, args.type, args.verbose)
-    media = read_media(args.media, model_data, args.verbose)
+    media = PyFBA.parse.read_media.find_media_file(args.media, model_data, args.verbose)
 
     new_reactions = run_gapfill_from_roles(roles=roles, reactions_to_run=reactions_to_run, modeldata=model_data,
                                            media=media, orgtype=args.type, close_orgs=args.close,
