@@ -164,3 +164,31 @@ def read_media_file(mediaf):
             media.add(c)
     
     return media
+
+def find_media_file(mediafile, modeldata, verbose=False):
+    """
+    Find a media file, read it, and return a set of compounds
+    :param modeldata: the modeldata object
+    :type modeldata: PyFBA.model_seed.ModelData
+    :param mediafile: the media file to read
+    :param verbose: more output
+    :type verbose: bool
+    :return: a set of media compounds
+    :rtype: Set[PyFBA.metabolism.Compound]
+    """
+
+    if mediafile in media_files():
+        log_and_message(f"parsing media directly from {mediafile}", stderr=verbose)
+        # pyfba media already corrects the names, so we can  just return it.
+        return pyfba_media(mediafile, modeldata)
+    elif os.path.exists(mediafile):
+        log_and_message(f"parsing media file {mediafile}", stderr=verbose)
+        media = read_media_file(mediafile)
+    elif 'PYFBA_MEDIA_DIR' in os.environ and os.path.exists(os.path.join(os.environ['PYFBA_MEDIA_DIR'], mediafile)):
+        log_and_message(f"parsing media file {os.path.join(os.environ['PYFBA_MEDIA_DIR'], mediafile)}",
+                        stderr=verbose)
+        media = read_media_file(os.path.join(os.environ['PYFBA_MEDIA_DIR'], mediafile))
+    else:
+        log_and_message(f"Can't figure out how to parse media from {mediafile}", stderr=True, loglevel="CRITICAL")
+        sys.exit(-1)
+    return correct_media_names(media, modeldata.compounds)
