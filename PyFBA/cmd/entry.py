@@ -30,6 +30,7 @@ compare_media\tCompare two media, typically a +ve and -ve condition, and show th
 reactions_to_roles\tGiven a file with a set of reactions, print the roles that implement those reactions
 
 media\tList the names of all the predefined media
+media_compounds\tList the formulation of a media
 
 help\tThis help menu
 version\tPrint the version and exit
@@ -59,6 +60,8 @@ def run():
         measure_fluxes()
     elif sys.argv[1] == 'media':
         list_media()
+    elif sys.argv[1] == 'media_compounds':
+        media_compounds()
     elif sys.argv[1] == 'reactions_to_roles':
         convert_reactions_to_roles()
     elif sys.argv[1] == 'fba':
