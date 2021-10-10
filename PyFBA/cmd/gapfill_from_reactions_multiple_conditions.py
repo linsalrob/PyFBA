@@ -450,6 +450,7 @@ def gapfill_two_media():
 
     # read the enzyme data
     # compounds, reactions, enzymes = PyFBA.parse.model_seed.compounds_reactions_enzymes(args.type)
+    global modeldata
     modeldata = PyFBA.parse.model_seed.parse_model_seed_data(args.type, verbose=args.verbose)
     reactions = read_reactions(args.reactions, args.verbose)
     log_and_message(f"Found {len(reactions)} reactions", stderr=args.verbose)
