@@ -429,9 +429,9 @@ def gapfill_two_media():
     parser.add_argument('-r', '--reactions', help='reactions file', required=True)
     parser.add_argument('-o', '--output', help='file to save new reaction list to', required=True)
     parser.add_argument('-g', '--growth', help='media file on which the organism can grow',
-                        required=True, action='append')
+                        required=True)
     parser.add_argument('-n', '--nogrowth', help='media file on which the organism can NOT grow',
-                        default=[], action='append')
+                        default=[])
     parser.add_argument('-c', '--close_genomes', help='close genomes reactions file. Multiple files are allowed',
                         action='append')
     parser.add_argument('-t', '--type', default='gramnegative',
