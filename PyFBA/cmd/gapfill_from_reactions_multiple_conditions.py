@@ -460,4 +460,4 @@ def gapfill_two_media():
 
 
     PyFBA.gapfill.gapfill_two_media(modeldata, reactions, growth_media, no_growth_media,
-                                                  args.close, args.type, args.output, verbose=args.verbose)
+                                                  args.close_genomes, args.type, args.output, verbose=args.verbose)
