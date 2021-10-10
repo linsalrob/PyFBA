@@ -53,21 +53,21 @@ def gapfill_two_media(model_data, reactions, growth_media, no_growth_media, clos
 
     # gap fill this until we get growth
     gfreactions = PyFBA.gapfill.gapfill(reactions, model_data, growth_media, biomass_eqtn,
-                                                        close, genome_type, verbose)
+                                                        close, genome_type, verbose=verbose)
     # now we need to check again!
     status, value, nogrowth = PyFBA.fba.run_fba(model_data, reactions, no_growth_media, biomass_eqtn, verbose=verbose)
     status, value, growth = PyFBA.fba.run_fba(model_data, reactions, growth_media, biomass_eqtn, verbose=verbose)
 
     count = 0
+    exclude_reactions = set()
     while growth and nogrowth and count < 5:
         count += 1
         # if we are here we are going to iterate through one at a time and remove any reaction that
         # allows us to grow on the nogrowth media, and then gapfill again
         allreactions = list(gfreactions.keys())
-        exclude_reactions = set()
         for idx in range(len(allreactions)):
             testr = allreactions[:idx] + allreactions[idx+1:]
-            status, value, growth = PyFBA.fba.run_fba(model_data, testr, no_growth_media, biomass_eqtn,
+            status, value, growth = PyFBA.fba.run_fba(model_data, set(testr), no_growth_media, biomass_eqtn,
                                                       verbose=verbose)
             if not growth:
                 # this reaction allows us to grow in this condition, so exclude it!

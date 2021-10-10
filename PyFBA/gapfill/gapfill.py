@@ -95,7 +95,6 @@ def gapfill(reactions, model_data, growth_media, biomass_eqtn, close, genome_typ
 
     step = "Essential Reactions"
     essential_reactions = PyFBA.gapfill.suggest_essential_reactions()
-    log_and_message(f"Essential reactions has type: {type(essential_reactions)} while r2e is {type(r2exclude)}", stderr=verbose)
     essential_reactions.difference_update(r2exclude)
     for r in essential_reactions:
         model_data.reactions[r].reset_bounds()
