@@ -131,9 +131,7 @@ def gapfill(reactions, model_data, growth_media, biomass_eqtn, close, genome_typ
     #############################################################################################
 
     step = "media"
-    media_reactions = set()
-    for media in growth_media:
-        media_reactions.update(PyFBA.gapfill.suggest_from_media(model_data, reactions, media, verbose))
+    media_reactions = PyFBA.gapfill.suggest_from_media(model_data, reactions, growth_media, verbose)
     media_reactions.difference_update(r2exclude)
     for r in media_reactions:
         model_data.reactions[r].reset_bounds()
