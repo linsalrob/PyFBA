@@ -192,91 +192,6 @@ def measure_accuracy(why, growth_media, no_growth_media, reactions, added_reacti
     return pr['tp']
 
 
-def unused_gapfilling_approaches(growth_media, no_growth_media, reactions, added_reactions, biomass_eqtn,
-                                 min_growth_conditions, reaction_source, output, verbose=False):
-    """
-    These are legacy methods that I don't have the guts to delete yet! I don't think you should use these methods.
-    """
-
-    max_tp = 0
-    best_reactions = copy.deepcopy(reactions)
-
-    #############################################################################################
-    #                                        Probability of inclusion                           #
-    #############################################################################################
-
-    sys.stderr.write("Gap filling from \n")
-    log_and_message("Gap filling from PROBABILITY", stderr=verbose)
-    # use reactions wtih pLR or pRL > cutoff
-    prob_reactions = PyFBA.gapfill.compound_probability(modeldata.reactions, reactions, 0, True, True)
-    prob_reactions.difference_update(reactions)
-    added_reactions.append(("probability", prob_reactions))
-    reactions.update(prob_reactions)
-
-    for r in prob_reactions:
-        if r not in reaction_source:
-            reaction_source[r] = 'probable_reactions'
-
-    tp = measure_accuracy('Probability of inclusion',  growth_media, no_growth_media, reactions, added_reactions,
-                          biomass_eqtn, min_growth_conditions, reaction_source, output, verbose)
-    if tp > max_tp:
-        best_reactions = copy.deepcopy(reactions)
-        max_tp = tp
-
-    #############################################################################################
-    #                       Reactions that map to proteins                       #
-    #############################################################################################
-
-    log_and_message("Gap filling from ALL OTHER REACTIONS WITH PROTEINS", stderr=verbose)
-    # propose other reactions that we have proteins for
-    with_p_reactions = PyFBA.gapfill.suggest_reactions_with_proteins(modeldata.reactions, True)
-    # find the new reactions
-    with_p_reactions.difference_update(reactions)
-    added_reactions.append(("With proteins", with_p_reactions))
-    reactions.update(with_p_reactions)
-    for r in with_p_reactions:
-        if r not in reaction_source:
-            reaction_source[r] = 'reactions_with_proteins'
-
-    tp = measure_accuracy('Reactions with proteins', growth_media, no_growth_media, reactions, added_reactions,
-                          biomass_eqtn, min_growth_conditions, reaction_source, output, verbose)
-    if tp > max_tp:
-        best_reactions = copy.deepcopy(reactions)
-        max_tp = tp
-
-    #############################################################################################
-    #                       Reactions that do not map to proteins                               #
-    #                                                                                           #
-    #    This is all other reactions, and should really be avoided, but we include this         #
-    #    in case the model does not grow by the time we get this far. If this doesn't work      #
-    #    your model probably can not grow on the media that you have given it!                  #
-    #                                                                                           #
-    #############################################################################################
-
-    log_and_message("Gap filling from ALL OTHER REACTIONS WITHOUT PROTEINS", stderr=verbose)
-    # propose other reactions that we have proteins for
-    without_p_reactions = PyFBA.gapfill.suggest_reactions_without_proteins(modeldata.reactions, True)
-    # we have to limit this to things we have compounds in our reaction list, or we will not be able to solve the
-    # FBA (We may not be able to anyway)
-    without_p_reactions = PyFBA.gapfill.limit_reactions_by_compound(modeldata.reactions, reactions,
-                                                                    without_p_reactions)
-    # find the new reactions
-    without_p_reactions.difference_update(reactions)
-    added_reactions.append(("Without proteins", without_p_reactions))
-    reactions.update(without_p_reactions)
-
-    for r in without_p_reactions:
-        if r not in reaction_source:
-            reaction_source[r] = 'reactions_without_proteins'
-
-    tp = measure_accuracy('All reactions!', growth_media, no_growth_media, reactions, added_reactions,
-                          biomass_eqtn, min_growth_conditions, reaction_source, output, verbose)
-    if tp > max_tp:
-        best_reactions = copy.deepcopy(reactions)
-        max_tp = tp
-
-    return max_tp, best_reactions
-
 
 def multiple_gapfill(reactions, positive, negative, min_growth_conditions, close, genome_type, output, verbose=False):
     """
@@ -502,3 +417,46 @@ def gapfill_multiple_media():
     with open(args.output, 'w') as out:
         for r in best_reactions:
             out.write(f"{r}\n")
+
+
+
+
+def gapfill_two_media():
+    orgtypes = ['gramnegative', 'grampositive', 'microbial', 'mycobacteria', 'plant']
+    parser = argparse.ArgumentParser(description='Import a list of reactions and then iterate through our gapfilling'
+                                                 ' steps to see when we get growth. You can specify a single --growth'
+                                                 ' & --nogrowth media conditions')
+    parser.add_argument('-r', '--reactions', help='reactions file', required=True)
+    parser.add_argument('-o', '--output', help='file to save new reaction list to', required=True)
+    parser.add_argument('-g', '--growth', help='media file on which the organism can grow',
+                        required=True, action='append')
+    parser.add_argument('-n', '--nogrowth', help='media file on which the organism can NOT grow',
+                        default=[], action='append')
+    parser.add_argument('-c', '--close_genomes', help='close genomes reactions file. Multiple files are allowed',
+                        action='append')
+    parser.add_argument('-t', '--type', default='gramnegative',
+                        help=f'organism type for the model (currently allowed are {orgtypes}). Default=gramnegative')
+    parser.add_argument('-v', '--verbose', help='verbose output', action='store_true')
+    args = parser.parse_args(sys.argv[2:])
+
+    if not os.path.exists(args.reactions):
+        sys.stderr.write(f"FATAL: {args.reactions} does not exist. Please check your files\n")
+        sys.exit(1)
+
+    if args.type not in orgtypes:
+        sys.exit("Sorry, {} is not a valid organism type".format(args.type))
+
+    log_and_message(f"Running PyFBA with the parameters: {sys.argv}\n", quiet=True)
+
+    # read the enzyme data
+    # compounds, reactions, enzymes = PyFBA.parse.model_seed.compounds_reactions_enzymes(args.type)
+    modeldata = PyFBA.parse.model_seed.parse_model_seed_data(args.type, verbose=args.verbose)
+    reactions = read_reactions(args.reactions, args.verbose)
+    log_and_message(f"Found {len(reactions)} reactions", stderr=args.verbose)
+
+    growth_media = PyFBA.parse.read_media.find_media_file(args.growth, modeldata=modeldata, verbose=args.verbose)
+    no_growth_media = PyFBA.parse.read_media.find_media_file(args.nogrowth, modeldata=modeldata, verbose=args.verbose)
+
+
+    PyFBA.gapfill.gapfill_two_media(modeldata, reactions, growth_media, no_growth_media,
+                                                  args.close, args.type, args.output, verbose=args.verbose)

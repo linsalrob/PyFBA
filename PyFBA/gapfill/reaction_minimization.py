@@ -1,3 +1,4 @@
+import copy
 import sys
 from random import shuffle
 
@@ -422,3 +423,63 @@ def minimize_by_accuracy(base_reactions, optional_reactions, modeldata, growth_m
     remaining = set(left + right)
     log_and_message(f"There are {len(remaining)} reactions remaining: {remaining}", stderr=verbose)
     return remaining
+
+
+def minimize_reactions(original_reactions_to_run, added_reactions, modeldata, media, biomass_equation, verbose=False):
+    """
+    Sort thorugh all the added reactions and return a dict of new reactions
+    :param original_reactions_to_run: the original set from our genome
+    :type original_reactions_to_run: set(PyFBA.metabolism.Reaction)
+    :param added_reactions: new reactions we need
+    :type added_reactions: list[(str, set(str)]
+    :param modeldata: our modeldata object
+    :type modeldata: PyFBA.model_seed.ModelData
+    :param media: our media object
+    :type media: set[PyFBA.metabolism.Compound]
+    :param biomass_equation: our biomass equation
+    :type biomass_equation: PyFBA.metabolism.Reaction
+    :param verbose: more output
+    :type verbose: bool
+    :return: A dict of the minimal set of reactions and their source
+    :rtype: dict[str, str]
+    """
+    reqd_additional = set()
+    print(f"Before we began, we had {len(original_reactions_to_run)} reactions")
+
+    rxn_source = {}
+
+    while added_reactions:
+        ori = copy.deepcopy(original_reactions_to_run)
+        ori.update(reqd_additional)
+        # Test next set of gap-filled reactions
+        # Each set is based on a method described above
+        how, new = added_reactions.pop()
+        sys.stderr.write(f"Testing reactions from {how}\n")
+
+        # Get all the other gap-filled reactions we need to add
+        for tple in added_reactions:
+            ori.update(tple[1])
+
+        for r in new:
+            # remember the source. It doesn't matter if we overwrite, as it will replace later with earlier
+            rxn_source[r] = how
+
+        # Use minimization function to determine the minimal
+        # set of gap-filled reactions from the current method
+        new_essential = minimize_additional_reactions(ori, new, modeldata, media, biomass_equation,
+                                                                    verbose=True)
+        log_and_message(f"Saved {len(new_essential)} reactions from {how}", stderr=verbose)
+        # Record the method used to determine
+        # how the reaction was gap-filled
+        for new_r in new_essential:
+            modeldata.reactions[new_r].is_gapfilled = True
+            modeldata.reactions[new_r].gapfill_method = how
+        reqd_additional.update(new_essential)
+
+    # add the original set too
+    for r in original_reactions_to_run:
+        rxn_source[r] = 'genome prediction'
+
+    # Combine old and new reactions and add the source, to return a dict
+    return {r: rxn_source[r] for r in original_reactions_to_run.union(reqd_additional)}
+

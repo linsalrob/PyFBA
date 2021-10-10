@@ -7,11 +7,13 @@ from .orphan_compound import suggest_by_compound
 from .probability import compound_probability
 from .reaction_minimization import calculate_precision_recall
 from .reaction_minimization import minimize_additional_reactions
-from .reaction_minimization import minimize_by_accuracy
+from .reaction_minimization import minimize_by_accuracy, minimize_reactions
 from .roles import suggest_from_roles
 from .subsystem import suggest_reactions_from_subsystems
 from .ecnumbers import suggest_reactions_using_ec
 from .linked_reactions import suggest_linked_reactions
+from .gapfill import gapfill
+from .gapfill_two_media import gapfill_two_media
 
 __all__ = ['suggest_reactions_using_ec',
            'suggest_from_media',
@@ -19,8 +21,9 @@ __all__ = ['suggest_reactions_using_ec',
            'suggest_by_compound',
            'suggest_essential_reactions', 'suggest_reactions_from_subsystems',
            'suggest_reactions_without_proteins', 'suggest_reactions_with_proteins',
-           'suggest_from_roles', 'compound_probability', 'minimize_additional_reactions',
+           'suggest_from_roles', 'compound_probability', 'minimize_additional_reactions', 'minimize_reactions',
            'bisect', 'percent_split', 'optimize_split_by_rclust', 'minimize_by_accuracy',
            'calculate_precision_recall',
-            'suggest_linked_reactions'
+            'suggest_linked_reactions', 'gapfill',
+           'gapfill_two_media'
            ]

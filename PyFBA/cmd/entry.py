@@ -24,6 +24,8 @@ fluxes\tGiven a set of reactions that form a model, report the fluxes through th
 to_reactions\tConvert a set of functional roles or feature names to a list of reactions
 gapfill_roles\tGapfill Flux Balance Analysis from a list of functional roles
 multiple_media\tGapfill a set of reactions with multiple media where the organism can/can not grow
+gapfill_two_media\tGiven a positive and negative media, figure out reactions that can grow on the positive, not on the negative
+
 create_gaps\tThe opposite of gapfill: Given a media and a set of reactions, reduce them to the smallest set that can run
 compare_media\tCompare two media, typically a +ve and -ve condition, and show the growth in each media. Lists the reactions required for growth in the +ve condition
 
@@ -56,6 +58,8 @@ def run():
         gapfill_multiple_media()
     elif sys.argv[1] == 'gapfill_roles':
         gapfill_from_roles()
+    elif sys.argv[1] == 'gapfill_two_media':
+        gapfill_two_media()
     elif sys.argv[1] == 'fluxes':
         measure_fluxes()
     elif sys.argv[1] == 'media':
