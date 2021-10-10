@@ -61,6 +61,8 @@ def gapfill(reactions, model_data, growth_media, biomass_eqtn, close, genome_typ
     :rtype: dict[str, str]
     """
 
+    if r2exclude is None:
+        r2exclude = {}
     added_reactions = []
     original_reactions_to_run = copy.deepcopy(reactions)
 
@@ -93,8 +95,7 @@ def gapfill(reactions, model_data, growth_media, biomass_eqtn, close, genome_typ
 
     step = "Essential Reactions"
     essential_reactions = PyFBA.gapfill.suggest_essential_reactions()
-    if r2exclude:
-        essential_reactions.difference_update(r2exclude)
+    essential_reactions.difference_update(r2exclude)
     for r in essential_reactions:
         model_data.reactions[r].reset_bounds()
     added_reactions.append(("essential", essential_reactions))
@@ -112,8 +113,7 @@ def gapfill(reactions, model_data, growth_media, biomass_eqtn, close, genome_typ
 
     step = "Linked Reactions"
     linked_reactions = PyFBA.gapfill.suggest_linked_reactions(model_data, reactions)
-    if r2exclude:
-        linked_reactions.difference_update(r2exclude)
+    linked_reactions.difference_update(r2exclude)
     for r in linked_reactions:
         model_data.reactions[r].reset_bounds()
     added_reactions.append(("linked_reactions", linked_reactions))
@@ -134,8 +134,7 @@ def gapfill(reactions, model_data, growth_media, biomass_eqtn, close, genome_typ
     media_reactions = set()
     for media in growth_media:
         media_reactions.update(PyFBA.gapfill.suggest_from_media(model_data, reactions, media, verbose))
-    if r2exclude:
-        media_reactions.difference_update(r2exclude)
+    media_reactions.difference_update(r2exclude)
     for r in media_reactions:
         model_data.reactions[r].reset_bounds()
     added_reactions.append(("media", media_reactions))
@@ -159,8 +158,7 @@ def gapfill(reactions, model_data, growth_media, biomass_eqtn, close, genome_typ
                                                                verbose=verbose)
             # find the new reactions
             close_reactions.difference_update(reactions)
-            if r2exclude:
-                close_reactions.difference_update(r2exclude)
+            close_reactions.difference_update(r2exclude)
             for r in close_reactions:
                 model_data.reactions[r].reset_bounds()
             added_reactions.append((step, close_reactions))
@@ -180,8 +178,7 @@ def gapfill(reactions, model_data, growth_media, biomass_eqtn, close, genome_typ
     subsystem_reactions = PyFBA.gapfill.suggest_reactions_from_subsystems(model_data.reactions, reactions,
                                                                           organism_type=genome_type,
                                                                           threshold=0.5, verbose=verbose)
-    if r2exclude:
-        subsystem_reactions.difference_update(r2exclude)
+    subsystem_reactions.difference_update(r2exclude)
     for r in subsystem_reactions:
         model_data.reactions[r].reset_bounds()
     added_reactions.append(("subsystems", subsystem_reactions))
@@ -198,8 +195,7 @@ def gapfill(reactions, model_data, growth_media, biomass_eqtn, close, genome_typ
 
     step = "Orphan compounds"
     orphan_reactions = PyFBA.gapfill.suggest_by_compound(model_data, reactions, 1)
-    if r2exclude:
-        orphan_reactions.difference_update(r2exclude)
+    orphan_reactions.difference_update(r2exclude)
     for r in orphan_reactions:
         model_data.reactions[r].reset_bounds()
     added_reactions.append(("orphans", orphan_reactions))
@@ -218,8 +214,7 @@ def gapfill(reactions, model_data, growth_media, biomass_eqtn, close, genome_typ
     # use reactions wtih pLR or pRL > cutoff
     prob_reactions = PyFBA.gapfill.compound_probability(model_data.reactions, reactions, 0, True, True)
     prob_reactions.difference_update(reactions)
-    if r2exclude:
-        prob_reactions.difference_update(r2exclude)
+    prob_reactions.difference_update(r2exclude)
     for r in prob_reactions:
         model_data.reactions[r].reset_bounds()
     added_reactions.append(("probability", prob_reactions))
@@ -240,8 +235,7 @@ def gapfill(reactions, model_data, growth_media, biomass_eqtn, close, genome_typ
     with_p_reactions = PyFBA.gapfill.suggest_reactions_with_proteins(model_data.reactions, True)
     # find the new reactions
     with_p_reactions.difference_update(reactions)
-    if r2exclude:
-        with_p_reactions.difference_update(r2exclude)
+    with_p_reactions.difference_update(r2exclude)
     for r in with_p_reactions:
         model_data.reactions[r].reset_bounds()
     added_reactions.append(("With proteins", with_p_reactions))
@@ -271,8 +265,7 @@ def gapfill(reactions, model_data, growth_media, biomass_eqtn, close, genome_typ
                                                                     without_p_reactions)
     # find the new reactions
     without_p_reactions.difference_update(reactions)
-    if r2exclude:
-        without_p_reactions.difference_update(r2exclude)
+    without_p_reactions.difference_update(r2exclude)
     for r in without_p_reactions:
         model_data.reactions[r].reset_bounds()
     added_reactions.append(("Without proteins", without_p_reactions))
