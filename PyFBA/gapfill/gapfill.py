@@ -69,7 +69,7 @@ def gapfill(reactions, model_data, growth_media, biomass_eqtn, close, genome_typ
     val, growth = run_eqn(f"Initial test to make sure we don't grow!", model_data,
                           r2r=reactions, bme=biomass_eqtn, med=growth_media, verbose=verbose)
     if growth:
-        return reactions, added_reactions
+        return {r:"initial" for r in reactions}
 
     #############################################################################################
     #                                       Gapfilling                                          #
