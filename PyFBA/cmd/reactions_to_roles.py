@@ -66,11 +66,12 @@ def convert_reactions_to_aliases():
     for r in rcts:
         if r in model_data.reactions:
             aliases[r] = {}
-            for a in model_data.reactions[r].aliases:
-                log_and_message(f"Splitting {a}")
-                k, v = a.split(": ")
-                aliases[r][k] = v
-                allall.add(k)
+            if model_data.reactions[r].aliases:
+                for a in model_data.reactions[r].aliases:
+                    log_and_message(f"Splitting {a}")
+                    k, v = a.split(": ", 1)
+                    aliases[r][k] = v
+                    allall.add(k)
 
     allaliases = sorted(allall)
 
