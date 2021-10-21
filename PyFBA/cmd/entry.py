@@ -69,7 +69,7 @@ def run():
         media_compounds()
     elif sys.argv[1] == 'reactions_to_roles':
         convert_reactions_to_roles()
-    elif sys.arg[1] == 'reactions_to_aliases':
+    elif sys.argv[1] == 'reactions_to_aliases':
         convert_reactions_to_aliases()
     elif sys.argv[1] == 'fba':
         run_the_fba()
