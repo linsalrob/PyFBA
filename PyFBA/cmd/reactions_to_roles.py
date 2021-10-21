@@ -67,6 +67,7 @@ def convert_reactions_to_aliases():
         if r in model_data.reactions:
             aliases[r] = {}
             for a in model_data.reactions[r].aliases:
+                log_and_message(f"Splitting {a}")
                 k, v = a.split(": ")
                 aliases[r][k] = v
                 allall.add(k)
