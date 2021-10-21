@@ -52,7 +52,7 @@ def reactions_to_roles(reaction_set, organism_type=None, verbose=False):
     for r in reaction_set:
         if r not in rct2cmpx:
             if verbose:
-                log_and_message(f"Converting role {r} to reaction: reaction not found", stderr=True)
+                log_and_message(f"Converting reaction {r} to role: reaction not found in model_seed complexes for organism_type={organism_type}", stderr=True)
             continue
         roles[r] = set()
         for c in rct2cmpx[r]:

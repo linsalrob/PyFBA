@@ -102,6 +102,7 @@ class Reaction:
         self.is_gapfilled = False
         self.gapfill_method = ""
         self.is_uptake_secretion = False
+        self.aliases = []
 
     def __eq__(self, other):
         """

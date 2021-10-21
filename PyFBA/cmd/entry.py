@@ -30,6 +30,7 @@ create_gaps\tThe opposite of gapfill: Given a media and a set of reactions, redu
 compare_media\tCompare two media, typically a +ve and -ve condition, and show the growth in each media. Lists the reactions required for growth in the +ve condition
 
 reactions_to_roles\tGiven a file with a set of reactions, print the roles that implement those reactions
+reactions_to_aliases\tGiven a file with a set of reactions, print a list of the aliases
 
 media\tList the names of all the predefined media
 media_compounds\tList the formulation of a media
@@ -68,6 +69,8 @@ def run():
         media_compounds()
     elif sys.argv[1] == 'reactions_to_roles':
         convert_reactions_to_roles()
+    elif sys.arg[1] == 'reactions_to_aliases':
+        convert_reactions_to_aliases()
     elif sys.argv[1] == 'fba':
         run_the_fba()
     elif sys.argv[1] == 'to_reactions':
