@@ -29,4 +29,4 @@ def media_compounds():
 
     media = PyFBA.parse.read_media.find_media_file(args.media, model_data, args.verbose)
     for c in media:
-        print(c)
+        print(f"{c}")
