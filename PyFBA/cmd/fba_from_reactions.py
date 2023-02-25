@@ -74,7 +74,7 @@ def run_the_fba():
     else:
         biomass_equation = PyFBA.metabolism.biomass_equation(args.type)
 
-    media = PyFBA.parse.pyfba_media(args.media, modeldata, args.verbose)
+    media = PyFBA.parse.find_media_file(args.media, modeldata, args.verbose)
 
     status, value, growth = measure_growth(reactions=rxns, modeldata=modeldata, media=media,
                                            biomass_equation=biomass_equation, verbose=args.verbose)
